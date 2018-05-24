@@ -9,6 +9,8 @@ namespace YourCommonTools
 {
 	public class ItemMultiTextEntry
 	{
+		public string TOKEN_SEPARATOR_EVENTS = ";";
+
 		private List<string> m_items;
 
 		public List<string> Items
@@ -101,7 +103,7 @@ namespace YourCommonTools
 			{
 				if (i < m_items.Count - 1)
 				{
-					output += m_items[i] + CommController.TOKEN_SEPARATOR_EVENTS;
+					output += m_items[i] + TOKEN_SEPARATOR_EVENTS;
 				}
 				else
 				{
@@ -148,7 +150,7 @@ namespace YourCommonTools
 			{
 				if (i < instructions.Count - 1)
 				{
-					output += instructions[i] + CommController.TOKEN_SEPARATOR_EVENTS;
+					output += instructions[i] + TOKEN_SEPARATOR_EVENTS;
 				}
 				else
 				{
@@ -171,7 +173,7 @@ namespace YourCommonTools
 			}
 
 			// ADD THE INSTRUCTIONS
-			string[] replaceInstructions = _instructions.Split(new string[] { CommController.TOKEN_SEPARATOR_EVENTS }, StringSplitOptions.None);
+			string[] replaceInstructions = _instructions.Split(new string[] { TOKEN_SEPARATOR_EVENTS }, StringSplitOptions.None);
 			for (int i = 0; i < replaceInstructions.Length; i++)
 			{
 				if (replaceInstructions[i].Length > 0)
@@ -179,12 +181,12 @@ namespace YourCommonTools
 					m_items.Add(replaceInstructions[i]);
 				}
 			}
-	#if DEBUG_MODE_DISPLAY_LOG
+#if DEBUG_MODE_DISPLAY_LOG
 			for (int i = 0; i < m_items.Count; i++)
 			{
 				Debug.LogError("Inventory Item[" + i + "]=" + m_items[i]);
 			}
-	#endif
+#endif
 		}
-	}	
+	}
 }

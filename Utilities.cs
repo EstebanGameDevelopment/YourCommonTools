@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine.UI;
+using System.Security.Cryptography;
 
 namespace YourCommonTools
 {
@@ -13,7 +14,7 @@ namespace YourCommonTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class UtilitiesNetwork
+	public class Utilities
 	{
 		private static readonly DateTime Jan1St1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -410,6 +411,22 @@ namespace YourCommonTools
 			if (_go != null)
 			{
 				_go.layer = _layer;
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+		public static void ApplyMaterialOnObjects(GameObject _go, Material _material)
+		{
+			foreach (Transform child in _go.transform)
+			{
+				ApplyMaterialOnImages(child.gameObject, _material);
+			}
+			if (_go.GetComponent<Renderer>() != null)
+			{
+				_go.GetComponent<Renderer>().material = _material;
 			}
 		}
 
@@ -859,36 +876,7 @@ namespace YourCommonTools
 			return (minutes + ":" + seconds);
 		}
 
-		// -------------------------------------------
-		/* 
-		 * AddChild
-		 */
-		public static GameObject AddChild(Transform _parent, GameObject _prefab)
-		{
-			GameObject newObj = GameObject.Instantiate(_prefab);
-			newObj.transform.SetParent(_parent, false);
-			return newObj;
-		}
-
-		// -------------------------------------------
-		/* 
-		 * Adds a sprite component to the object.
-		 * It's used to create the visual selectors.
-		 */
-		public static Sprite AddSprite(GameObject _parent, Sprite _prefab, Rect _rect, Rect _rectTarget, Vector2 _pivot)
-		{
-			RectTransform newTransform = _parent.AddComponent<RectTransform>();
-			_parent.AddComponent<CanvasRenderer>();
-			Image srcImage = _parent.AddComponent<Image>() as Image;
-			Sprite sprite = Sprite.Create(_prefab.texture, _rect, _pivot);
-			if ((_rectTarget.width != 0) && (_rectTarget.height != 0))
-			{
-				newTransform.sizeDelta = new Vector2(_rectTarget.width, _rectTarget.height);
-			}
-			srcImage.sprite = sprite;
-			return sprite;
-		}
-
+		
 		// -------------------------------------------
 		/* 
 		 * LoadPNG
@@ -914,45 +902,8 @@ namespace YourCommonTools
 		 */
 		public static void SetPictureByPath(Image _image, string _imagefilePath)
 		{
-			Texture2D newTexture = UtilitiesNetwork.LoadPNG(_imagefilePath);
+			Texture2D newTexture = Utilities.LoadPNG(_imagefilePath);
 			_image.sprite = Sprite.Create(newTexture, new Rect(0, 0, newTexture.width, newTexture.height), Vector2.zero);
-		}
-
-		// -------------------------------------------
-		/* 
-		 * We apply a material on all the hirarquy of objects
-		 */
-		public static void ApplyMaterialOnImages(GameObject _go, Material _material)
-		{
-			foreach (Transform child in _go.transform)
-			{
-				ApplyMaterialOnImages(child.gameObject, _material);
-			}
-			if (_go.GetComponent<Image>() != null)
-			{
-				_go.GetComponent<Image>().material = _material;
-			}
-
-			if (_go.GetComponent<Text>() != null)
-			{
-				_go.GetComponent<Text>().material = _material;
-			}
-		}
-
-		// -------------------------------------------
-		/* 
-		 * We apply a material on all the hirarquy of objects
-		 */
-		public static void ApplyMaterialOnObjects(GameObject _go, Material _material)
-		{
-			foreach (Transform child in _go.transform)
-			{
-				ApplyMaterialOnImages(child.gameObject, _material);
-			}
-			if (_go.GetComponent<Renderer>() != null)
-			{
-				_go.GetComponent<Renderer>().material = _material;
-			}
 		}
 
 		// -------------------------------------------
@@ -1093,6 +1044,70 @@ namespace YourCommonTools
 				return true;
 			}
 			return false;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Will trim a string to fit a maximum number of characters
+		 */
+		public static string Trim(string _value, int _maxChars = 8)
+		{
+			if (_value.Length > _maxChars)
+			{
+				return _value.Substring(0, _maxChars);
+			}
+			else
+			{
+				return _value;
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetBytesPNG
+		 */
+		public static byte[] GetBytesPNG(Sprite _image)
+		{
+			return _image.texture.EncodeToPNG();
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetBytesPNG
+		 */
+		public static byte[] GetBytesPNG(Texture2D _image)
+		{
+			return _image.EncodeToPNG();
+		}
+
+		// -------------------------------------------
+		/* 
+		* ComputeHashCode
+		*/
+		public static string ComputeHashCode(byte[] _bytes)
+		{
+			SHA256Managed shaEncryptor = new SHA256Managed();
+			byte[] hash = shaEncryptor.ComputeHash(_bytes);
+			return Convert.ToBase64String(hash);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Will generate a random string
+		 */
+		public static string RandomCodeIV(int _size)
+		{
+			string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#!@+=-*";
+			var stringChars = new char[_size];
+			var random = new System.Random();
+
+			for (int i = 0; i < _size; i++)
+			{
+				stringChars[i] = chars[random.Next(chars.Length)];
+			}
+
+			string finalString = new String(stringChars);
+			return finalString;
 		}
 	}
 }

@@ -7,7 +7,11 @@ using System.IO;
 
 namespace YourCommonTools
 {
-	public class ItemMultiObjectEntry
+	// -------------------------------------------
+	/* 
+	 * ItemMultiObjectEntry
+	 */
+	public class ItemMultiObjectEntry : IEqualityComparer<ItemMultiObjectEntry>
 	{
 		private List<object> m_objects;
 
@@ -30,6 +34,19 @@ namespace YourCommonTools
 					m_objects.Add(_list[i]);
 				}
 			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * AddObject
+		 */
+		public void AddObject(object _item)
+		{
+			if (m_objects == null)
+			{
+				m_objects = new List<object>();
+			}
+			m_objects.Add(_item);
 		}
 
 		// -------------------------------------------
@@ -58,16 +75,16 @@ namespace YourCommonTools
 
 		// -------------------------------------------
 		/* 
-		 * EqualsEntry
+		 * Equals
 		 */
-		public bool EqualsEntry(ItemMultiObjectEntry _item)
+		public bool Equals(ItemMultiObjectEntry _origin, ItemMultiObjectEntry _target)
 		{
 			bool output = true;
-			for (int i = 0; i < m_objects.Count; i++)
+			for (int i = 0; i < _origin.Objects.Count; i++)
 			{
-				if (i < _item.Objects.Count)
+				if (i < _target.Objects.Count)
 				{
-					if (m_objects[i] != _item.Objects[i])
+					if (_origin.Objects[i] != _target.Objects[i])
 					{
 						output = false;
 					}
@@ -79,5 +96,91 @@ namespace YourCommonTools
 			}
 			return output;
 		}
-	}	
+
+		// -------------------------------------------
+		/* 
+		 * GetHashCode
+		 */
+		public int GetHashCode(ItemMultiObjectEntry _obj)
+		{
+			int output = 0;
+			for (int i = 0; i < _obj.Objects.Count; i++)
+			{
+				output += _obj.Objects[i].GetHashCode();
+			}
+			return output;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetHashCode
+		 */
+		public override string ToString()
+		{
+			string output = "";
+			for (int i = 0; i < m_objects.Count; i++)
+			{				
+				output += m_objects[i].GetType().ToString() + ";" + m_objects[i].ToString();
+				if (i + 1 < m_objects.Count)
+				{
+					output += "#";
+				}
+			}
+			return output;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Parse
+		 */
+		public static ItemMultiObjectEntry Parse(string _data)
+		{
+			ItemMultiObjectEntry output = new ItemMultiObjectEntry();
+			string[] data = _data.Split('#');
+			for (int i = 0; i < data.Length; i++)
+			{
+				if (data[i] != null)
+				{
+					string[] item = data[i].Split(';');
+					if (item.Length == 2)
+					{
+						Type myType = Type.GetType(item[0]);
+						if (myType == Type.GetType("System.Int32"))
+						{
+							int myIntType;
+							if (int.TryParse(item[1], out myIntType))
+							{
+								output.AddObject(myIntType);
+							}							
+						}
+						else
+						if (myType == Type.GetType("System.Double"))
+						{							
+							float myFloatType;							
+							if (float.TryParse(item[1], out myFloatType))
+							{
+								output.AddObject(myFloatType);
+							}							
+						}
+						else
+						if (myType == Type.GetType("System.Boolean"))
+						{
+							bool myBoolType;
+							if (bool.TryParse(item[1], out myBoolType))
+							{
+								output.AddObject(myBoolType);
+							}
+						}
+						else
+						if (myType == Type.GetType("System.String"))
+						{
+							string myStringType = item[1];
+							output.AddObject(myStringType);
+						}
+					}
+				}
+			}
+			return output;
+		}
+	}
 }

@@ -190,24 +190,5 @@ namespace YourCommonTools
 				m_audio2.PlayOneShot(_audio);
 			}
 		}
-
-		// -------------------------------------------
-		/* 
-		 * PlayMainMenu
-		 */
-		public void PlayMainMenu()
-		{
-			SoundsController.Instance.PlayLoopSound(SOUND_MAIN_MENU);
-		}
-
-		// -------------------------------------------
-		/* 
-		 * PlaySingleSound
-		 */
-		public void PlayFxSelection()
-		{
-			SoundsController.Instance.PlaySingleSound(SOUND_SELECTION_FX);
-		}
-
 	}
 }

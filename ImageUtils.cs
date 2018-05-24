@@ -46,7 +46,6 @@ namespace YourCommonTools
 				float finalWidth = textureScaled.width * ((float)_height / (float)textureScaled.height);
 				_image.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(finalWidth, _height);
 			}
-			BasicEventController.Instance.DispatchBasicEvent(ImagesController.EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM, _pathFile, _textureOriginal.width, _textureOriginal.height);
 		}
 
 		// -------------------------------------------
@@ -97,6 +96,28 @@ namespace YourCommonTools
 			Texture2D tex = new Texture2D(2, 2);
 			tex.LoadImage(_pvrtcBytes);
 			_image.material.mainTexture = tex;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * LoadBytesImage
+		 */
+		public static void LoadBytesImage(Image _image, int _with, int _height, byte[] _pvrtcBytes)
+		{
+			Texture2D tex = new Texture2D(_with, _height);
+			tex.LoadImage(_pvrtcBytes);
+			_image.overrideSprite = ToSprite(tex);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * LoadBytesImage
+		 */
+		public static void LoadBytesImage(RawImage _image, int _with, int _height, byte[] _pvrtcBytes)
+		{
+			Texture2D tex = new Texture2D(_with, _height);
+			tex.LoadImage(_pvrtcBytes);
+			_image.texture = tex;
 		}
 
 		// -------------------------------------------
