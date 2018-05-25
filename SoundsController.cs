@@ -49,6 +49,8 @@ namespace YourCommonTools
 		private AudioSource m_audio1;
 		private AudioSource m_audio2;
 		private bool m_enabled;
+		private bool m_enableFX = true;
+		private bool m_enableMelodies = true;
 
 		public bool Enabled
 		{
@@ -63,6 +65,24 @@ namespace YourCommonTools
 				PlayerPrefs.SetInt(SOUND_COOCKIE, (m_enabled ? 1 : 0));
 			}
 		}
+
+		public bool EnableFX
+		{
+			get { return m_enableFX; }
+			set { m_enableFX = value; }
+		}
+		public bool EnableMelodies
+		{
+			get { return m_enableMelodies; }
+			set { m_enableMelodies = value; }
+		}
+		public float VolumeLoop
+		{
+			get { return m_audio1.volume; }
+			set { m_audio1.volume = value; }
+		}
+
+
 
 		// ----------------------------------------------
 		// CONSTRUCTOR
@@ -129,6 +149,7 @@ namespace YourCommonTools
 		{
 			if (_audio == null) return;
 			if (!m_enabled) return;
+			if (!m_enableMelodies) return;
 
 			m_audio1.clip = _audio;
 			m_audio1.loop = true;
@@ -167,13 +188,13 @@ namespace YourCommonTools
 		/* 
 		 * PlaySingleSound
 		 */
-		public void PlaySingleSound(string _audioName)
+		public void PlaySingleSound(string _audioName, bool _force = false)
 		{
 			for (int i = 0; i < Sounds.Length; i++)
 			{
 				if (Sounds[i].name == _audioName)
 				{
-					PlaySingleSound(Sounds[i]);
+					PlaySingleSound(Sounds[i], _force);
 				}
 			}
 		}
@@ -182,9 +203,14 @@ namespace YourCommonTools
 		/* 
 		 * PlaySingleSound
 		 */
-		public void PlaySingleSound(AudioClip _audio)
+		public void PlaySingleSound(AudioClip _audio, bool _force = false)
 		{
-			if (!m_enabled) return;
+			if (!_force)
+			{
+				if (!m_enableFX) return;
+				if (!m_enabled) return;
+			}
+
 			if (_audio != null)
 			{
 				m_audio2.PlayOneShot(_audio);
