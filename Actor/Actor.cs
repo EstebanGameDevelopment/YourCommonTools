@@ -34,6 +34,15 @@ namespace YourCommonTools
 		protected int m_previousAnimation = 0;
 		protected List<String> m_animationStates = null;
 
+		protected Color m_c1 = Color.yellow;
+		protected Color m_c2 = Color.red;
+		protected LineRenderer m_lineRenderer;
+		protected GameObject m_planeAreaVisionDetection = null;
+		protected float m_rangeDetectionView;
+		protected float m_angleDetectionView;
+
+		protected bool m_initializationCommon = false;
+
 		// ----------------------------------------------
 		// GETTERS/SETTERS
 		// ----------------------------------------------
@@ -134,7 +143,7 @@ namespace YourCommonTools
 		 */
 		public void MoveToTarget(Vector3 _goal, float _speedMovement, float _speedRotation)
 		{
-			LogicAlineation(new Vector3(_goal.x, _goal.z, _goal.y), _speedMovement, _speedRotation);
+			LogicAlineation(new Vector3(_goal.x, _goal.y, _goal.z), _speedMovement, _speedRotation);
 		}
 
 		// -------------------------------------------
@@ -153,13 +162,13 @@ namespace YourCommonTools
 		public void LogicAlineation(Vector3 _goal, float _speedMovement, float _speedRotation)
 		{
 			float yaw = Yaw * Mathf.Deg2Rad;
-			Vector3 pos = new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.z, this.gameObject.transform.position.y);
+			Vector3 pos = new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, this.gameObject.transform.position.z);
 
 			Vector3 normalVector = new Vector3(_goal.x, _goal.y, _goal.z) - pos;
 			normalVector.Normalize();
 
 			Vector2 v1 = new Vector2((float)Mathf.Cos(yaw), (float)Mathf.Sin(yaw));
-			Vector2 v2 = new Vector2(_goal.x - pos.x, _goal.y - pos.y);
+			Vector2 v2 = new Vector2(_goal.x - pos.x, _goal.z - pos.z);
 
 			float moduloV2 = v2.magnitude;
 			if (moduloV2 == 0)
@@ -178,7 +187,7 @@ namespace YourCommonTools
 			if (angulo > 0.95) increment = (1 - angulo);
 
 			// ASK DIRECTION OF THE ROTATION TO REACH THE GOAL
-			float directionLeft = Utilities.AskDirectionPoint(pos, yaw, _goal);
+			float directionLeft = Utilities.AskDirectionPoint(new Vector2(pos.x, pos.z), yaw, new Vector2(_goal.x, _goal.z));
 			float yawGoal = yaw;
 			if (directionLeft > 0)
 			{
@@ -269,6 +278,83 @@ namespace YourCommonTools
 			{
 				controller.Move(this.gameObject.transform.forward * Speed);
 			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Will draw the vision of the actor
+		 */
+		public void UpdateVision(GameObject _planeAreaVision, Material _material, float _viewDistance, float _angleView, float _shift)
+		{
+			int checkRadiusInstances = 10;
+			if (m_planeAreaVisionDetection == null)
+			{
+				m_planeAreaVisionDetection = (GameObject)Instantiate(_planeAreaVision, Vector3.zero, new Quaternion(0, 0, 0, 0));
+			}
+
+			DrawAreaVision(m_planeAreaVisionDetection, checkRadiusInstances, _viewDistance, _angleView, -1, _material, _shift);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Will draw the vision of the actor
+		 */
+		public void SetLinePosition(LineRenderer _line, int _index, Vector3 _position)
+		{
+			if ((_index >= 0) && (_index < 20))
+			{
+				_line.SetPosition(_index, _position);
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * DrawAreaVision		
+		 */
+		private void DrawAreaVision(GameObject _planeAreaVision, int _checkRadiusInstances, float _viewDistance, float _angleView, int _layerMask, Material _material, float _shift)
+		{
+			bool renderLineRenderer = false;
+
+			List<Vector3> areaDetection = new List<Vector3>();
+			int counter = 0;
+			Vector3 posOrigin = Utilities.ClonePoint(this.gameObject.transform.position);
+			posOrigin.y += _shift;
+			areaDetection.Add(posOrigin);
+
+			float totalAngle = 2 * _angleView * Mathf.Deg2Rad;
+			float entryAngle = (Yaw + _angleView) * Mathf.Deg2Rad;
+			float x = _viewDistance * Mathf.Cos(entryAngle);
+			float z = _viewDistance * Mathf.Sin(entryAngle);
+
+			if (renderLineRenderer) SetLinePosition(m_lineRenderer, counter++, posOrigin);
+			Vector3 posTarget = new Vector3(posOrigin.x + x, posOrigin.y, posOrigin.z + z);
+			if (renderLineRenderer) SetLinePosition(m_lineRenderer, counter++, posTarget);
+			areaDetection.Add(posTarget);
+
+			float thetaScale = totalAngle / _checkRadiusInstances;
+			for (int i = 0; i < _checkRadiusInstances; i++)
+			{
+				entryAngle -= thetaScale;
+				x = _viewDistance * Mathf.Cos(entryAngle);
+				z = _viewDistance * Mathf.Sin(entryAngle);
+
+				Vector3 posTargetRadius = new Vector3(posOrigin.x + x, posOrigin.y, posOrigin.z + z);
+				if (renderLineRenderer) SetLinePosition(m_lineRenderer, counter++, posTargetRadius);
+				areaDetection.Add(posTargetRadius);
+			}
+
+			float endAngle = (Yaw - _angleView) * Mathf.Deg2Rad;
+			x = _viewDistance * Mathf.Cos(endAngle);
+			z = _viewDistance * Mathf.Sin(endAngle);
+			Vector3 posTargetEnd = new Vector3(posOrigin.x + x, posOrigin.y, posOrigin.z + z);
+			if (renderLineRenderer) SetLinePosition(m_lineRenderer, counter++, posTargetEnd);
+			areaDetection.Add(posTargetEnd);
+
+			if (renderLineRenderer) SetLinePosition(m_lineRenderer, counter++, posOrigin);
+			areaDetection.Add(posOrigin);
+
+			_planeAreaVision.GetComponent<PlaneFromPoly>().Init(areaDetection.ToArray(), _material);
+			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
 
 	}
