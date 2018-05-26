@@ -48,7 +48,7 @@ namespace YourCommonTools
 		// ----------------------------------------------
 		private AudioSource m_audio1;
 		private AudioSource m_audio2;
-		private bool m_enabled;
+		private bool m_enabled = true;
 		private bool m_enableFX = true;
 		private bool m_enableMelodies = true;
 
