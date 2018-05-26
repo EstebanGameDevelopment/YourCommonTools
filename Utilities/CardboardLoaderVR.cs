@@ -2,15 +2,25 @@
 using UnityEngine;
 using UnityEngine.VR;
 using UnityEngine.EventSystems;
-using YourNetworkingTools;
 
 namespace YourCommonTools
 {
 	public class CardboardLoaderVR : MonoBehaviour
 	{
+
+		public static void SaveEnableCardboard()
+		{
+
+		}
+
+		public static bool LoadEnableCardboard()
+		{
+			return true;
+		}
+
 		void Start()
 		{
-			if (MultiplayerConfiguration.LoadEnableCardboard())
+			if (LoadEnableCardboard())
 			{
 				StartCoroutine(LoadDevice("cardboard"));
 			}

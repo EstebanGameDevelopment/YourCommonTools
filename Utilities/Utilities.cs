@@ -1109,5 +1109,55 @@ namespace YourCommonTools
 			string finalString = new String(stringChars);
 			return finalString;
 		}
+
+		// -------------------------------------------
+		/* 
+		 * GetFiles
+		 */
+		public static string[] GetFiles(string _path, string _searchPattern, SearchOption _searchOption)
+		{
+			string[] searchPatterns = _searchPattern.Split('|');
+			List<string> files = new List<string>();
+			foreach (string sp in searchPatterns)
+			{
+				files.AddRange(System.IO.Directory.GetFiles(_path, sp, _searchOption));
+			}
+			files.Sort();
+			return files.ToArray();
+		}
+
+		// -------------------------------------------
+		/* 
+		 * GetFiles
+		 */
+		public static FileInfo[] GetFiles(DirectoryInfo _path, string _searchPattern, SearchOption _searchOption)
+		{
+			string[] searchPatterns = _searchPattern.Split('|');
+			List<FileInfo> files = new List<FileInfo>();
+			foreach (string sp in searchPatterns)
+			{
+				files.AddRange(_path.GetFiles(sp, _searchOption));
+			}
+			return files.ToArray();
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Will generate a random string
+		 */
+		public static string RandomCodeGeneration(string _idUser)
+		{
+			string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			var stringChars = new char[8];
+			var random = new System.Random();
+
+			for (int i = 0; i < stringChars.Length; i++)
+			{
+				stringChars[i] = chars[random.Next(chars.Length)];
+			}
+
+			string finalString = new String(stringChars) + "_" + _idUser;
+			return finalString;
+		}
 	}
 }
