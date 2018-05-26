@@ -179,7 +179,7 @@ namespace YourCommonTools
 			{
 				if (Sounds[i].name == _audioName)
 				{
-					PlaySingleSound(Sounds[i]);
+					PlaySoundLoop(Sounds[i]);
 				}
 			}
 		}
