@@ -17,6 +17,8 @@ namespace YourCommonTools
 	 */
 	public class ImageUtils
 	{
+		public const string EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM = "EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM";
+
 		// -------------------------------------------
 		/* 
 		 * LoadImage
@@ -46,6 +48,7 @@ namespace YourCommonTools
 				float finalWidth = textureScaled.width * ((float)_height / (float)textureScaled.height);
 				_image.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(finalWidth, _height);
 			}
+			BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM, _pathFile, _textureOriginal.width, _textureOriginal.height);
 		}
 
 		// -------------------------------------------

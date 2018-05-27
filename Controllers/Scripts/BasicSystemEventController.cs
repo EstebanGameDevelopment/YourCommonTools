@@ -1,10 +1,5 @@
 using UnityEngine;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
-using System.IO;
-using System.Text;
 
 namespace YourCommonTools
 {
@@ -21,6 +16,12 @@ namespace YourCommonTools
 	public class BasicSystemEventController : MonoBehaviour
 	{
 		public event BasicSystemEventHandler BasicSystemEvent;
+
+		// ----------------------------------------------
+		// EVENTS
+		// ----------------------------------------------	
+		public const string EVENT_BASICSYSTEMEVENT_OPEN_INFO_TEXT_SCREEN = "EVENT_BASICSYSTEMEVENT_OPEN_INFO_TEXT_SCREEN";
+		public const string EVENT_BASICSYSTEMEVENT_OPEN_INFO_IMAGE_SCREEN = "EVENT_BASICSYSTEMEVENT_OPEN_INFO_IMAGE_SCREEN";
 
 		// ----------------------------------------------
 		// SINGLETON
