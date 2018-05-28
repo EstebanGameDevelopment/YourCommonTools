@@ -262,8 +262,12 @@ namespace YourCommonTools
 					{
 						m_screensOverlay[i].GetComponent<IBasicView>().Destroy();
 					}
-					GameObject.Destroy(m_screensOverlay[i]);
-					m_screensOverlay[i] = null;
+					if ((i < m_screensOverlay.Count) 
+						&& (m_screensOverlay[i] != null))
+					{
+						GameObject.Destroy(m_screensOverlay[i]);
+						m_screensOverlay[i] = null;
+					}
 				}
 			}
 			m_screensOverlay.Clear();

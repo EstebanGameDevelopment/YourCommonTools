@@ -81,11 +81,11 @@ namespace YourCommonTools
         {
             string warning = LanguageController.Instance.GetText("message.warning");
             string description = LanguageController.Instance.GetText("message.map.not.available.in.facebook");
-            ScreenController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, warning, description, null, "");
+            ScreenController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, warning, description, null, "");
         }
         else
         {
-            BasicEventController.Instance.DelayBasicEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 0.2f, centerLocation.latitude, centerLocation.longitude);
+            BasicSystemEventController.Instance.DelayBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 0.2f, centerLocation.latitude, centerLocation.longitude);
         }        
 #else
 			StartCoroutine(GetPositionDevice());
