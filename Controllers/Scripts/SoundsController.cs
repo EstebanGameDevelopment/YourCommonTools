@@ -28,6 +28,7 @@ namespace YourCommonTools
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType<SoundsController>();
+					_instance.Initialize();
 				}
 				return _instance;
 			}
@@ -51,6 +52,7 @@ namespace YourCommonTools
 		private bool m_enabled = true;
 		private bool m_enableFX = true;
 		private bool m_enableMelodies = true;
+		private bool m_hasBeenInitialized = false;
 
 		public bool Enabled
 		{
@@ -105,9 +107,15 @@ namespace YourCommonTools
 		 */
 		public void Initialize()
 		{
+			if (m_hasBeenInitialized) return;
+			m_hasBeenInitialized = true;
+
 			AudioSource[] aSources = GetComponents<AudioSource>();
-			m_audio1 = aSources[0];
-			m_audio2 = aSources[1];
+			if (aSources != null)
+			{
+				if (aSources.Length > 0) m_audio1 = aSources[0];
+				if (aSources.Length > 1) m_audio2 = aSources[1];
+			}
 
 			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
 		}
@@ -127,8 +135,8 @@ namespace YourCommonTools
 		 */
 		public void Destroy()
 		{
-			Destroy(m_audio1);
-			Destroy(m_audio2);
+			if (m_audio1 != null) Destroy(m_audio1);
+			if (m_audio2 != null) Destroy(m_audio2);
 		}
 
 		// -------------------------------------------
@@ -137,8 +145,8 @@ namespace YourCommonTools
 		 */
 		public void StopAllSounds()
 		{
-			m_audio1.Stop();
-			m_audio2.Stop();
+			if (m_audio1 != null) m_audio1.Stop();
+			if (m_audio2 != null) m_audio2.Stop();
 		}
 
 		// -------------------------------------------
@@ -151,11 +159,14 @@ namespace YourCommonTools
 			if (!m_enabled) return;
 			if (!m_enableMelodies) return;
 
-			m_audio1.clip = _audio;
-			m_audio1.loop = true;
-			if (!m_audio1.isPlaying)
+			if (m_audio1 != null)
 			{
-				m_audio1.Play();
+				m_audio1.clip = _audio;
+				m_audio1.loop = true;
+				if (!m_audio1.isPlaying)
+				{
+					m_audio1.Play();
+				}
 			}
 		}
 
@@ -165,8 +176,11 @@ namespace YourCommonTools
 		 */
 		public void StopMainLoop()
 		{
-			m_audio1.clip = null;
-			m_audio1.Stop();
+			if (m_audio1 != null)
+			{
+				m_audio1.clip = null;
+				m_audio1.Stop();
+			}
 		}
 
 		// -------------------------------------------
@@ -213,7 +227,10 @@ namespace YourCommonTools
 
 			if (_audio != null)
 			{
-				m_audio2.PlayOneShot(_audio);
+				if (m_audio2 != null)
+				{
+					m_audio2.PlayOneShot(_audio);
+				}					
 			}
 		}
 	}
