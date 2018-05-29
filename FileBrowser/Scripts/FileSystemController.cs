@@ -69,6 +69,17 @@ namespace YourCommonTools
 
 		// -------------------------------------------
 		/* 
+		 * IsFileImage
+		 */
+		public static bool IsFileImage(string _filename)
+		{
+			return ((_filename.IndexOf(".png") != -1) || (_filename.IndexOf(".PNG") != -1)
+					|| (_filename.IndexOf(".jpg") != -1) || (_filename.IndexOf(".JPG") != -1)
+					|| (_filename.IndexOf(".jpeg") != -1) || (_filename.IndexOf(".JPEG") != -1));
+		}
+
+		// -------------------------------------------
+		/* 
 		 * Gets the list of items for the path
 		 */
 		public List<ItemMultiObjectEntry> GetFileList(DirectoryInfo _directoryInfo, string _searchPattern = "")

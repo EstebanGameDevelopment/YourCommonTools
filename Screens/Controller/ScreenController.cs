@@ -208,12 +208,15 @@ namespace YourCommonTools
 			GameObject currentScreen = null;
 			for (int i = 0; i < ScreensPrefabs.Length; i++)
 			{
-				if (ScreensPrefabs[i].name == _nameScreen)
+				if (ScreensPrefabs[i] != null)
 				{
-					currentScreen = (GameObject)Instantiate(ScreensPrefabs[i]);
-					currentScreen.GetComponent<IBasicView>().Initialize(_list);
-					currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
-					break;
+					if (ScreensPrefabs[i].name == _nameScreen)
+					{
+						currentScreen = (GameObject)Instantiate(ScreensPrefabs[i]);
+						currentScreen.GetComponent<IBasicView>().Initialize(_list);
+						currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
+						break;
+					}
 				}
 			}
 

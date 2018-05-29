@@ -1132,11 +1132,18 @@ namespace YourCommonTools
 		 */
 		public static FileInfo[] GetFiles(DirectoryInfo _path, string _searchPattern, SearchOption _searchOption)
 		{
-			string[] searchPatterns = _searchPattern.Split('|');
 			List<FileInfo> files = new List<FileInfo>();
-			foreach (string sp in searchPatterns)
+			if (_searchPattern.Length > 0)
 			{
-				files.AddRange(_path.GetFiles(sp, _searchOption));
+				string[] searchPatterns = _searchPattern.Split('|');			
+				foreach (string sp in searchPatterns)
+				{
+					files.AddRange(_path.GetFiles(sp, _searchOption));
+				}
+			}
+			else
+			{
+				files.AddRange(_path.GetFiles());
 			}
 			return files.ToArray();
 		}
@@ -1158,6 +1165,22 @@ namespace YourCommonTools
 
 			string finalString = new String(stringChars) + "_" + _idUser;
 			return finalString;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * LoadAllByteData
+		 */
+		public static byte[] LoadAllByteData(string _pathFile)
+		{
+			if (System.IO.File.Exists(_pathFile))
+			{
+				return System.IO.File.ReadAllBytes(_pathFile);
+			}
+			else
+			{
+				return null;
+			}
 		}
 	}
 }
