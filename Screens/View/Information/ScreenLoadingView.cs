@@ -19,7 +19,7 @@ namespace YourCommonTools
 		/* 
 		 * Constructor
 		 */
-		public void Initialize(params object[] _list)
+		public override void Initialize(params object[] _list)
 		{
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 		}
@@ -31,8 +31,13 @@ namespace YourCommonTools
 		public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
+
 			UIEventController.Instance.UIEvent -= OnUIEvent;
-			GameObject.Destroy(this.gameObject);
+			if ((this != null) && (this.gameObject != null))
+			{
+				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			}			
+
 			return false;
 		}
 

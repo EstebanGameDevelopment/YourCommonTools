@@ -46,6 +46,7 @@ namespace YourCommonTools
 		public Hashtable m_texts = new Hashtable();
 
 		private string m_codeLanguage = "es";
+		private bool m_hasBeenInitialized = false;
 
 		public string CodeLanguage
 		{
@@ -67,7 +68,7 @@ namespace YourCommonTools
 		 */
 		public void Destroy()
 		{
-			DestroyObject(_instance.gameObject);
+			Destroy(_instance.gameObject);
 			_instance = null;
 		}
 
@@ -87,6 +88,9 @@ namespace YourCommonTools
 		 */
 		public void Initialize()
 		{
+			if (m_hasBeenInitialized) return;
+			m_hasBeenInitialized = true;
+
 			m_codeLanguage = PlayerPrefs.GetString(LANGUAGE_COOCKIE, "null");
 
 			if (m_codeLanguage == "null")
@@ -99,10 +103,7 @@ namespace YourCommonTools
 				{
 					m_codeLanguage = "en";
 				}
-				m_codeLanguage = "en";
-				SetLanguage(m_codeLanguage);
 			}
-			m_codeLanguage = "en";
 			SetLanguage(m_codeLanguage);
 
 			XmlDocument xmlDoc = new XmlDocument();
@@ -152,6 +153,7 @@ namespace YourCommonTools
 		 */
 		public string GetText(string _id)
 		{
+			Initialize();
 			if (m_texts[_id] != null)
 			{
 				return ((TextEntry)m_texts[_id]).GetText(m_codeLanguage);
@@ -168,6 +170,7 @@ namespace YourCommonTools
 		 */
 		public string GetTextFirstUpper(string _id)
 		{
+			Initialize();
 			string text = GetText(_id);
 			if ((text != null) && (text.Length > 0))
 			{
@@ -185,6 +188,7 @@ namespace YourCommonTools
 		 */
 		public string GetTextFirstUpper(string _id, params object[] _list)
 		{
+			Initialize();
 			string text = GetText(_id, _list);
 			if ((text != null) && (text.Length > 0))
 			{
@@ -202,6 +206,7 @@ namespace YourCommonTools
 		 */
 		public string GetText(string _id, params object[] _list)
 		{
+			Initialize();
 			if (m_texts[_id] != null)
 			{
 				string buffer = ((TextEntry)m_texts[_id]).GetText(m_codeLanguage);

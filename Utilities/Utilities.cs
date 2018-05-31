@@ -1182,5 +1182,14 @@ namespace YourCommonTools
 				return null;
 			}
 		}
+
+		// -------------------------------------------
+		/* 
+		 * DebugLogError
+		 */
+		public static void DebugLogError(string _message)
+		{
+			Debug.Log("<color=red>" + _message + "</color>");
+		}
 	}
 }

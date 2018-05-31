@@ -125,8 +125,10 @@ namespace YourCommonTools
 		public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
+
 			UIEventController.Instance.UIEvent -= OnUIEvent;
-			GameObject.Destroy(this.gameObject);
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+
 			return false;
 		}
 

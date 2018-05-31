@@ -62,7 +62,15 @@ namespace YourCommonTools
 		}
 		public int ScreensEnabled
 		{
-			get { return m_screensPool.Count + m_screensOverlay.Count; }
+			get {
+				if (m_screensPool.Count + m_screensOverlay.Count > 0)
+				{
+					Debug.LogError("m_screensPool.Count=" + m_screensPool.Count);
+					Debug.LogError("m_screensOverlay.Count=" + m_screensOverlay.Count);
+					for (int i = 0; i < m_screensPool.Count; i++) if (m_screensPool[i] != null) Debug.LogError("m_screensPool[" + i + "]=" + m_screensPool[i]);
+					for (int i = 0; i < m_screensOverlay.Count; i++) if (m_screensOverlay[i] != null) Debug.LogError("m_screensOverlay[" + i + "]=" + m_screensOverlay[i]);
+				}
+				return m_screensPool.Count + m_screensOverlay.Count; }
 		}
 
 		// -------------------------------------------
@@ -104,7 +112,7 @@ namespace YourCommonTools
 		 */
 		public void CreatePopUpScreenInfo(string _title, string _description, string _eventData)
 		{
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, _title, _description, null, _eventData);
+			CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
 
 		// -------------------------------------------
@@ -113,7 +121,7 @@ namespace YourCommonTools
 		 */
 		public void CreatePopUpScreenConfirmation(string _title, string _description, string _eventData)
 		{
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, _title, _description, null, _eventData);
+			CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
 
 		// -------------------------------------------
@@ -228,6 +236,11 @@ namespace YourCommonTools
 			{
 				m_screensOverlay.Add(currentScreen);
 			}
+
+			if (DebugMode)
+			{
+				Utilities.DebugLogError("CreateNewScreen::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+			}
 		}
 
 		// -------------------------------------------
@@ -238,14 +251,18 @@ namespace YourCommonTools
 		{
 			for (int i = 0; i < m_screensPool.Count; i++)
 			{
-				if (m_screensPool[i] != null)
+				GameObject screen = m_screensPool[i];
+				if (screen != null)
 				{
-					if (m_screensPool[i].GetComponent<IBasicView>() != null)
+					if (screen.GetComponent<IBasicView>() != null)
 					{
-						m_screensPool[i].GetComponent<IBasicView>().Destroy();
+						screen.GetComponent<IBasicView>().Destroy();
 					}
-					GameObject.Destroy(m_screensPool[i]);
-					m_screensPool[i] = null;
+					if (screen != null)
+					{
+						GameObject.Destroy(screen);
+						screen = null;
+					}
 				}
 			}
 			m_screensPool.Clear();
@@ -259,17 +276,17 @@ namespace YourCommonTools
 		{
 			for (int i = 0; i < m_screensOverlay.Count; i++)
 			{
-				if (m_screensOverlay[i] != null)
+				GameObject screen = m_screensOverlay[i];
+				if (screen != null)
 				{
-					if (m_screensOverlay[i].GetComponent<IBasicView>() != null)
+					if (screen.GetComponent<IBasicView>() != null)
 					{
-						m_screensOverlay[i].GetComponent<IBasicView>().Destroy();
+						screen.GetComponent<IBasicView>().Destroy();
 					}
-					if ((i < m_screensOverlay.Count) 
-						&& (m_screensOverlay[i] != null))
+					if (screen != null)
 					{
-						GameObject.Destroy(m_screensOverlay[i]);
-						m_screensOverlay[i] = null;
+						GameObject.Destroy(screen);
+						screen = null;
 					}
 				}
 			}
@@ -294,7 +311,29 @@ namespace YourCommonTools
 					{
 						screen.GetComponent<IBasicView>().Destroy();
 					}
+					if (screen != null)
+					{
+						GameObject.Destroy(screen);
+					}					
 					m_screensPool.RemoveAt(i);
+					return;
+				}
+			}
+
+			for (int i = 0; i < m_screensOverlay.Count; i++)
+			{
+				GameObject screen = (GameObject)m_screensOverlay[i];
+				if (_screen == screen)
+				{
+					if (_runDestroy)
+					{
+						screen.GetComponent<IBasicView>().Destroy();
+					}
+					if (screen != null)
+					{
+						GameObject.Destroy(screen);
+					}
+					m_screensOverlay.RemoveAt(i);
 					return;
 				}
 			}
@@ -314,33 +353,6 @@ namespace YourCommonTools
 					{
 						m_screensPool[i].GetComponent<IBasicView>().SetActivation(_activation);
 					}
-				}
-			}
-		}
-
-		// -------------------------------------------
-		/* 
-		 * Remove the screen from the list of overlay screens
-		 */
-		private void DestroyGameObjectOverlayScreen(GameObject _screen, bool _runDestroy)
-		{
-			if (_screen == null) return;
-
-			for (int i = 0; i < m_screensOverlay.Count; i++)
-			{
-				GameObject screen = (GameObject)m_screensOverlay[i];
-				if (_screen == screen)
-				{
-					if (_runDestroy)
-					{
-						screen.GetComponent<IBasicView>().Destroy();
-					}
-					m_screensOverlay.RemoveAt(i);
-					if (screen != null)
-					{
-						GameObject.Destroy(screen);
-					}
-					return;
 				}
 			}
 		}
@@ -395,23 +407,26 @@ namespace YourCommonTools
 				GameObject screen = (GameObject)_list[0];
 				DestroyGameObjectSingleScreen(screen, true);
 				EnableScreens(true);
+				if (DebugMode)
+				{
+					Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+				}
 			}
 			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
 			{
 				DestroyScreensOverlay();
 				DestroyScreensPool();
+				if (DebugMode)
+				{
+					Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+				}
 			}
 			if (_nameEvent == EVENT_CONFIRMATION_POPUP)
 			{
 				GameObject screen = (GameObject)_list[0];
 				bool accepted = (bool)_list[1];
 				string subnameEvent = (string)_list[2];
-				Debug.Log("POP UP CLOSED");
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN)
-			{
-				GameObject screen = (GameObject)_list[0];
-				DestroyGameObjectOverlayScreen(screen, true);
+				if (screen != null) Debug.Log("POP UP["+ screen.name + "] CLOSED");
 			}
 			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_POOL_DESTROY_LAST)
 			{
@@ -426,6 +441,10 @@ namespace YourCommonTools
 							refObject.GetComponent<IBasicView>().Destroy();
 							refObject = null;
 							EnableScreens(true);
+							if (DebugMode)
+							{
+								Debug.LogError("EVENT_SCREENMANAGER_POOL_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+							}
 							return;
 						}
 					}
@@ -443,6 +462,11 @@ namespace YourCommonTools
 							m_screensOverlay.RemoveAt(m_screensOverlay.Count - 1);
 							refObject.GetComponent<IBasicView>().Destroy();
 							refObject = null;
+							if (DebugMode)
+							{
+								Utilities.DebugLogError("EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+							}
+							return;
 						}
 					}
 				}
