@@ -314,8 +314,8 @@ namespace YourCommonTools
 					if (screen != null)
 					{
 						GameObject.Destroy(screen);
-					}					
-					m_screensPool.RemoveAt(i);
+					}
+					if (i < m_screensPool.Count) m_screensPool.RemoveAt(i);
 					return;
 				}
 			}
@@ -333,7 +333,7 @@ namespace YourCommonTools
 					{
 						GameObject.Destroy(screen);
 					}
-					m_screensOverlay.RemoveAt(i);
+					if (i < m_screensOverlay.Count) m_screensOverlay.RemoveAt(i);
 					return;
 				}
 			}
