@@ -62,15 +62,7 @@ namespace YourCommonTools
 		}
 		public int ScreensEnabled
 		{
-			get {
-				if (m_screensPool.Count + m_screensOverlay.Count > 0)
-				{
-					Debug.LogError("m_screensPool.Count=" + m_screensPool.Count);
-					Debug.LogError("m_screensOverlay.Count=" + m_screensOverlay.Count);
-					for (int i = 0; i < m_screensPool.Count; i++) if (m_screensPool[i] != null) Debug.LogError("m_screensPool[" + i + "]=" + m_screensPool[i]);
-					for (int i = 0; i < m_screensOverlay.Count; i++) if (m_screensOverlay[i] != null) Debug.LogError("m_screensOverlay[" + i + "]=" + m_screensOverlay[i]);
-				}
-				return m_screensPool.Count + m_screensOverlay.Count; }
+			get { return m_screensPool.Count + m_screensOverlay.Count; }
 		}
 
 		// -------------------------------------------
