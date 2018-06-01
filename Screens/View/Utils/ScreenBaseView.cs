@@ -103,7 +103,7 @@ namespace YourCommonTools
 		*/
 		void OnDestroy()
 		{
-			Debug.Log("YourVRUI::BaseVRScreenView::OnDestroy::NAME OBJECT DESTROYED[" + this.gameObject.name + "]");
+			Debug.Log("ScreenBaseView::OnDestroy::NAME OBJECT DESTROYED[" + this.gameObject.name + "]");
 
 			ClearListSelectors();
 			m_selectors = null;
