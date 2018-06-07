@@ -1191,5 +1191,15 @@ namespace YourCommonTools
 		{
 			Debug.Log("<color=red>" + _message + "</color>");
 		}
+
+
+		// -------------------------------------------
+		/* 
+		 * DebugLogWarning
+		 */
+		public static void DebugLogWarning(string _message)
+		{
+			Debug.Log("<color=yellow>" + _message + "</color>");
+		}
 	}
 }
