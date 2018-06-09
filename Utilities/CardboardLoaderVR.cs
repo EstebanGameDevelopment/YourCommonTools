@@ -36,7 +36,7 @@ namespace YourCommonTools
 		{
 			if (LoadEnableCardboard())
 			{
-				StartCoroutine(LoadDevice("cardboard"));
+				StartCoroutine(LoadDevice("Cardboard"));
 			}
 			else
 			{
