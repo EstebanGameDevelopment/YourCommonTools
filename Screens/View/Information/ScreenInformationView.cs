@@ -100,9 +100,9 @@ namespace YourCommonTools
 				m_title = m_container.Find("Title").GetComponent<Text>();
 			}
 
-			if (m_container.Find("Image_Background/Image_Content") != null)
+			if (m_container.Find("Image") != null)
 			{
-				m_imageContent = m_container.Find("Image_Background/Image_Content").GetComponent<Image>();
+				m_imageContent = m_container.Find("Image").GetComponent<Image>();
 			}
 
 			if (listPages != null)
