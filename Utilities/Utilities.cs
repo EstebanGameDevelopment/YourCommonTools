@@ -313,10 +313,18 @@ namespace YourCommonTools
 			ray.direction = fwd;
 			RaycastHit hitCollision = new RaycastHit();
 
-			int layerMask = Physics.DefaultRaycastLayers;
-			for (int i = 0; i < _masks.Length; i++)
+			int layerMask = 0;
+			if (_masks.Length == 0)
 			{
-				layerMask = layerMask & _masks[i];
+				layerMask = Physics.DefaultRaycastLayers;
+			}
+			else
+			{
+				layerMask = Physics.DefaultRaycastLayers;
+				for (int i = 0; i < _masks.Length; i++)
+				{
+					layerMask = layerMask | _masks[i];
+				}
 			}
 			if (Physics.Raycast(_originPosition, fwd, out hitCollision, Mathf.Infinity, layerMask))
 			{
@@ -338,10 +346,18 @@ namespace YourCommonTools
 			ray.direction = _forward;
 			RaycastHit hitCollision = new RaycastHit();
 
-			int layerMask = Physics.DefaultRaycastLayers;
-			for (int i = 0; i < _masks.Length; i++)
+			int layerMask = 0;
+			if (_masks.Length == 0)
 			{
-				layerMask = layerMask & _masks[i];
+				layerMask = Physics.DefaultRaycastLayers;
+			}
+			else
+			{
+				layerMask = Physics.DefaultRaycastLayers;
+				for (int i = 0; i < _masks.Length; i++)
+				{
+					layerMask = layerMask | _masks[i];
+				}
 			}
 			if (Physics.Raycast(_origin, fwd, out hitCollision, Mathf.Infinity, layerMask))
 			{
@@ -363,10 +379,18 @@ namespace YourCommonTools
 			ray.direction = _forward;
 			RaycastHit hitCollision = new RaycastHit();
 
-			int layerMask = Physics.DefaultRaycastLayers;
-			for (int i = 0; i < _masks.Length; i++)
+			int layerMask = 0;
+			if (_masks.Length == 0)
 			{
-				layerMask = layerMask & _masks[i];
+				layerMask = Physics.DefaultRaycastLayers;
+			}
+			else
+			{
+				layerMask = Physics.DefaultRaycastLayers;
+				for (int i = 0; i < _masks.Length; i++)
+				{
+					layerMask = layerMask | _masks[i];
+				}
 			}
 			if (Physics.Raycast(_origin, fwd, out hitCollision, Mathf.Infinity, layerMask))
 			{
