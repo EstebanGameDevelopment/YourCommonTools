@@ -1225,5 +1225,191 @@ namespace YourCommonTools
 		{
 			Debug.Log("<color=yellow>" + _message + "</color>");
 		}
+
+		// -------------------------------------------
+		/* 
+		 * Get visible corners from camera
+		 */
+		private static int CountCornersVisibleFrom(ScrollRectVR _container, RectTransform _rectTransform)
+		{
+			Rect screenBounds = new Rect(_container.RectTransformObject.localPosition.x, _container.RectTransformObject.localPosition.y,
+										 _container.RectTransformObject.sizeDelta.x, _container.RectTransformObject.sizeDelta.y);
+			Vector2[] objectCorners = new Vector2[4];
+			float shiftX = _container.RectTransformObject.localPosition.x;
+			float shiftY = _container.RectTransformObject.localPosition.y;
+			if (_container.IsVerticalGrid())
+			{
+				GameObject sVerticalGrid = _container.VerticalGrid.gameObject;
+				shiftY += -sVerticalGrid.GetComponent<RectTransform>().localPosition.y + _container.InitialPositionVerticalGrid;
+			}
+			if (_container.IsHorizontalGrid())
+			{
+				GameObject sHorizontalGrid = _container.HorizontalGrid.gameObject;
+				shiftX += sHorizontalGrid.GetComponent<RectTransform>().localPosition.x - _container.InitialPositionHorizontalGrid;
+			}
+			Vector2 p = new Vector2(_rectTransform.gameObject.transform.localPosition.x - (_rectTransform.sizeDelta.x / 2) + shiftX,
+									-(_rectTransform.gameObject.transform.localPosition.y + (_rectTransform.sizeDelta.y / 2)) + shiftY);
+			objectCorners[0] = new Vector2(p.x, p.y);
+			objectCorners[1] = new Vector2(p.x, p.y + _rectTransform.sizeDelta.y);
+			objectCorners[2] = new Vector2(p.x + _rectTransform.sizeDelta.x, p.y);
+			objectCorners[3] = new Vector2(p.x + _rectTransform.sizeDelta.x, p.y + _rectTransform.sizeDelta.y);
+
+			int visibleCorners = 0;
+			for (var i = 0; i < objectCorners.Length; i++)
+			{
+				if (screenBounds.Contains(objectCorners[i]))
+				{
+					visibleCorners++;
+				}
+			}
+			return visibleCorners;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Check if it's fully visible from camera
+		 */
+		public static bool IsFullyVisibleFrom(ScrollRectVR _container, RectTransform rectTransform)
+		{
+			return CountCornersVisibleFrom(_container, rectTransform) == 4;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Check if it's partially visible from camera
+		 */
+		public static bool IsVisibleFrom(ScrollRectVR _container, RectTransform rectTransform)
+		{
+			return CountCornersVisibleFrom(_container, rectTransform) > 0;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Move the scroll with the siblings information
+		 */
+		public static void MoveScrollWithSiblings(ScrollRectVR _container, GameObject _targetObject)
+		{
+			if (!IsFullyVisibleFrom(_container, _targetObject.GetComponent<RectTransform>()))
+			{
+				_container.LastSibling = _container.CurrentSibling;
+				_container.CurrentSibling = _targetObject.transform.GetSiblingIndex();
+
+				// ITEM IS NOT VISIBLE, THEN SCROLL PAGE
+				float direction = 1;
+				int sizePage = _container.VisibleItemsPerPage;
+				float normalizePosition = 0;
+				if (_container.ScrollRectObject.vertical)
+				{
+					if (_container.LastSibling < _container.CurrentSibling)
+					{
+						direction = 1;
+					}
+					else
+					{
+						direction = -1;
+					}
+					if (_container.CurrentSibling < _container.ScrollRectObject.content.transform.childCount - 3)
+					{
+						normalizePosition = (float)(_container.CurrentSibling + (sizePage * direction)) / (float)_container.ScrollRectObject.content.transform.childCount;
+					}
+					else
+					{
+						normalizePosition = 1;
+					}
+					if (normalizePosition < 0) normalizePosition = 0;
+					if (normalizePosition > 1) normalizePosition = 1;
+					_container.ScrollRectObject.verticalNormalizedPosition = 1 - normalizePosition;
+				}
+				else
+				{
+					if (_container.LastSibling < _container.CurrentSibling)
+					{
+						direction = 1;
+					}
+					else
+					{
+						direction = -1;
+					}
+					if (_container.CurrentSibling < _container.ScrollRectObject.content.transform.childCount - 3)
+					{
+						normalizePosition = (float)(_container.CurrentSibling + (sizePage * direction)) / (float)_container.ScrollRectObject.content.transform.childCount;
+					}
+					else
+					{
+						normalizePosition = 1;
+					}
+					if (normalizePosition < 0) normalizePosition = 0;
+					if (normalizePosition > 1) normalizePosition = 1;
+
+					_container.ScrollRectObject.horizontalNormalizedPosition = normalizePosition;
+				}
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Get the bounds of the scroll rect
+		 */
+		public static void CalculateScrollRect(GameObject _gameObject, ref List<ScrollRectVR> _scrollRects)
+		{
+			ScrollRect[] scrollRects = _gameObject.GetComponentsInChildren<ScrollRect>();
+			_scrollRects = new List<ScrollRectVR>();
+
+			if (scrollRects.Length > 0)
+			{
+				foreach (ScrollRect bc in scrollRects)
+				{
+					_scrollRects.Add(new ScrollRectVR(bc.gameObject));
+				}
+
+				if (_scrollRects.Count > 0)
+				{
+					CalculateVisibleItemsForeachScrollRect(_scrollRects);
+				}
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * We calculate the number of visible elements that the scrollrect has
+		 */
+		public static bool CalculateVisibleItemsForeachScrollRect(List<ScrollRectVR> _scrollRectsVR)
+		{
+			for (int i = 0; i < _scrollRectsVR.Count; i++)
+			{
+				ButtonVRView[] buttonsVR = _scrollRectsVR[i].BaseObject.GetComponentsInChildren<ButtonVRView>();
+				int counter = 0;
+				foreach (ButtonVRView btnVR in buttonsVR)
+				{
+					if (IsFullyVisibleFrom(_scrollRectsVR[i], btnVR.gameObject.GetComponent<RectTransform>()))
+					{
+						counter++;
+					}
+				}
+				_scrollRectsVR[i].VisibleItemsPerPage = counter;
+			}
+
+			return true;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * We check the sibling visibility
+		 */
+		private bool CheckSiblingVisibility(ScrollRectVR _container, Transform _parent, int _indexSibling)
+		{
+			if ((_indexSibling < 0) || (_indexSibling >= _parent.transform.childCount)) return false;
+
+			Transform childTransform = _parent.transform.GetChild(_indexSibling);
+			if (childTransform != null)
+			{
+				if (childTransform.GetComponent<RectTransform>() != null)
+				{
+					return IsFullyVisibleFrom(_container, childTransform.GetComponent<RectTransform>());
+				}
+			}
+			return false;
+		}
+
 	}
 }
