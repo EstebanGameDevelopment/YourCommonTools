@@ -201,7 +201,7 @@ namespace YourCommonTools
 				// DAYDREAM CONTROLLER				
 				if (m_isDaydreamActivated)
 				{
-#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 					if (GvrControllerInput.TouchDown)
 					{
 						hasEntered = true;
@@ -233,7 +233,7 @@ namespace YourCommonTools
 				// DAYDREAM CONTROLLER
 				if (m_isDaydreamActivated)
 				{
-#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 					if (GvrControllerInput.TouchUp)
 					{
 						hasEntered = true;
@@ -289,7 +289,7 @@ namespace YourCommonTools
 		private void KeyInputCancelManagement()
 		{
 			// DAYDREAM CONTROLLER
-#if UNITY_HAS_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 			if (m_isDaydreamActivated)
 			{
 				if (GvrControllerInput.AppButtonDown)
