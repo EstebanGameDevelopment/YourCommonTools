@@ -118,6 +118,8 @@ namespace YourCommonTools
 			if (m_hasBeenDestroyed) return true;
 			m_hasBeenDestroyed = true;
 
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_REPORT_DESTROYED, this.gameObject);			
+
 			return false;
 		}
 

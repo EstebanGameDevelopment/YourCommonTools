@@ -9,7 +9,6 @@ namespace YourCommonTools
 	 * 
 	 * ScreenInformationView
 	 * 
-	 * (DEBUG CODE) It's only used for debug purposes. 
 	 * Screen used to display pages of information
 	 * 
 	 * @author Esteban Gallardo
@@ -23,6 +22,12 @@ namespace YourCommonTools
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
 		public const string SCREEN_UNLOCK_BITCOIN		= "SCREEN_UNLOCK_BITCOIN";
 		public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
+
+		// ----------------------------------------------
+		// EVENTS
+		// ----------------------------------------------	
+		public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
+		public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
 
 		// ----------------------------------------------
 		// PRIVATE MEMBERS
@@ -276,6 +281,14 @@ namespace YourCommonTools
 			if (_nameEvent == ScreenController.EVENT_FORCE_TRIGGER_OK_BUTTON)
 			{
 				OkPressed();
+			}
+			if (_nameEvent == EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION)
+			{
+				if (m_textDescription != null) m_textDescription.text = (string)_list[0];
+			}
+			if (_nameEvent == EVENT_SCREEN_ENABLE_OK_BUTTON)
+			{
+				if (m_okButton != null) m_okButton.gameObject.SetActive((bool)_list[0]);
 			}
 			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_WAIT)
 			{
