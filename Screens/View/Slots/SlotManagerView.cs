@@ -59,8 +59,8 @@ namespace YourCommonTools
 			m_createNewPrefab = _createNewPrefab;
 
 			m_content = this.gameObject.transform.Find("ScrollContent/Entries").gameObject;
-			m_buttonNext = ButtonNext.transform;
-			m_buttonPrevious = ButtonPrevious.transform;
+			if (ButtonNext!=null) m_buttonNext = ButtonNext.transform;
+			if (ButtonPrevious != null) m_buttonPrevious = ButtonPrevious.transform;
 
 			if (m_buttonNext != null)
 			{
@@ -73,14 +73,14 @@ namespace YourCommonTools
 				m_buttonPrevious.gameObject.SetActive(false);
 			}
 
-			m_imageLoading = LoadingIcon.transform;
-			m_textLoading = LoadingText.transform;
+			if (LoadingIcon != null) m_imageLoading = LoadingIcon.transform;
+			if (m_textLoading != null) m_textLoading = LoadingText.transform;
 			if (m_textLoading!=null)
 			{
 				m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
 			}
-			m_imageLoading.gameObject.SetActive(true);
-			m_textLoading.gameObject.SetActive(true);
+			if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
+			if (m_textLoading != null) m_textLoading.gameObject.SetActive(true);
 
 			m_totalPages = m_data.Count / m_itemsEachPage;
 
