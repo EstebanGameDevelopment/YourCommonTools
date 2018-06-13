@@ -114,9 +114,19 @@ namespace YourCommonTools
 		{
 			if (m_model == null)
 			{
-				m_model = transform.Find("Model").gameObject;
+				if (transform.Find("Model") != null)
+				{
+					m_model = transform.Find("Model").gameObject;
+				}				
 			}
-			return m_model.transform;
+			if (m_model != null)
+			{
+				return m_model.transform;
+			}
+			else
+			{
+				return null;
+			}			
 		}
 
 		// ---------------------------------------------------
