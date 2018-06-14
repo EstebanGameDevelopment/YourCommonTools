@@ -251,17 +251,23 @@ namespace YourCommonTools
 					{
 						if (_animation < m_animationStates.Count)
 						{
-							Animator sAnimatorModel = GetModel().GetComponent<Animator>();
-							if (sAnimatorModel != null)
+							if (GetModel() != null)
 							{
-								string buf = m_animationStates[m_animation];
-								string[] animationState = buf.Split(',');
-								sAnimatorModel.SetInteger(animationState[0], int.Parse(animationState[1]));
-							}
-							else
-							{
-								GetModel().GetComponent<Animation>()[m_animationStates[m_animation]].wrapMode = (_isLoop ? WrapMode.Loop : WrapMode.Once);
-								GetModel().GetComponent<Animation>().Play(m_animationStates[m_animation], PlayMode.StopAll);
+								Animator sAnimatorModel = GetModel().GetComponent<Animator>();
+								if (sAnimatorModel != null)
+								{
+									string buf = m_animationStates[m_animation];
+									string[] animationState = buf.Split(',');
+									sAnimatorModel.SetInteger(animationState[0], int.Parse(animationState[1]));
+								}
+								else
+								{
+									if (GetModel().GetComponent<Animation>() != null)
+									{
+										GetModel().GetComponent<Animation>()[m_animationStates[m_animation]].wrapMode = (_isLoop ? WrapMode.Loop : WrapMode.Once);
+										GetModel().GetComponent<Animation>().Play(m_animationStates[m_animation], PlayMode.StopAll);
+									}
+								}
 							}
 						}
 					}
