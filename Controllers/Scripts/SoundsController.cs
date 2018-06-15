@@ -191,9 +191,12 @@ namespace YourCommonTools
 		{
 			for (int i = 0; i < Sounds.Length; i++)
 			{
-				if (Sounds[i].name == _audioName)
+				if (Sounds[i] != null)
 				{
-					PlaySoundLoop(Sounds[i]);
+					if (Sounds[i].name == _audioName)
+					{
+						PlaySoundLoop(Sounds[i]);
+					}
 				}
 			}
 		}
@@ -206,9 +209,12 @@ namespace YourCommonTools
 		{
 			for (int i = 0; i < Sounds.Length; i++)
 			{
-				if (Sounds[i].name == _audioName)
+				if (Sounds[i] != null)
 				{
-					PlaySingleSound(Sounds[i], _force);
+					if (Sounds[i].name == _audioName)
+					{
+						PlaySingleSound(Sounds[i], _force);
+					}
 				}
 			}
 		}
