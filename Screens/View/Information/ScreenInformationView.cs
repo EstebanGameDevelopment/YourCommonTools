@@ -22,6 +22,7 @@ namespace YourCommonTools
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
 		public const string SCREEN_UNLOCK_BITCOIN		= "SCREEN_UNLOCK_BITCOIN";
 		public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
+		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
 
 		// ----------------------------------------------
 		// EVENTS
