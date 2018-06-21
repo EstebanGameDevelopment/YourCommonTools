@@ -64,12 +64,20 @@ namespace YourCommonTools
 		{
 			get { return m_screensPool.Count + m_screensOverlay.Count; }
 		}
+        public List<GameObject> ScreensPool
+        {
+            get { return m_screensPool; }
+        }
+        public List<GameObject> ScreensOverlay
+        {
+            get { return m_screensOverlay; }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Force orientation of the device to landscape
 		 */
-		void Awake()
+        void Awake()
 		{
 			Screen.orientation = ScreenOrientation.LandscapeLeft;
 			Screen.autorotateToPortrait = false;

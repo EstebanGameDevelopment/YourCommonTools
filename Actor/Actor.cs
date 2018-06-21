@@ -29,6 +29,7 @@ namespace YourCommonTools
 		protected float m_yaw;
 		protected float m_directionLeft;
 		protected bool m_applyGravity;
+        protected bool m_ignoreRigidBody = false;
 
 		protected int m_animation = 0;
 		protected int m_previousAnimation = 0;
@@ -66,11 +67,11 @@ namespace YourCommonTools
 			set
 			{
 				m_yaw = value;
-				if ((this.gameObject.GetComponent<Rigidbody>() != null) && (this.gameObject.GetComponent<Rigidbody>().isKinematic))
+				if (!m_ignoreRigidBody && (this.gameObject.GetComponent<Rigidbody>() != null) && (this.gameObject.GetComponent<Rigidbody>().isKinematic))
 				{
 					Quaternion deltaRotation = Quaternion.Euler(new Vector3(0, -m_yaw, 0));
 					this.gameObject.GetComponent<Rigidbody>().MoveRotation(deltaRotation);
-				}
+                }
 				else
 				{
 					this.gameObject.transform.eulerAngles = new Vector3(0f, -m_yaw, 0f);

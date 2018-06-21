@@ -16,38 +16,38 @@
 		public const int CONFIGURATION_CLIENT_EVENT = 2;
 		public const int CONFIGURATION_SERVER_AND_CLIENT_EVENT = 3;
 
-		private string nameEvent;
-		private int configuration;
-		private bool isLocalEvent;
-		private float time;
-		private int networkID;
-		private object[] listParameters;
+		private string m_nameEvent;
+		private int m_configuration;
+		private bool m_isLocalEvent;
+		private float m_time;
+		private int m_networkID;
+		private object[] m_listParameters;
 
 		public string NameEvent
 		{
-			get { return nameEvent; }
+			get { return m_nameEvent; }
 		}
 		public int Configuration
 		{
-			get { return configuration; }
+			get { return m_configuration; }
 		}
 		public bool IsLocalEvent
 		{
-			get { return isLocalEvent; }
+			get { return m_isLocalEvent; }
 		}
 		public float Time
 		{
-			get { return time; }
-			set { time = value; }
+			get { return m_time; }
+			set { m_time = value; }
 		}
 		public int NetworkID
 		{
-			get { return networkID; }
-			set { networkID = value; }
+			get { return m_networkID; }
+			set { m_networkID = value; }
 		}
 		public object[] ListParameters
 		{
-			get { return listParameters; }
+			get { return m_listParameters; }
 		}
 
 		// -------------------------------------------
@@ -56,12 +56,12 @@
 		 */
 		public AppEventData(string _nameEvent, int _configuration, bool _isLocalEvent, int _networkID, float _time, params object[] _list)
 		{
-			nameEvent = _nameEvent;
-			configuration = _configuration;
-			isLocalEvent = _isLocalEvent;
-			networkID = _networkID;
-			time = _time;
-			listParameters = _list;
+			m_nameEvent = _nameEvent;
+			m_configuration = _configuration;
+			m_isLocalEvent = _isLocalEvent;
+			m_networkID = _networkID;
+			m_time = _time;
+			m_listParameters = _list;
 		}
 
 		// -------------------------------------------
@@ -70,7 +70,7 @@
 		 */
 		public void Destroy()
 		{
-			listParameters = null;
+			m_listParameters = null;
 		}
 
 		// -------------------------------------------
@@ -80,26 +80,26 @@
 		public string ToStringParameters()
 		{
 			string parameters = "";
-			if (listParameters != null)
+			if (m_listParameters != null)
 			{
-				for (int i = 0; i < listParameters.Length; i++)
+				for (int i = 0; i < m_listParameters.Length; i++)
 				{
-					if (Utilities.IsNumber(listParameters[i]))
+					if (Utilities.IsNumber(m_listParameters[i]))
 					{
-						parameters += (float)Utilities.GetDouble(listParameters[i]);
+						parameters += (float)Utilities.GetDouble(m_listParameters[i]);
 					}
 					else
 					{
-						if (listParameters[i] is string)
+						if (m_listParameters[i] is string)
 						{
-							parameters += (string)listParameters[i];
+							parameters += (string)m_listParameters[i];
 						}
 						else
 						{
-							parameters += listParameters[i].ToString();
+							parameters += m_listParameters[i].ToString();
 						}
 					}
-					if (i + 1 < listParameters.Length)
+					if (i + 1 < m_listParameters.Length)
 					{
 						parameters += ",";
 					}
@@ -120,7 +120,7 @@
 				parameters = "," + parameters;
 			}
 
-			return nameEvent + parameters;
+			return m_nameEvent + parameters;
 		}
 
 		// -------------------------------------------
@@ -129,7 +129,7 @@
 		 */
 		public bool IsInternalEvent()
 		{
-			return (configuration == CONFIGURATION_INTERNAL_EVENT);
+			return (m_configuration == CONFIGURATION_INTERNAL_EVENT);
 		}
 	}
 }
