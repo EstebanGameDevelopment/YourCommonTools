@@ -25,10 +25,11 @@ namespace YourCommonTools
 		, IStoreListener
 #endif
 	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------
-		public const string EVENT_IAP_CONFIRMATION = "EVENT_IAP_CONFIRMATION";
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------
+        public const string EVENT_IAP_INITIALIZED = "EVENT_IAP_INITIALIZED";
+        public const string EVENT_IAP_CONFIRMATION = "EVENT_IAP_CONFIRMATION";
 
 		// ----------------------------------------------
 		// SINGLETON
@@ -123,6 +124,7 @@ namespace YourCommonTools
 		{
 			m_StoreController = controller;
 			m_StoreExtensionProvider = extensions;
+            UIEventController.Instance.DispatchUIEvent(EVENT_IAP_INITIALIZED, IsInitialized());
 		}
 
 		// -------------------------------------------
@@ -132,7 +134,8 @@ namespace YourCommonTools
 		public void OnInitializeFailed(InitializationFailureReason error)
 		{
 			Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
-		}
+            UIEventController.Instance.DispatchUIEvent(EVENT_IAP_INITIALIZED, false);
+        }
 
 		// -------------------------------------------
 		/* 
