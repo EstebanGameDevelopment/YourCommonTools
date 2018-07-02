@@ -106,29 +106,29 @@ namespace YourCommonTools
 			DestroyScreensOverlay();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Information screen
 		 */
-		public void CreatePopUpScreenInfo(string _title, string _description, string _eventData)
+        protected virtual void CreatePopUpScreenInfo(string _title, string _description, string _eventData)
 		{
 			CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Confirmation screen
 		 */
-		public void CreatePopUpScreenConfirmation(string _title, string _description, string _eventData)
+        protected virtual void CreatePopUpScreenConfirmation(string _title, string _description, string _eventData)
 		{
 			CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Create a new screen
 		 */
-		public void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, string _title, string _description, Sprite _image, string _eventData, string _okButtonText = "", string _cancelButtonText = "")
+        protected virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, string _title, string _description, Sprite _image, string _eventData, string _okButtonText = "", string _cancelButtonText = "")
 		{
 			List<PageInformation> pages = new List<PageInformation>();
 			pages.Add(new PageInformation(_title, _description, _image, _eventData, _okButtonText, _cancelButtonText));
@@ -136,29 +136,29 @@ namespace YourCommonTools
 			CreateNewScreen(_nameScreen, _previousAction, false, pages);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Create a new screen
 		 */
-		public void CreateNewScreenNoParameters(string _nameScreen, UIScreenTypePreviousAction _previousAction)
+        protected virtual void CreateNewScreenNoParameters(string _nameScreen, UIScreenTypePreviousAction _previousAction)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, true, null);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Create a new screen
 		 */
-		public void CreateNewScreenNoParameters(string _nameScreen, bool _hidePreviousScreens, UIScreenTypePreviousAction _previousAction)
+        protected virtual void CreateNewScreenNoParameters(string _nameScreen, bool _hidePreviousScreens, UIScreenTypePreviousAction _previousAction)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, _hidePreviousScreens, null);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Create a new screen
 		 */
-		public void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
+        protected virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, false, _pages);
 		}
@@ -167,7 +167,7 @@ namespace YourCommonTools
 		/* 
 		* Create a new screen
 		*/
-		public void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _hidePreviousScreens, params object[] _list)
+		protected virtual void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _hidePreviousScreens, params object[] _list)
 		{
 			if (!m_enableScreens) return;
 
@@ -242,6 +242,25 @@ namespace YourCommonTools
 				Utilities.DebugLogError("CreateNewScreen::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
 			}
 		}
+
+        // -------------------------------------------
+        /* 
+		 * GetScreenPrefabByName
+		 */
+        public GameObject GetScreenPrefabByName(string _nameScreen)
+        {
+            for (int i = 0; i < ScreensPrefabs.Length; i++)
+            {
+                if (ScreensPrefabs[i] != null)
+                {
+                    if (ScreensPrefabs[i].name == _nameScreen)
+                    {
+                        return ScreensPrefabs[i];
+                    }
+                }
+            }
+            return null;
+        }
 
 		// -------------------------------------------
 		/* 
@@ -381,103 +400,119 @@ namespace YourCommonTools
 		 */
 		protected virtual void OnUIEvent(string _nameEvent, params object[] _list)
 		{
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
-			{
-				string nameScreen = (string)_list[0];
-				UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[1];
-				bool hidePreviousScreens = (bool)_list[2];
-				CreateNewScreen(nameScreen, previousAction, hidePreviousScreens);
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
-			{
-				string nameScreen = (string)_list[0];
-				UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[1];
-				bool hidePreviousScreens = (bool)_list[2];
-				string title = (string)_list[3];
-				string description = (string)_list[4];
-				Sprite image = (Sprite)_list[5];
-				string eventData = (string)_list[6];
-				List<PageInformation> pages = new List<PageInformation>();
-				pages.Add(new PageInformation(title, description, image, eventData));
-				CreateNewScreen(nameScreen, previousAction, false, pages);
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN)
-			{
-				m_enableScreens = true;
-				GameObject screen = (GameObject)_list[0];
-				DestroyGameObjectSingleScreen(screen, true);
-				EnableScreens(true);
-				if (DebugMode)
-				{
-					Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
-				}
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
-			{
-				DestroyScreensOverlay();
-				DestroyScreensPool();
-				if (DebugMode)
-				{
-					Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
-				}
-			}
-			if (_nameEvent == EVENT_CONFIRMATION_POPUP)
-			{
-				GameObject screen = (GameObject)_list[0];
-				bool accepted = (bool)_list[1];
-				string subnameEvent = (string)_list[2];
-				if (screen != null) Debug.Log("POP UP["+ screen.name + "] CLOSED");
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_POOL_DESTROY_LAST)
-			{
-				if (m_screensPool.Count > 0)
-				{
-					if (m_screensPool[m_screensPool.Count - 1] != null)
-					{
-						if (m_screensPool[m_screensPool.Count - 1].GetComponent<IBasicView>() != null)
-						{
-							GameObject refObject = m_screensPool[m_screensPool.Count - 1];
-							m_screensPool.RemoveAt(m_screensPool.Count - 1);
-							refObject.GetComponent<IBasicView>().Destroy();
-							refObject = null;
-							EnableScreens(true);
-							if (DebugMode)
-							{
-								Debug.LogError("EVENT_SCREENMANAGER_POOL_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
-							}
-							return;
-						}
-					}
-				}
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST)
-			{
-				if (m_screensOverlay.Count > 0)
-				{
-					if (m_screensOverlay[m_screensOverlay.Count - 1] != null)
-					{
-						if (m_screensOverlay[m_screensOverlay.Count - 1].GetComponent<IBasicView>() != null)
-						{
-							GameObject refObject = m_screensOverlay[m_screensOverlay.Count - 1];
-							m_screensOverlay.RemoveAt(m_screensOverlay.Count - 1);
-							refObject.GetComponent<IBasicView>().Destroy();
-							refObject = null;
-							if (DebugMode)
-							{
-								Utilities.DebugLogError("EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
-							}
-							return;
-						}
-					}
-				}
-			}
-		}
+            ProcessScreenEvents(_nameEvent, _list);
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * ProcessScreenEvents
+		 */
+        protected void ProcessScreenEvents(string _nameEvent, params object[] _list)
+        {
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
+            {
+                string nameScreen = (string)_list[0];
+                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[1];
+                bool hidePreviousScreens = (bool)_list[2];
+                List<PageInformation> pages = null;
+                if (_list.Length > 3)
+                {
+                    if (_list[3] is List<PageInformation>)
+                    {
+                        pages = (List<PageInformation>)_list[3];
+                    }
+                }
+                CreateNewScreen(nameScreen, previousAction, hidePreviousScreens, pages);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
+            {
+                string nameScreen = (string)_list[0];
+                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[1];
+                string title = (string)_list[2];
+                string description = (string)_list[3];
+                Sprite image = (Sprite)_list[4];
+                string eventData = (string)_list[5];
+                List<PageInformation> pages = new List<PageInformation>();
+                pages.Add(new PageInformation(title, description, image, eventData));
+                CreateNewScreen(nameScreen, previousAction, false, pages);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN)
+            {
+                m_enableScreens = true;
+                GameObject screen = (GameObject)_list[0];
+                DestroyGameObjectSingleScreen(screen, true);
+                EnableScreens(true);
+                if (DebugMode)
+                {
+                    Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+                }
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
+            {
+                DestroyScreensOverlay();
+                DestroyScreensPool();
+                if (DebugMode)
+                {
+                    Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+                }
+            }
+            if (_nameEvent == EVENT_CONFIRMATION_POPUP)
+            {
+                GameObject screen = (GameObject)_list[0];
+                bool accepted = (bool)_list[1];
+                string subnameEvent = (string)_list[2];
+                if (screen != null) Debug.Log("POP UP[" + screen.name + "] CLOSED");
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_POOL_DESTROY_LAST)
+            {
+                if (m_screensPool.Count > 0)
+                {
+                    if (m_screensPool[m_screensPool.Count - 1] != null)
+                    {
+                        if (m_screensPool[m_screensPool.Count - 1].GetComponent<IBasicView>() != null)
+                        {
+                            GameObject refObject = m_screensPool[m_screensPool.Count - 1];
+                            m_screensPool.RemoveAt(m_screensPool.Count - 1);
+                            refObject.GetComponent<IBasicView>().Destroy();
+                            refObject = null;
+                            EnableScreens(true);
+                            if (DebugMode)
+                            {
+                                Debug.LogError("EVENT_SCREENMANAGER_POOL_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST)
+            {
+                if (m_screensOverlay.Count > 0)
+                {
+                    if (m_screensOverlay[m_screensOverlay.Count - 1] != null)
+                    {
+                        if (m_screensOverlay[m_screensOverlay.Count - 1].GetComponent<IBasicView>() != null)
+                        {
+                            GameObject refObject = m_screensOverlay[m_screensOverlay.Count - 1];
+                            m_screensOverlay.RemoveAt(m_screensOverlay.Count - 1);
+                            refObject.GetComponent<IBasicView>().Destroy();
+                            refObject = null;
+                            if (DebugMode)
+                            {
+                                Utilities.DebugLogError("EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST::POOL[" + m_screensPool.Count + "]::OVERLAY[" + m_screensOverlay.Count + "]");
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Update
 		 */
-		public virtual void Update()
+        public virtual void Update()
 		{
 			if (Input.GetKeyDown(KeyCode.Escape))
 			{

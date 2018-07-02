@@ -9,6 +9,8 @@ namespace YourCommonTools
 	{
 		public const string CARDBOARD_ENABLE_COOCKIE = "CARDBOARD_ENABLE_COOCKIE";
 
+        public bool ForceActivation = false;
+
 		// -------------------------------------------
 		/* 
 		* Save a flag to report if we need to use or not the Google VR
@@ -34,7 +36,7 @@ namespace YourCommonTools
 		 */
 		void Start()
 		{
-			if (LoadEnableCardboard())
+			if (LoadEnableCardboard() || ForceActivation)
 			{
 				StartCoroutine(LoadDevice("Cardboard"));
 			}
