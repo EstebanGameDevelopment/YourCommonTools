@@ -115,7 +115,7 @@ namespace YourCommonTools
 			{
 				for (int i = 0; i < listPages.Count; i++)
 				{
-					m_pagesInfo.Add(((PageInformation)listPages[i]).Clone());
+                    m_pagesInfo.Add(listPages[i].Clone());
 				}
 			}
 
