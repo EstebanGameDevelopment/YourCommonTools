@@ -38,7 +38,10 @@ namespace YourCommonTools
 		{
 			if (LoadEnableCardboard() || ForceActivation)
 			{
-				StartCoroutine(LoadDevice("Cardboard"));
+                if (!UnityEngine.XR.XRSettings.enabled)
+                {
+                    StartCoroutine(LoadDevice("Cardboard"));
+                }                    
 			}
 			else
 			{
@@ -48,7 +51,7 @@ namespace YourCommonTools
 
 		IEnumerator LoadDevice(string newDevice)
 		{
-			UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
+            UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
 			yield return null;
 			UnityEngine.XR.XRSettings.enabled = true;
 		}
