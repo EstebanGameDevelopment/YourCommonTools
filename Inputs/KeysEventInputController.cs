@@ -222,7 +222,10 @@ namespace YourCommonTools
 
 					if (Input.GetKeyDown(KeyCode.LeftControl)
 						|| Input.GetKeyDown(KeyCode.JoystickButton0)
-						|| fire1Triggered)
+#if !UNITY_EDITOR
+                        || Input.GetButtonDown("Fire1")
+#endif
+                        || fire1Triggered)
 					{
 						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
 					}
@@ -270,7 +273,10 @@ namespace YourCommonTools
 					// ACTION BUTTON ANCHOR
 					if (Input.GetKeyDown(KeyCode.LeftControl)
 						|| Input.GetKeyDown(KeyCode.JoystickButton0)
-						|| fire1Triggered)
+#if !UNITY_EDITOR
+                        || Input.GetButtonDown("Fire1")
+#endif
+                        || fire1Triggered)
 					{
 						UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
 					}
@@ -278,7 +284,10 @@ namespace YourCommonTools
 					// ACTION BUTTON RELEASED
 					if (Input.GetKeyUp(KeyCode.LeftControl)
 						|| Input.GetKeyUp(KeyCode.JoystickButton0)
-						|| fire1Released)
+#if !UNITY_EDITOR
+                        || Input.GetButtonUp("Fire1")
+#endif
+                        || fire1Released)
 					{
 						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
 					}
