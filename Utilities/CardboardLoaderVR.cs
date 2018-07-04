@@ -9,6 +9,9 @@ namespace YourCommonTools
 	{
 		public const string CARDBOARD_ENABLE_COOCKIE = "CARDBOARD_ENABLE_COOCKIE";
 
+        public const string CARDBOARD_DEVICE_NAME = "Cardboard";
+        public const string DAYDREAM_DEVICE_NAME = "Daydream";
+
         public bool ForceActivation = false;
 
 		// -------------------------------------------
@@ -17,7 +20,7 @@ namespace YourCommonTools
 		*/
 		public static void SaveEnableCardboard(bool _enabledCardboard)
 		{
-			PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
+            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
 		}
 
 		// -------------------------------------------
@@ -40,9 +43,10 @@ namespace YourCommonTools
 			{
                 if (!UnityEngine.XR.XRSettings.enabled)
                 {
-                    StartCoroutine(LoadDevice("Cardboard"));
-                }                    
-			}
+                    // StartCoroutine(LoadDevice(DAYDREAM_DEVICE_NAME));
+                    StartCoroutine(LoadDevice(CARDBOARD_DEVICE_NAME));
+                }
+            }
 			else
 			{
 				Input.gyro.enabled = true;
@@ -52,7 +56,7 @@ namespace YourCommonTools
 		IEnumerator LoadDevice(string newDevice)
 		{
             UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
-			yield return null;
+            yield return null;
 			UnityEngine.XR.XRSettings.enabled = true;
 		}
 	}	
