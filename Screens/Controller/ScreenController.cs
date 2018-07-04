@@ -110,7 +110,7 @@ namespace YourCommonTools
         /* 
 		 * Information screen
 		 */
-        protected virtual void CreatePopUpScreenInfo(string _title, string _description, string _eventData)
+        public virtual void CreatePopUpScreenInfo(string _title, string _description, string _eventData)
 		{
 			CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
@@ -119,7 +119,7 @@ namespace YourCommonTools
         /* 
 		 * Confirmation screen
 		 */
-        protected virtual void CreatePopUpScreenConfirmation(string _title, string _description, string _eventData)
+        public virtual void CreatePopUpScreenConfirmation(string _title, string _description, string _eventData)
 		{
 			CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, _title, _description, null, _eventData);
 		}
@@ -128,7 +128,7 @@ namespace YourCommonTools
         /* 
 		 * Create a new screen
 		 */
-        protected virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, string _title, string _description, Sprite _image, string _eventData, string _okButtonText = "", string _cancelButtonText = "")
+        public virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, string _title, string _description, Sprite _image, string _eventData, string _okButtonText = "", string _cancelButtonText = "")
 		{
 			List<PageInformation> pages = new List<PageInformation>();
 			pages.Add(new PageInformation(_title, _description, _image, _eventData, _okButtonText, _cancelButtonText));
@@ -140,7 +140,7 @@ namespace YourCommonTools
         /* 
 		 * Create a new screen
 		 */
-        protected virtual void CreateNewScreenNoParameters(string _nameScreen, UIScreenTypePreviousAction _previousAction)
+        public virtual void CreateNewScreenNoParameters(string _nameScreen, UIScreenTypePreviousAction _previousAction)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, true, null);
 		}
@@ -149,7 +149,7 @@ namespace YourCommonTools
         /* 
 		 * Create a new screen
 		 */
-        protected virtual void CreateNewScreenNoParameters(string _nameScreen, bool _hidePreviousScreens, UIScreenTypePreviousAction _previousAction)
+        public virtual void CreateNewScreenNoParameters(string _nameScreen, bool _hidePreviousScreens, UIScreenTypePreviousAction _previousAction)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, _hidePreviousScreens, null);
 		}
@@ -158,7 +158,7 @@ namespace YourCommonTools
         /* 
 		 * Create a new screen
 		 */
-        protected virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
+        public virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
 		{
 			CreateNewScreen(_nameScreen, _previousAction, false, _pages);
 		}
@@ -167,7 +167,7 @@ namespace YourCommonTools
 		/* 
 		* Create a new screen
 		*/
-		protected virtual void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _hidePreviousScreens, params object[] _list)
+		public virtual void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _hidePreviousScreens, params object[] _list)
 		{
 			if (!m_enableScreens) return;
 
