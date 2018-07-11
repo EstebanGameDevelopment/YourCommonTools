@@ -74,7 +74,7 @@ namespace YourCommonTools
 			}
 
 			if (LoadingIcon != null) m_imageLoading = LoadingIcon.transform;
-			if (m_textLoading != null) m_textLoading = LoadingText.transform;
+			if (LoadingText != null) m_textLoading = LoadingText.transform;
 			if (m_textLoading!=null)
 			{
 				m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
@@ -211,7 +211,7 @@ namespace YourCommonTools
 					m_gameObjects.Add(newSlot);
 				}
 			}
-			if (m_data.Count == 0)
+			if (m_gameObjects.Count == 0)
 			{
 				if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
 				if (m_textLoading != null) m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.no.records");
@@ -219,7 +219,7 @@ namespace YourCommonTools
 			else
 			{
 				if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(false);
-				if (m_textLoading != null) m_textLoading.gameObject.SetActive(false);
+                if (m_textLoading != null) m_textLoading.gameObject.SetActive(false);
 			}
 		}
 
