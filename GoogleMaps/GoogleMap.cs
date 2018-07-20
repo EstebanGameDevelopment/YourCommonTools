@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using YourCommonTools;
+using System;
 
 namespace YourCommonTools
 {
@@ -32,18 +33,22 @@ namespace YourCommonTools
 		// ----------------------------------------------	
 		public const float ZOOM_BASE = 10;
 		public const float DEFAULT_HEIGHT = 637f;
+        public const int ZOOM_MAXIMUM = 15;
+        public const int ZOOM_MINIMUM = 3;
 
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		public const string EVENT_GOOGLEMAP_INIT_POSITION = "EVENT_GOOGLEMAP_INIT_POSITION";
-		public const string EVENT_GOOGLEMAP_SHIFT_POSITION = "EVENT_GOOGLEMAP_SHIFT_POSITION";
-		public const string EVENT_GOOGLEMAP_USER_UPDATE_VILLAGE = "EVENT_GOOGLEMAP_USER_UPDATE_VILLAGE";
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_GOOGLEMAP_INIT_POSITION   = "EVENT_GOOGLEMAP_INIT_POSITION";
+		public const string EVENT_GOOGLEMAP_SHIFT_POSITION  = "EVENT_GOOGLEMAP_SHIFT_POSITION";
+        public const string EVENT_GOOGLEMAP_ZOOM            = "EVENT_GOOGLEMAP_ZOOM";
 
-		// ----------------------------------------------
-		// PUBLIC MEMBERS
-		// ----------------------------------------------	
-		public bool LoadOnStart = true;
+        public const string EVENT_GOOGLEMAP_SELECTED_LOCATION = "EVENT_GOOGLEMAP_SELECTED_LOCATION";
+
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
+        public bool LoadOnStart = true;
 		public bool AutoLocateCenter = true;
 		public GoogleMapLocation CenterLocation;
 		public int Zoom = 13;
@@ -66,15 +71,23 @@ namespace YourCommonTools
 		public void Initialization(string _coordinateData)
 		{
 			BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 
-			// SET INITIAL POSITION
-			if (_coordinateData.IndexOf(",") > 0)
+            // SET INITIAL POSITION
+            if (_coordinateData.IndexOf(",") > 0)
 			{
 				string[] coordinates = _coordinateData.Split(',');
 				CenterLocation.latitude = float.Parse(coordinates[0]);
 				CenterLocation.longitude = float.Parse(coordinates[1]);
 				m_calculateLocationWithGPS = false;
 			}
+
+#if UNITY_EDITOR
+            CenterLocation.latitude = 41.4771073f;
+            CenterLocation.longitude = 2.082185f;
+            AutoLocateCenter = false;
+            Zoom = 11;
+#endif
 
 #if ENABLED_FACEBOOK
         if (m_calculateLocationWithGPS)
@@ -88,17 +101,44 @@ namespace YourCommonTools
             BasicSystemEventController.Instance.DelayBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 0.2f, centerLocation.latitude, centerLocation.longitude);
         }        
 #else
-			StartCoroutine(GetPositionDevice());
+            StartCoroutine(GetPositionDevice());
 #endif
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+         * OnBasicEvent
+         */
+        public static float GetZoomFactor(int _zoom)
+        {
+            float zoomFactor = 0.17f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 2) zoomFactor = 144f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 3) zoomFactor = 72f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 4) zoomFactor = 36f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 5) zoomFactor = 18f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 6) zoomFactor = 9f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 7) zoomFactor = 4.5f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 8) zoomFactor = 2.4f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 9) zoomFactor = 1.12f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 10) zoomFactor = 0.6f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 11) zoomFactor = 0.3f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 12) zoomFactor = 0.15f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 13) zoomFactor = 0.07f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 14) zoomFactor = 0.04f * (Screen.height / DEFAULT_HEIGHT);
+            if (_zoom == 15) zoomFactor = 0.02f * (Screen.height / DEFAULT_HEIGHT);
+
+            return zoomFactor;
+        }
+
+
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		public void Destroy()
+        public void Destroy()
 		{
-			BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+            UIEventController.Instance.UIEvent -= OnUIEvent;
+            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
 			GameObject.Destroy(this.gameObject);
 		}
 
@@ -162,21 +202,52 @@ namespace YourCommonTools
 					BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_GOOGLEMAP_INIT_POSITION, 0.1f, CenterLocation.latitude, CenterLocation.longitude);
 				}
 			}
-			if (_nameEvent == EVENT_GOOGLEMAP_SHIFT_POSITION)
-			{
-				Vector2 shift = (Vector2)_list[0];
-				float zoomFactor = 0.17f * (Screen.height / DEFAULT_HEIGHT);
-				CenterLocation.longitude -= shift.x * zoomFactor;
-				CenterLocation.latitude -= shift.y * zoomFactor;
-				Refresh();
-			}
-		}
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * OnUIEvent
+		 */
+        private void OnUIEvent(string _nameEvent, object[] _list)
+        {
+            if (_nameEvent == EVENT_GOOGLEMAP_SHIFT_POSITION)
+            {
+                Vector2 shift = (Vector2)_list[0];
+                float zoomFactor = GetZoomFactor(Zoom);
+                CenterLocation.longitude -= shift.x * zoomFactor;
+                CenterLocation.latitude -= shift.y * zoomFactor;
+                Refresh();
+            }
+            if (_nameEvent == EVENT_GOOGLEMAP_ZOOM)
+            {
+                if ((bool)_list[0])
+                {
+                    Zoom += 1;
+                }
+                else
+                {
+                    Zoom -= 1;
+                }
+                if (Zoom > ZOOM_MAXIMUM)
+                {
+                    Zoom = ZOOM_MAXIMUM;
+                }
+                if (Zoom < ZOOM_MINIMUM)
+                {
+                    Zoom = ZOOM_MINIMUM;
+                }
+#if DEBUG_MODE_DISPLAY_LOG
+            Debug.LogError("EVENT_GOOGLEMAP_ZOOM::Zoom=" + Zoom);
+#endif
+                Refresh();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Refresh
 		 */
-		public void Refresh()
+        public void Refresh()
 		{
 			if (AutoLocateCenter && (Markers.Length == 0 && Paths.Length == 0))
 			{
@@ -270,7 +341,7 @@ namespace YourCommonTools
 							if (!foundCity)
 							{
 								foundCity = true;
-								BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GOOGLEMAP_USER_UPDATE_VILLAGE, shortName, CenterLocation.latitude + "," + CenterLocation.longitude);
+								BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GOOGLEMAP_SELECTED_LOCATION, shortName, CenterLocation.latitude + "," + CenterLocation.longitude);
 							}
 						}
 					}
