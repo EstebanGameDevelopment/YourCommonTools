@@ -23,10 +23,16 @@ namespace YourCommonTools
 		public const string EVENT_BASICSYSTEMEVENT_OPEN_INFO_TEXT_SCREEN = "EVENT_BASICSYSTEMEVENT_OPEN_INFO_TEXT_SCREEN";
 		public const string EVENT_BASICSYSTEMEVENT_OPEN_INFO_IMAGE_SCREEN = "EVENT_BASICSYSTEMEVENT_OPEN_INFO_IMAGE_SCREEN";
 
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static BasicSystemEventController _instance;
+        public const string EVENT_BASICSYSTEMEVENT_REQUEST_SIGN_TEXT_DATA   = "EVENT_BASICSYSTEMEVENT_REQUEST_SIGN_TEXT_DATA";
+        public const string EVENT_BASICSYSTEMEVENT_RESPONSE_SIGNED_TEXT_DATA = "EVENT_BASICSYSTEMEVENT_RESPONSE_SIGNED_TEXT_DATA";
+
+        public const string EVENT_BASICSYSTEMEVENT_REQUEST_VERIFY_TEXT_DATA = "EVENT_BASICSYSTEMEVENT_REQUEST_VERIFY_TEXT_DATA";
+        public const string EVENT_BASICSYSTEMEVENT_RESPONSE_VERIFICATION_TEXT_DATA = "EVENT_BASICSYSTEMEVENT_RESPONSE_VERIFICATION_TEXT_DATA";
+
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static BasicSystemEventController _instance;
 
 		public static BasicSystemEventController Instance
 		{
