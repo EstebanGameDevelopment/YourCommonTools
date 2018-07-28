@@ -39,21 +39,35 @@ namespace YourCommonTools
 		 */
 		void Start()
 		{
-			if (LoadEnableCardboard() || ForceActivation)
-			{
+            InitializeCardboard();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * InitializeCardboard
+		 */
+        public void InitializeCardboard()
+        {
+            if (LoadEnableCardboard() || ForceActivation)
+            {
                 if (!UnityEngine.XR.XRSettings.enabled)
                 {
                     // StartCoroutine(LoadDevice(DAYDREAM_DEVICE_NAME));
                     StartCoroutine(LoadDevice(CARDBOARD_DEVICE_NAME));
                 }
             }
-			else
-			{
-				Input.gyro.enabled = true;
-			}
-		}
+            else
+            {
+                Input.gyro.enabled = true;
+            }
+        }
 
-		IEnumerator LoadDevice(string newDevice)
+
+        // -------------------------------------------
+        /* 
+		 * LoadDevice
+		 */
+        IEnumerator LoadDevice(string newDevice)
 		{
             UnityEngine.XR.XRSettings.LoadDeviceByName(newDevice);
             yield return null;
