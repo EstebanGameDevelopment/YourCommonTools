@@ -220,7 +220,14 @@ namespace YourCommonTools
 						}
 					}
 
-					if (Input.GetKeyDown(KeyCode.LeftControl)
+#if ENABLE_OCULUS
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
+                    {
+                        fire1Triggered = true;
+                    }
+#endif
+
+                    if (Input.GetKeyDown(KeyCode.LeftControl)
 						|| Input.GetKeyDown(KeyCode.JoystickButton0)
 #if !UNITY_EDITOR
                         || Input.GetButtonDown("Fire1")
@@ -261,7 +268,14 @@ namespace YourCommonTools
 						}
 					}
 
-					bool fire1Released = false;
+#if ENABLE_OCULUS
+                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
+                    {
+                        fire1Triggered = true;
+                    }
+#endif
+
+                    bool fire1Released = false;
 					if (m_temporalNumberScreensActive == 0)
 					{
 						if (Input.GetButtonUp("Fire1"))
@@ -281,8 +295,15 @@ namespace YourCommonTools
 						UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
 					}
 
-					// ACTION BUTTON RELEASED
-					if (Input.GetKeyUp(KeyCode.LeftControl)
+#if ENABLE_OCULUS
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
+                    {
+                        fire1Released = true;
+                    }
+#endif
+
+                    // ACTION BUTTON RELEASED
+                    if (Input.GetKeyUp(KeyCode.LeftControl)
 						|| Input.GetKeyUp(KeyCode.JoystickButton0)
 #if !UNITY_EDITOR
                         || Input.GetButtonUp("Fire1")

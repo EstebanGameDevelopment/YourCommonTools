@@ -120,9 +120,12 @@ namespace YourCommonTools
 				eventData.Time -= Time.deltaTime;
 				if (eventData.Time <= 0)
 				{
-					BasicSystemEvent(eventData.NameEvent, eventData.List);
-					eventData.Destroy();
-					listEvents.RemoveAt(i);
+                    if ((eventData != null) && (BasicSystemEvent != null))
+                    {
+                        BasicSystemEvent(eventData.NameEvent, eventData.List);
+                        eventData.Destroy();
+                    }
+                    listEvents.RemoveAt(i);
 					break;
 				}
 			}
