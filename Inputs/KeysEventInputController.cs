@@ -350,7 +350,11 @@ namespace YourCommonTools
 				UIEventController.Instance.DispatchUIEvent(ACTION_CANCEL_BUTTON);
 			}
 			// BACK BUTTON
-			if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1))
+			if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
+#if ENABLE_OCULUS
+                || OVRInput.GetDown(OVRInput.Button.Back)
+#endif
+                )
 			{
 				UIEventController.Instance.DispatchUIEvent(ACTION_BACK_BUTTON);
 			}
