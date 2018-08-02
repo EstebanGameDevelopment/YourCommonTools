@@ -77,7 +77,7 @@ namespace YourCommonTools
         /* 
 		 * Force orientation of the device to landscape
 		 */
-        void Awake()
+        public virtual void Awake()
 		{
 #if !ENABLE_OCULUS
 			Screen.orientation = ScreenOrientation.LandscapeLeft;
