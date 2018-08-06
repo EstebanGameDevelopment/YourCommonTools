@@ -214,7 +214,7 @@ namespace YourCommonTools
 					bool fire1Triggered = false;
 
 #if ENABLE_OCULUS && !UNITY_EDITOR
-                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
+                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
                     {
                         UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
                     }
@@ -237,7 +237,6 @@ namespace YourCommonTools
                         UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
                     }
 #endif
-
                 }
             }
 			else
@@ -318,7 +317,59 @@ namespace YourCommonTools
 			}
 		}
 
-		private void KeyInputCancelManagement()
+        // -------------------------------------------
+        /* 
+		 * KeyInputReleasedActionButton
+		 */
+        private void KeyInputReleasedActionButton()
+        {
+            bool hasEntered = false;
+            if (m_enableActionOnMouseDown)
+            {
+                // DAYDREAM CONTROLLER				
+                if (m_isDaydreamActivated)
+                {
+#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+					if (GvrControllerInput.TouchUp)
+					{
+						hasEntered = true;
+						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
+					}
+#endif
+                }
+                if (!hasEntered)
+                {
+                    bool fire1Released = false;
+
+#if ENABLE_OCULUS && !UNITY_EDITOR
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
+                    {
+                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
+                    }
+#else
+                    if (m_temporalNumberScreensActive == 0)
+                    {
+                        if (Input.GetButtonUp("Fire1"))
+                        {
+                            fire1Released = true;
+                        }
+                    }
+
+                    if (Input.GetKeyUp(KeyCode.LeftControl)
+                        || Input.GetKeyUp(KeyCode.JoystickButton0)
+#if !UNITY_EDITOR
+                        || Input.GetButtonUp("Fire1")
+#endif
+                        || fire1Released)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
+                    }
+#endif
+                }
+            }
+        }
+
+        private void KeyInputCancelManagement()
 		{
 			// DAYDREAM CONTROLLER
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
@@ -439,9 +490,10 @@ namespace YourCommonTools
 		{
 			// ACTION BUTTON MANAGEMENT
 			KeyInputPressActionButton();
+            KeyInputReleasedActionButton();
 
-			// CANCEL BUTTON MANAGEMENT
-			KeyInputCancelManagement();
+            // CANCEL BUTTON MANAGEMENT
+            KeyInputCancelManagement();
 
 			// DIRECTIONS MANAGEMENT
 			KeyInputDirectionsManagement();
