@@ -1411,5 +1411,42 @@ namespace YourCommonTools
 			return false;
 		}
 
-	}
+
+        // -------------------------------------------
+        /* 
+		 * DebugLogByteArray
+		 */
+        public static void DebugLogByteArray(byte[] _bytes)
+        {
+            int acumlator = 0;
+            for (int i = 0; i < _bytes.Length; i++)
+            {
+                if ((i < 3) || (i >= _bytes.Length - 3))
+                {
+                    Debug.Log("_bytes[" + i + "]=" + _bytes[i]);
+                }
+                acumlator += (int)_bytes[i];
+            }
+            Debug.LogError("ACUMULATOR BYTES=" + acumlator);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DebugLogFloatArray
+		 */
+        public static void DebugLogFloatArray(float[] _floats)
+        {
+            int acumlator = 0;
+            for (int i = 0; i < _floats.Length; i++)
+            {
+                if ((i < 3) || (i >= _floats.Length - 3))
+                {
+                    Debug.Log("_floats[" + i + "]=" + _floats[i]);
+                }
+                acumlator += (int)_floats[i];
+            }
+            Debug.LogError("ACUMULATOR FLOATS=" + acumlator);
+        }
+
+    }
 }
