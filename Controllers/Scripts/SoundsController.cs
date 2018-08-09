@@ -16,10 +16,15 @@ namespace YourCommonTools
 	 */
 	public class SoundsController : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------
-		private static SoundsController _instance;
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------
+        public const string EVENT_SOUNDSCONTROLLER_AUDIO_DATA = "EVENT_SOUNDSCONTROLLER_AUDIO_DATA";
+
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------
+        private static SoundsController _instance;
 
 		public static SoundsController Instance
 		{
@@ -53,8 +58,18 @@ namespace YourCommonTools
 		private bool m_enableFX = true;
 		private bool m_enableMelodies = true;
 		private bool m_hasBeenInitialized = false;
+        private int m_requestAudioData = 0;
+        private string m_microphoneDeviceName = "";
 
-		public bool Enabled
+        public AudioSource Audio1
+        {
+            get { return m_audio1; }
+        }
+        public AudioSource Audio2
+        {
+            get { return m_audio2; }
+        }
+        public bool Enabled
 		{
 			get { return m_enabled; }
 			set
@@ -83,17 +98,20 @@ namespace YourCommonTools
 			get { return m_audio1.volume; }
 			set { m_audio1.volume = value; }
 		}
+        public int RequestAudioData
+        {
+            get { return m_requestAudioData; }
+            set { m_requestAudioData = value; }
+        }
 
-
-
-		// ----------------------------------------------
-		// CONSTRUCTOR
-		// ----------------------------------------------	
-		// -------------------------------------------
-		/* 
+        // ----------------------------------------------
+        // CONSTRUCTOR
+        // ----------------------------------------------	
+        // -------------------------------------------
+        /* 
 		 * Constructor
 		 */
-		public SoundsController()
+        public SoundsController()
 		{
 		}
 
@@ -239,5 +257,79 @@ namespace YourCommonTools
 				}					
 			}
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+		 * PlaySingleSound
+		 */
+        public void StartMicrophoneRecording(int _totalTimeMicrophone)
+        {
+            if (Microphone.devices.Length > 0)
+            {
+                m_microphoneDeviceName = Microphone.devices[0];
+
+                m_audio1.volume = 1f;
+                m_audio1.clip = null;
+                m_audio1.loop = false; // Set the AudioClip to loop
+                m_audio1.mute = true; // Mute the sound, we don't want the player to hear it
+                m_audio1.clip = Microphone.Start(m_microphoneDeviceName, false, _totalTimeMicrophone, 44100);
+                while (!(Microphone.GetPosition(m_microphoneDeviceName) > 0)) { } // Wait until the recording has started
+                m_audio1.Play();
+            }
+            else
+            {
+                m_microphoneDeviceName = "";
+                return;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * StopMicrophoneRecording
+		 */
+        public void StopMicrophoneRecording()
+        {
+            m_requestAudioData = Microphone.GetPosition(m_microphoneDeviceName);
+            SoundsController.Instance.Audio1.Stop();
+            Microphone.End(m_microphoneDeviceName);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * PlayRecordedSound
+		 */
+        public bool IsPlayingRecordedSound()
+        {
+            return m_audio1.isPlaying;
+        }
+
+        // -------------------------------------------
+        /* 
+        * PlayRecordedSound
+        */
+        public void PlayRecordedSound(float[] _floatData)
+        {
+            m_audio1.clip = null;
+            m_audio1.clip = AudioClip.Create("Voice User", _floatData.Length, 1, 44100, false);
+            m_audio1.clip.SetData(_floatData, 0);
+            m_audio1.loop = false;
+            m_audio1.volume = 1;
+            m_audio1.Play();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * PlaySingleSound
+		 */
+        void Update()
+        {
+            if (m_requestAudioData > 0)
+            {
+                float[] clipData = new float[m_requestAudioData];
+                m_requestAudioData = 0;
+                m_audio1.clip.GetData(clipData, 0);                
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SOUNDSCONTROLLER_AUDIO_DATA, clipData);                
+            }
+        }
+    }
 }
