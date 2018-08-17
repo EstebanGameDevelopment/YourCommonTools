@@ -1,10 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-#if ENABLE_DRONECONTROLLER
-using IronPython.Hosting;
-using System.IO;
-using Microsoft.Scripting.Hosting;
-#endif
 
 namespace YourCommonTools
 {
@@ -20,8 +14,14 @@ namespace YourCommonTools
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------
-        public const string EVENT_DRONEKITCONTROLLER_START_VELOCITY     = "EVENT_DRONEKITCONTROLLER_START_VELOCITY";
-        public const string EVENT_DRONEKITCONTROLLER_FINISHED_VELOCITY  = "EVENT_DRONEKITCONTROLLER_FINISHED_VELOCITY";
+        public const string EVENT_DRONEKITCONTROLLER_CONNECTED          = "EVENT_DRONEKITCONTROLLER_CONNECTED";
+        public const string EVENT_DRONEKITCONTROLLER_ARMED              = "EVENT_DRONEKITCONTROLLER_ARMED";
+        public const string EVENT_DRONEKITCONTROLLER_TAKEN_OFF          = "EVENT_DRONEKITCONTROLLER_TAKEN_OFF";
+        public const string EVENT_DRONEKITCONTROLLER_READY              = "EVENT_DRONEKITCONTROLLER_READY";
+        public const string EVENT_DRONEKITCONTROLLER_START_FLYING       = "EVENT_DRONEKITCONTROLLER_START_FLYING";
+        public const string EVENT_DRONEKITCONTROLLER_FLYING             = "EVENT_DRONEKITCONTROLLER_FLYING";
+        public const string EVENT_DRONEKITCONTROLLER_LANDING            = "EVENT_DRONEKITCONTROLLER_LANDING";
+        public const string EVENT_DRONEKITCONTROLLER_LANDED             = "EVENT_DRONEKITCONTROLLER_LANDED";
 
         // ----------------------------------------------
         // CONSTANTS
@@ -79,10 +79,11 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEANDROIDCONTROLLER
         private AndroidJavaObject m_dronekitAndroid;
 #endif
         private float m_timeoutRunning = 0;
+        private float m_nextTimeout = 0;
         private int m_stateAndroid = -1;
         private Vector3 m_currentVelocity = Vector3.zero;
         private Vector3 m_nextVelocity = Vector3.zero;
@@ -90,13 +91,35 @@ namespace YourCommonTools
         private float m_speedDrone = 5;
         private float m_heightTakeOff = 10;
         private float m_initialAltitude = -1;
+        private bool m_reportedToTakeOff = false;
+        private bool m_reportedLanding = false;
+        private bool m_autoStart = false;
 
         // -------------------------------------------
         /* 
-		 * Start the drone with the desired vector velocity
+		 * Drone set up call
 		 */
-        public void RunVelocity(float _vx, float _vy, float _vz, float _timeoutRunning = 5, float _distance = 10, int _speedDrone = 5, int _portNumberDrone = 14550, int _heightTakeOff = 10)
+        public void Initialitzation(bool _autoStart = false, int _portNumberDrone = 14550, int _heightTakeOff = 10)
+        {
+            if (m_dronekitAndroid == null)
+            {
+                m_heightTakeOff = _heightTakeOff;
+                m_autoStart = _autoStart;
+
+                m_dronekitAndroid = new AndroidJavaObject("com.yourvrexperience.controldrone.ControlDroneDronekit");
+                m_dronekitAndroid.Call("initControlDrone", _portNumberDrone, _heightTakeOff);
+
+                Invoke("ConnectDrone", 3);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+        * Start the drone with the desired vector velocity
+        */
+        public void RunVelocity(float _vx, float _vy, float _vz, bool _autoStart = false, float _timeoutRunning = 5, float _distance = 10, int _speedDrone = 5, int _heightTakeOff = 10)
 		{
+            m_autoStart = _autoStart;
             m_currentVelocity = new Vector3(_vx, _vy, _vz);
             m_distance = _distance;
             m_speedDrone = _speedDrone;
@@ -105,45 +128,41 @@ namespace YourCommonTools
             if (m_timeoutRunning > 0)
             {
                 m_nextVelocity = new Vector3(_vx, _vy, _vz);
+                m_nextTimeout = _timeoutRunning;
                 return;
             }
 
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEANDROIDCONTROLLER
             m_timeoutRunning = _timeoutRunning;
-            if (m_dronekitAndroid == null)
+            if (m_dronekitAndroid != null)
             {
-                m_dronekitAndroid = new AndroidJavaObject("com.yourvrexperience.controldrone.ControlDroneDronekit");
-                m_dronekitAndroid.Call("initControlDrone", _portNumberDrone, _heightTakeOff);
-                Invoke("ConnectDrone", 3);
-            }
-            else
-            {                
                 m_stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
-                switch (m_stateAndroid)
+                if (m_autoStart)
                 {
-                    case STATE_DISCONNECTED:
-                        ChangeState(STATE_CONNECTED);
-                        break;
+                    switch (m_stateAndroid)
+                    {
+                        case STATE_DISCONNECTED:
+                            ChangeState(STATE_CONNECTED);
+                            break;
 
-                    case STATE_CONNECTED:
-                        ChangeState(STATE_ARMED);
-                        break;
+                        case STATE_CONNECTED:
+                            ChangeState(STATE_ARMED);
+                            break;
 
-                    case STATE_ARMED:
-                        ChangeState(STATE_TAKEOFF);
-                        break;
+                        case STATE_ARMED:
+                            ChangeState(STATE_TAKEOFF);
+                            break;
 
-                    case STATE_LANDING:
-                        ChangeState(STATE_LANDING);
-                        break;
+                        case STATE_LANDING:
+                            ChangeState(STATE_LANDING);
+                            break;
 
-                    case STATE_FLYING:
-                        ChangeState(STATE_FLYING);
-                        break;
+                        case STATE_FLYING:
+                            ChangeState(STATE_FLYING);
+                            break;
+                    }
                 }
             }
-
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_START_VELOCITY);
 #endif
         }
 
@@ -162,25 +181,7 @@ namespace YourCommonTools
 		 */
         public void ArmDrone()
         {
-            m_stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
-            switch (m_stateAndroid)
-            {
-                case STATE_CONNECTED:
-                    ChangeState(STATE_ARMED);
-                    break;
-
-                case STATE_ARMED:
-                    ChangeState(STATE_TAKEOFF);
-                    break;
-
-                case STATE_LANDING:
-                    ChangeState(STATE_LANDING);
-                    break;
-
-                case STATE_FLYING:
-                    ChangeState(STATE_FLYING);
-                    break;
-            }
+            ChangeState(STATE_ARMED);
         }
 
         // -------------------------------------------
@@ -194,12 +195,45 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * ChangeState
+		 * LandDrone
 		 */
+        public void LandDrone()
+        {
+            ChangeState(STATE_LANDING);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetModeOperation
+		 */
+        public void SetModeOperation(int _modeOperation)
+        {
+            m_dronekitAndroid.Call("setModeDrone", _modeOperation);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FlyDrone
+		 */
+        public void FlyDrone()
+        {
+            Debug.LogError("DroneKit::ALTITUDE TAKEOFF REACHED, NOW GOING TO FLY STATE!!!!!");
+            if (m_currentVelocity != Vector3.zero)
+            {
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_START_FLYING, m_timeoutRunning);
+                ChangeState(STATE_FLYING);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+         * ChangeState
+         */
         public override void ChangeState(int newState)
         {
             base.ChangeState(newState);
 
+#if ENABLE_DRONEANDROIDCONTROLLER
             bool resultAction = false;
             switch (m_state)
             {
@@ -213,7 +247,8 @@ namespace YourCommonTools
                     Debug.LogError("DroneKit::CONNECTION WITH DRONE["+ resultAction + "]+++++++++++++");
                     if (resultAction)
                     {
-                        Invoke("ArmDrone", 3);
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_CONNECTED);
+                        if (m_autoStart) Invoke("ArmDrone", 3);
                     }
                     break;
 
@@ -222,17 +257,25 @@ namespace YourCommonTools
                     Debug.LogError("DroneKit::ARMING DRONE[" + resultAction + "]+++++++++++++");
                     if (resultAction)
                     {
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_ARMED);
                         m_initialAltitude = (float)m_dronekitAndroid.Call<System.Double>("getAltitude");
                         Debug.LogError("DroneKit::DRONE INITIAL ALTITUDE[" + m_initialAltitude + "]+++++++++++++");
-                        Invoke("TakeOffDrone", 3);
+                        if (m_autoStart) Invoke("TakeOffDrone", 3);
                     }
                     break;
 
                 case STATE_TAKEOFF:
-                    resultAction = m_dronekitAndroid.Call<System.Boolean>("takeOffDrone");
+                    m_reportedToTakeOff = false;
+                    resultAction = m_dronekitAndroid.Call<System.Boolean>("takeOffDrone");                    
                     Debug.LogError("DroneKit::TAKING OFF DRONE[" + resultAction + "]+++++++++++++");
                     break;
+
+                case STATE_LANDING:
+                    resultAction = m_dronekitAndroid.Call<System.Boolean>("landModeDrone");
+                    Debug.LogError("DroneKit::LANDING DRONE[" + resultAction + "]+++++++++++++");
+                    break;
             }
+#endif
         }
 
         // -------------------------------------------
@@ -243,7 +286,7 @@ namespace YourCommonTools
         {
             base.Logic();
 
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEANDROIDCONTROLLER
             switch (m_state)
             {
                 //////////////////////////////////////////////
@@ -252,13 +295,44 @@ namespace YourCommonTools
                     Debug.LogError("DroneKit::STATE_TAKEOFF::takeOffState="+ takeOffState);
                     if (takeOffState == COMMAND_STATE_SUCCESS)
                     {
+                        if (!m_reportedToTakeOff)
+                        {
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_TAKEN_OFF);
+                        }
+                        m_reportedToTakeOff = true;
                         float currentAltitude = (float)m_dronekitAndroid.Call<System.Double>("getAltitude");
                         float targetAltitude = (m_initialAltitude + m_heightTakeOff) - 1;
                         Debug.LogError("DroneKit::TAKE OF SUCCESS::ALTITUDE["+ currentAltitude + "/" + targetAltitude + "]!!!!!");
                         if (currentAltitude >= targetAltitude)
                         {
-                            Debug.LogError("DroneKit::ALTITUDE TAKEOFF REACHED, NOW GOING TO FLY STATE!!!!!");
-                            ChangeState(STATE_FLYING);
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_READY);
+                            if (m_autoStart)
+                            {
+                                FlyDrone();
+                            }
+                        }
+                    }
+                    break;
+
+                //////////////////////////////////////////////
+                case STATE_LANDING:
+                    int landingState = m_dronekitAndroid.Call<System.Int32>("getLandingState");
+                    if (landingState == COMMAND_STATE_SUCCESS)
+                    {
+                        if (!m_reportedLanding)
+                        {
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDING);
+                        }
+                        m_reportedLanding = true;
+
+                        int stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
+                        if (stateAndroid != STATE_LANDING)
+                        {
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDED);
+                            m_reportedToTakeOff = false;
+                            m_reportedLanding = false;
+                            m_autoStart = false;
+                            ChangeState(STATE_CONNECTED);
                         }
                     }
                     break;
@@ -302,6 +376,7 @@ namespace YourCommonTools
 
                         default:
                             m_timeoutRunning -= Time.deltaTime;
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_FLYING, m_timeoutRunning);
                             if (m_timeoutRunning <= 0)
                             {
                                 Debug.LogError("DroneKit::TIME COMPLETED!!!!!");
@@ -309,13 +384,17 @@ namespace YourCommonTools
                                 {
                                     Debug.LogError("DroneKit::SET NEW TARGET STORED!!!!!!!!!!!!!!");
                                     m_currentVelocity = Utilities.Clone(m_nextVelocity);
+                                    m_timeoutRunning = m_nextTimeout;
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_START_FLYING, m_timeoutRunning);
                                     m_nextVelocity = Vector3.zero;
+                                    m_nextTimeout = 0;
                                     ChangeState(STATE_FLYING);
                                 }
                                 else
                                 {
-                                    m_dronekitAndroid.Call("pauseDrone");
                                     Debug.LogError("DroneKit::SETTING THE DRONE TO IDLE!!!!!!!!!!!!!!");
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_READY);
+                                    m_dronekitAndroid.Call("pauseDrone");                                    
                                     ChangeState(STATE_IDLE);
                                 }
                             }

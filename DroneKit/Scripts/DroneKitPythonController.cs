@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEPYTHONCONTROLLER
 using IronPython.Hosting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
@@ -58,7 +58,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEPYTHONCONTROLLER
         private ScriptScope m_scope;
         private ScriptSource m_source;
 #endif
@@ -84,7 +84,7 @@ namespace YourCommonTools
                 return;
             }
 
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEPYTHONCONTROLLER
             var engine = Python.CreateEngine();
             m_scope = engine.CreateScope();
             ICollection<string> sp = engine.GetSearchPaths();
@@ -120,7 +120,7 @@ namespace YourCommonTools
 		 */
         private void Update()
         {
-#if ENABLE_DRONECONTROLLER
+#if ENABLE_DRONEPYTHONCONTROLLER
             if (m_timeout >= 0)
             {
                 m_timeout += Time.deltaTime;
