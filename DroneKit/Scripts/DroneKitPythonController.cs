@@ -1,9 +1,9 @@
-using System;
 using UnityEngine;
-using System.Collections;
-using Microsoft.Scripting.Hosting;
+using System.Collections.Generic;
 #if ENABLE_DRONECONTROLLER
 using IronPython.Hosting;
+using System.IO;
+using Microsoft.Scripting.Hosting;
 #endif
 
 namespace YourCommonTools
@@ -15,7 +15,7 @@ namespace YourCommonTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class DroneKitController : MonoBehaviour 
+	public class DroneKitPythonController : MonoBehaviour 
 	{
         // ----------------------------------------------
         // EVENTS
@@ -36,15 +36,15 @@ namespace YourCommonTools
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------
-        private static DroneKitController _instance;
+        private static DroneKitPythonController _instance;
 
-        public static DroneKitController Instance
+        public static DroneKitPythonController Instance
         {
             get
             {
                 if (!_instance)
                 {
-                    _instance = GameObject.FindObjectOfType<DroneKitController>();
+                    _instance = GameObject.FindObjectOfType<DroneKitPythonController>();
                 }
                 return _instance;
             }
@@ -87,6 +87,16 @@ namespace YourCommonTools
 #if ENABLE_DRONECONTROLLER
             var engine = Python.CreateEngine();
             m_scope = engine.CreateScope();
+            ICollection<string> sp = engine.GetSearchPaths();
+            string path = Path.Combine(Path.GetDirectoryName(UnityEngine.Application.dataPath), "Assets/RemoteStreamController/Libraries/YourCommonTools/DroneKit/Resources");
+            sp.Add(path);
+            // path = Path.Combine(Path.GetDirectoryName(UnityEngine.Application.dataPath), "Assets/RemoteStreamController/Libraries/YourCommonTools/DroneKit/Resources/dronekit/util.py");
+            engine.SetSearchPaths(sp);
+            foreach (string item in sp)
+            {
+                Debug.LogError("+++++item=" + item);
+            }
+            engine.Runtime.LoadAssembly(System.Reflection.Assembly.GetAssembly(typeof(GameObject)));
 
             m_drokeKitScript = ScriptDroneKitVelocity.text;
             m_drokeKitScript = m_drokeKitScript.Replace(DRONEKIT_TAG_TOTALTIME, _totalTime.ToString());
