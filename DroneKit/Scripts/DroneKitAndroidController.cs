@@ -157,30 +157,36 @@ namespace YourCommonTools
             m_currentVelocity = new Vector3(_vx, _vy, _vz) * m_speedDrone;
             if (m_dronekitAndroid != null)
             {
-                m_stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
-                if (m_autoStart)
+                if ((m_state != STATE_IDLE) && (m_state != STATE_FLYING) && (m_state != STATE_LANDING))
                 {
-                    switch (m_stateAndroid)
+                    m_stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
+                    if (m_autoStart)
                     {
-                        case STATE_DISCONNECTED:
-                            ConnectDrone();
-                            break;
+                        switch (m_stateAndroid)
+                        {
+                            case STATE_DISCONNECTED:
+                                ConnectDrone();
+                                break;
 
-                        case STATE_CONNECTED:
-                            ArmDrone();
-                            break;
+                            case STATE_CONNECTED:
+                                ArmDrone();
+                                break;
 
-                        case STATE_ARMED:
-                            TakeOffDrone();
-                            break;
+                            case STATE_ARMED:
+                                TakeOffDrone();
+                                break;
 
-                        case STATE_LANDING:
-                            LandDrone();
-                            break;
-                            
-                        case STATE_FLYING:
-                            FlyDrone();
-                            break;
+                            default:
+                                FlyDrone();
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_autoStart)
+                    {
+                        FlyDrone();
                     }
                 }
             }            
