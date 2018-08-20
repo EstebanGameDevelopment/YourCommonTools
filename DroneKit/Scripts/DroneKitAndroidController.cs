@@ -83,9 +83,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
-#if ENABLE_DRONEANDROIDCONTROLLER
         private AndroidJavaObject m_dronekitAndroid;
-#endif
         private float m_timeoutRunning = 0;
         private float m_nextTimeout = 0;
         private int m_stateAndroid = -1;
@@ -121,6 +119,7 @@ namespace YourCommonTools
 		 */
         public void Initialitzation(bool _autoStart = false, int _portNumberDrone = 14550, int _heightTakeOff = 10)
         {
+#if ENABLE_DRONEANDROIDCONTROLLER
             if (m_dronekitAndroid == null)
             {
                 m_heightTakeOff = _heightTakeOff;
@@ -133,6 +132,7 @@ namespace YourCommonTools
 
                 Invoke("ConnectDrone", 3);
             }
+#endif
         }
 
         // -------------------------------------------
@@ -183,9 +183,9 @@ namespace YourCommonTools
                             break;
                     }
                 }
-            }
-            return true;
+            }            
 #endif
+            return true;
         }
 
         // -------------------------------------------
@@ -198,6 +198,7 @@ namespace YourCommonTools
             if (m_state != STATE_DISCONNECTED) return;
 
             ChangeState(STATE_CONNECTED);
+
         }
 
         // -------------------------------------------
