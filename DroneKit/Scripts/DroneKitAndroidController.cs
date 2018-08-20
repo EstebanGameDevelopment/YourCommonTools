@@ -37,6 +37,8 @@ namespace YourCommonTools
         public const int STATE_LANDING      = 6;
         public const int STATE_RETURN_HOME  = 7;
         public const int STATE_CRASH        = 8;
+        public const int STATE_CHANGE_ALTITUDE = 9;
+        public const int STATE_GUIDE_MODE   = 10;
 
         public const int DRONE_DEFAULT_LISTENING_CHANNEL= 14550;
         public const int DRONE_DEFAULT_HEIGHT_TAKEOFF   = 10;
@@ -98,6 +100,8 @@ namespace YourCommonTools
         private bool m_reportedLanding = false;
         private bool m_takeoffAltitudeReached = false;
         private bool m_autoStart = false;
+        private int m_nextState = -1;
+        private bool m_activatedLanding = false;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -238,9 +242,9 @@ namespace YourCommonTools
 		 */
         public void SetModeOperation(int _modeOperation)
         {
+            ChangeState(STATE_IDLE);
             m_dronekitAndroid.Call("setModeDrone", _modeOperation);
         }
-
 
         // -------------------------------------------
         /* 
@@ -248,7 +252,11 @@ namespace YourCommonTools
 		 */
         public void ChangeAltitude(float _height)
         {
-            m_dronekitAndroid.Call("changeAltitudeDrone", _height);
+            if (m_dronekitAndroid == null) return;
+            if ((m_state != STATE_FLYING) && (m_state != STATE_IDLE) && (m_state != STATE_TAKEOFF)) return;
+
+            m_heightTakeOff = _height;
+            ChangeState(STATE_CHANGE_ALTITUDE);
         }
 
         // -------------------------------------------
@@ -321,6 +329,8 @@ namespace YourCommonTools
                         {
                             m_reportedToTakeOff = true;
                             m_takeoffAltitudeReached = true;
+                            m_activatedLanding = false;
+                            m_reportedLanding = false;
                             BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_READY);
                             ChangeState(STATE_IDLE);
                         }
@@ -342,14 +352,10 @@ namespace YourCommonTools
                 case STATE_TAKEOFF:
                     m_reportedToTakeOff = false;
                     m_takeoffAltitudeReached = false;
+                    m_activatedLanding = false;
+                    m_reportedLanding = false;
                     resultAction = m_dronekitAndroid.Call<System.Boolean>("takeOffDrone");                    
                     Debug.LogError("DroneKit::TAKING OFF DRONE[" + resultAction + "]+++++++++++++");
-                    break;
-
-                case STATE_LANDING:
-                    m_takeoffAltitudeReached = false;
-                    resultAction = m_dronekitAndroid.Call<System.Boolean>("landModeDrone");
-                    Debug.LogError("DroneKit::LANDING DRONE[" + resultAction + "]+++++++++++++");
                     break;
             }
 #endif
@@ -410,29 +416,103 @@ namespace YourCommonTools
 
                 //////////////////////////////////////////////
                 case STATE_LANDING:
-                    int landingState = m_dronekitAndroid.Call<System.Int32>("getLandingState");
-                    if (landingState == COMMAND_STATE_SUCCESS)
+                    if (!m_dronekitAndroid.Call<System.Boolean>("getGuidedDrone") && !m_activatedLanding)
                     {
-                        if (!m_reportedLanding)
+                        m_nextState = STATE_LANDING;
+                        ChangeState(STATE_GUIDE_MODE);
+                    }
+                    else
+                    {
+                        m_activatedLanding = true;
+                        if (m_iterator == 1)
                         {
-                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDING);
+                            m_takeoffAltitudeReached = false;
+                            m_dronekitAndroid.Call("landModeDrone");
                         }
-                        m_reportedLanding = true;
-
-                        int stateAndroid = m_dronekitAndroid.Call<System.Int32>("getStateDrone");
-                        if (stateAndroid != STATE_LANDING)
+                        else
                         {
-                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDED);
-                            m_reportedToTakeOff = false;
-                            m_reportedLanding = false;
-                            m_autoStart = false;
-                            ChangeState(STATE_CONNECTED);
+                            int landingState = m_dronekitAndroid.Call<System.Int32>("getLandingState");
+                            if (landingState == COMMAND_STATE_SUCCESS)
+                            {
+                                if (!m_reportedLanding)
+                                {
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDING);
+                                }
+                                m_reportedLanding = true;
+
+                                if (!m_dronekitAndroid.Call<System.Boolean>("getArmedDrone"))
+                                {
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_LANDED);
+                                    m_reportedToTakeOff = false;
+                                    m_reportedLanding = false;
+                                    m_autoStart = false;
+                                    m_activatedLanding = false;
+                                    ChangeState(STATE_CONNECTED);
+                                }
+                            }
                         }
                     }
                     break;
-                    
+
+                //////////////////////////////////////////////
+                case STATE_CHANGE_ALTITUDE:
+                    if (!m_dronekitAndroid.Call<System.Boolean>("getGuidedDrone"))
+                    {
+                        m_nextState = STATE_CHANGE_ALTITUDE;
+                        ChangeState(STATE_GUIDE_MODE);
+                    }
+                    else
+                    {
+                        if (m_iterator == 1)
+                        {
+                            m_dronekitAndroid.Call("changeAltitudeDrone", m_heightTakeOff);
+                        }
+                        else
+                        {
+                            ChangeState(STATE_IDLE);
+                        }
+                    }
+                    break;
+
                 //////////////////////////////////////////////
                 case STATE_FLYING:                                        
+                    if (!m_dronekitAndroid.Call<System.Boolean>("getGuidedDrone"))
+                    {
+                        m_nextState = STATE_FLYING;
+                        ChangeState(STATE_GUIDE_MODE);
+                    }
+                    else
+                    {
+                        if (m_dronekitAndroid.Call<System.Boolean>("setVelocityDrone", m_currentVelocity.x, m_currentVelocity.y, m_currentVelocity.z, m_speedDrone))
+                        {
+                            m_timeoutRunning -= Time.deltaTime;
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_FLYING, m_timeoutRunning);
+                            if (m_timeoutRunning <= 0)
+                            {
+                                if (m_nextVelocity != Vector3.zero)
+                                {
+                                    m_timeoutRunning = m_nextTimeout;
+                                    m_speedDrone = m_nextSpeedDrone;
+                                    m_currentVelocity = Utilities.Clone(m_nextVelocity);
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_START_FLYING, m_timeoutRunning, m_currentVelocity);
+                                    m_nextVelocity = Vector3.zero;
+                                    m_nextTimeout = 0;
+                                    m_nextSpeedDrone = 0;
+                                    ChangeState(STATE_FLYING);
+                                }
+                                else
+                                {
+                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_READY);
+                                    m_dronekitAndroid.Call("pauseDrone");
+                                    ChangeState(STATE_IDLE);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                //////////////////////////////////////////////
+                case STATE_GUIDE_MODE:
                     switch (m_iterator)
                     {
                         case 1:
@@ -443,6 +523,8 @@ namespace YourCommonTools
                             else
                             {
                                 m_iterator = 2;
+                                ChangeState(m_nextState);
+                                m_nextState = -1;
                             }
                             break;
 
@@ -458,41 +540,10 @@ namespace YourCommonTools
                                     m_iterator = 0;
                                 }
                             }
-                            break;
-
-                        default:
-                            if (!m_dronekitAndroid.Call<System.Boolean>("getGuidedDrone"))
-                            {
-                                m_timeAcum = 0;
-                                m_iterator = 0;
-                            }
                             else
                             {
-                                if (m_dronekitAndroid.Call<System.Boolean>("setVelocityDrone", m_currentVelocity.x, m_currentVelocity.y, m_currentVelocity.z, m_speedDrone))
-                                {
-                                    m_timeoutRunning -= Time.deltaTime;
-                                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_FLYING, m_timeoutRunning);
-                                    if (m_timeoutRunning <= 0)
-                                    {
-                                        if (m_nextVelocity != Vector3.zero)
-                                        {
-                                            m_timeoutRunning = m_nextTimeout;
-                                            m_speedDrone = m_nextSpeedDrone;
-                                            m_currentVelocity = Utilities.Clone(m_nextVelocity);
-                                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_START_FLYING, m_timeoutRunning, m_currentVelocity);
-                                            m_nextVelocity = Vector3.zero;
-                                            m_nextTimeout = 0;
-                                            m_nextSpeedDrone = 0;
-                                            ChangeState(STATE_FLYING);
-                                        }
-                                        else
-                                        {
-                                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_READY);
-                                            m_dronekitAndroid.Call("pauseDrone");
-                                            ChangeState(STATE_IDLE);
-                                        }
-                                    }
-                                }
+                                ChangeState(m_nextState);
+                                m_nextState = -1;
                             }
                             break;
                     }
