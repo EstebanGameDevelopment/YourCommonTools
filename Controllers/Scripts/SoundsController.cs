@@ -309,12 +309,14 @@ namespace YourCommonTools
         */
         public void PlayRecordedSound(float[] _floatData)
         {
-            m_audio1.clip = null;
-            m_audio1.clip = AudioClip.Create("Voice User", _floatData.Length, 1, 44100, false);
-            m_audio1.clip.SetData(_floatData, 0);
-            m_audio1.loop = false;
-            m_audio1.volume = 1;
-            m_audio1.Play();
+            if (m_audio2 == null) return;
+
+            m_audio2.clip = null;
+            m_audio2.clip = AudioClip.Create("Voice User", _floatData.Length, 1, 44100, false);
+            m_audio2.clip.SetData(_floatData, 0);
+            m_audio2.loop = false;
+            m_audio2.volume = 1;
+            m_audio2.Play();
         }
 
         // -------------------------------------------

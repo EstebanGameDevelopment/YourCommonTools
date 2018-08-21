@@ -204,7 +204,6 @@ namespace YourCommonTools
             if (m_state != STATE_DISCONNECTED) return;
 
             ChangeState(STATE_CONNECTED);
-
         }
 
         // -------------------------------------------
@@ -241,6 +240,18 @@ namespace YourCommonTools
             if ((m_state != STATE_FLYING) && (m_state != STATE_IDLE) && (m_state != STATE_TAKEOFF)) return;
 
             ChangeState(STATE_LANDING);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RTLDrone
+		 */
+        public void RTLDrone()
+        {
+            if (m_dronekitAndroid == null) return;
+            if ((m_state != STATE_FLYING) && (m_state != STATE_IDLE) && (m_state != STATE_TAKEOFF)) return;
+
+            SetModeOperation(MODE_COPTER_RTL);
         }
 
         // -------------------------------------------
