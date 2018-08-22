@@ -89,21 +89,29 @@ namespace YourCommonTools
             Zoom = 11;
 #endif
 
-#if ENABLED_FACEBOOK
-        if (m_calculateLocationWithGPS)
-        {
-            string warning = LanguageController.Instance.GetText("message.warning");
-            string description = LanguageController.Instance.GetText("message.map.not.available.in.facebook");
-            ScreenController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, warning, description, null, "");
-        }
-        else
-        {
-            BasicSystemEventController.Instance.DelayBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 0.2f, centerLocation.latitude, centerLocation.longitude);
-        }        
-#else
             StartCoroutine(GetPositionDevice());
-#endif
 		}
+
+        // -------------------------------------------
+        /* 
+		 * Initialization
+		 */
+        public void Initialization(Vector2 _coordinateData, int _zoom)
+        {
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+
+            // SET INITIAL POSITION
+            CenterLocation.latitude = _coordinateData.x;
+            CenterLocation.longitude = _coordinateData.y;
+            Zoom = _zoom;
+
+            m_calculateLocationWithGPS = false;
+            LoadOnStart = false;
+            AutoLocateCenter = false;
+
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, _coordinateData.x, _coordinateData.y);
+        }
 
         // -------------------------------------------
         /* 
