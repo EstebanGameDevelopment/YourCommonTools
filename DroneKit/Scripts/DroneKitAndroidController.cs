@@ -256,6 +256,16 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * PauseDrone
+		 */
+        public void PauseDrone()
+        {
+            ChangeState(STATE_IDLE);
+            m_dronekitAndroid.Call("pauseDrone");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * SetModeOperation
 		 */
         public void SetModeOperation(int _modeOperation)
@@ -284,6 +294,17 @@ namespace YourCommonTools
         public int GetVehicleMode()
         {
             return m_dronekitAndroid.Call<System.Int32>("getVehicleMode");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetGPSCoordinates
+		 */
+        public Vector2 GetGPSCoordinates()
+        {
+            float latitude = (float)m_dronekitAndroid.Call<System.Double>("getLatitude");
+            float longitude = (float)m_dronekitAndroid.Call<System.Double>("getLongitude");
+            return new Vector2(latitude, longitude);
         }
 
         // -------------------------------------------
