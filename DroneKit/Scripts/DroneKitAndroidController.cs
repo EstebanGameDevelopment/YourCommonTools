@@ -100,6 +100,7 @@ namespace YourCommonTools
         private bool m_autoStart = false;
         private int m_nextState = -1;
         private bool m_activatedLanding = false;
+        private bool m_gotoActivated = false;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -141,6 +142,13 @@ namespace YourCommonTools
         */
         public bool RunVelocity(float _vx, float _vy, float _vz, bool _autoStart = false, float _timeoutRunning = 5, int _speedDrone = 5)
 		{
+            // IF IT'S IN STATE GO TO, THE PAUSE THE DRONE BEFORE NEW VELOCITY
+            if (m_gotoActivated)
+            {
+                m_gotoActivated = false;
+                PauseDrone();
+            }
+
             m_autoStart = _autoStart;
 
             if (m_timeoutRunning > 0)
@@ -256,12 +264,29 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * GotoDrone
+		 */
+        public void GotoDrone(float _latitude, float _longitude, float _speed = 5)
+        {
+            if (m_dronekitAndroid == null) return;
+            if ((m_state != STATE_FLYING) && (m_state != STATE_IDLE) && (m_state != STATE_TAKEOFF)) return;
+
+            m_dronekitAndroid.Call<System.Boolean>("setGoToDrone", _latitude, _longitude);
+
+            m_gotoActivated = true;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * PauseDrone
 		 */
         public void PauseDrone()
         {
-            ChangeState(STATE_IDLE);
-            m_dronekitAndroid.Call("pauseDrone");
+            if (!m_gotoActivated)
+            {
+                ChangeState(STATE_IDLE);
+                m_dronekitAndroid.Call("pauseDrone");
+            }
         }
 
         // -------------------------------------------
