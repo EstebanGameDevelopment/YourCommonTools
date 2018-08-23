@@ -33,7 +33,7 @@ namespace YourCommonTools
 		// ----------------------------------------------	
 		public const float ZOOM_BASE = 10;
 		public const float DEFAULT_HEIGHT = 637f;
-        public const int ZOOM_MAXIMUM = 15;
+        public const int ZOOM_MAXIMUM = 17;
         public const int ZOOM_MINIMUM = 3;
 
         // ----------------------------------------------
@@ -42,12 +42,15 @@ namespace YourCommonTools
         public const string EVENT_GOOGLEMAP_INIT_POSITION   = "EVENT_GOOGLEMAP_INIT_POSITION";
 		public const string EVENT_GOOGLEMAP_SHIFT_POSITION  = "EVENT_GOOGLEMAP_SHIFT_POSITION";
         public const string EVENT_GOOGLEMAP_ZOOM            = "EVENT_GOOGLEMAP_ZOOM";
+        public const string EVENT_GOOGLEMAP_SIGNAL          = "EVENT_GOOGLEMAP_SIGNAL";
+        public const string EVENT_GOOGLEMAP_GPS_COORDINATES = "EVENT_GOOGLEMAP_GPS_COORDINATES";
 
         public const string EVENT_GOOGLEMAP_SELECTED_LOCATION = "EVENT_GOOGLEMAP_SELECTED_LOCATION";
 
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
+        public GameObject Signal;
         public bool LoadOnStart = true;
 		public bool AutoLocateCenter = true;
 		public GoogleMapLocation CenterLocation;
@@ -117,23 +120,25 @@ namespace YourCommonTools
         /* 
          * OnBasicEvent
          */
-        public static float GetZoomFactor(int _zoom)
+        public static float GetZoomFactor(int _zoom, float _defaultHeight = DEFAULT_HEIGHT)
         {
-            float zoomFactor = 0.17f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 2) zoomFactor = 144f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 3) zoomFactor = 72f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 4) zoomFactor = 36f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 5) zoomFactor = 18f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 6) zoomFactor = 9f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 7) zoomFactor = 4.5f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 8) zoomFactor = 2.4f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 9) zoomFactor = 1.12f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 10) zoomFactor = 0.6f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 11) zoomFactor = 0.3f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 12) zoomFactor = 0.15f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 13) zoomFactor = 0.07f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 14) zoomFactor = 0.04f * (Screen.height / DEFAULT_HEIGHT);
-            if (_zoom == 15) zoomFactor = 0.02f * (Screen.height / DEFAULT_HEIGHT);
+            float zoomFactor = 0.17f * (Screen.height / _defaultHeight);
+            if (_zoom == 2) zoomFactor = 144f * (Screen.height / _defaultHeight);
+            if (_zoom == 3) zoomFactor = 72f * (Screen.height / _defaultHeight);
+            if (_zoom == 4) zoomFactor = 36f * (Screen.height / _defaultHeight);
+            if (_zoom == 5) zoomFactor = 18f * (Screen.height / _defaultHeight);
+            if (_zoom == 6) zoomFactor = 9f * (Screen.height / _defaultHeight);
+            if (_zoom == 7) zoomFactor = 4.5f * (Screen.height / _defaultHeight);
+            if (_zoom == 8) zoomFactor = 2.4f * (Screen.height / _defaultHeight);
+            if (_zoom == 9) zoomFactor = 1.12f * (Screen.height / _defaultHeight);
+            if (_zoom == 10) zoomFactor = 0.6f * (Screen.height / _defaultHeight);
+            if (_zoom == 11) zoomFactor = 0.3f * (Screen.height / _defaultHeight);
+            if (_zoom == 12) zoomFactor = 0.15f * (Screen.height / _defaultHeight);
+            if (_zoom == 13) zoomFactor = 0.07f * (Screen.height / _defaultHeight);
+            if (_zoom == 14) zoomFactor = 0.04f * (Screen.height / _defaultHeight);
+            if (_zoom == 15) zoomFactor = 0.02f * (Screen.height / _defaultHeight);
+            if (_zoom == 16) zoomFactor = 0.01f * (Screen.height / _defaultHeight);
+            if (_zoom == 17) zoomFactor = 0.005f * (Screen.height / _defaultHeight);
 
             return zoomFactor;
         }
@@ -150,11 +155,11 @@ namespace YourCommonTools
 			GameObject.Destroy(this.gameObject);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * GetPositionDevice
 		 */
-		IEnumerator GetPositionDevice()
+        IEnumerator GetPositionDevice()
 		{
 			if ((!Input.location.isEnabledByUser) || !m_calculateLocationWithGPS)
 			{
@@ -248,6 +253,23 @@ namespace YourCommonTools
             Debug.LogError("EVENT_GOOGLEMAP_ZOOM::Zoom=" + Zoom);
 #endif
                 Refresh();
+            }
+            if (_nameEvent == EVENT_GOOGLEMAP_SIGNAL)
+            {
+                Vector3 vectorSignal = (Vector3)_list[0];
+                float distanceSignal = (float)_list[1];
+                
+                Vector2 pos = vectorSignal * distanceSignal;
+                Vector2 shift = vectorSignal * (distanceSignal / this.transform.GetComponent<RectTransform>().sizeDelta.x);
+
+                float zoomFactor = GetZoomFactor(Zoom, Screen.height);
+                float finalLongitude = CenterLocation.longitude + shift.x * zoomFactor;
+                float finalLatitude = CenterLocation.latitude + shift.y * zoomFactor;
+                // CenterLocation.longitude = finalLongitude;
+                // CenterLocation.latitude = finalLatitude;
+                // Refresh();
+
+                UIEventController.Instance.DispatchUIEvent(EVENT_GOOGLEMAP_GPS_COORDINATES, finalLatitude, finalLongitude, pos);
             }
         }
 
