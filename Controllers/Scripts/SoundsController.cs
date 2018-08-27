@@ -135,8 +135,8 @@ namespace YourCommonTools
 				if (aSources.Length > 1) m_audio2 = aSources[1];
 			}
 
-			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
-		}
+			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);            
+        }
 
 		// -------------------------------------------
 		/* 
@@ -300,7 +300,7 @@ namespace YourCommonTools
 		 */
         public bool IsPlayingRecordedSound()
         {
-            return m_audio1.isPlaying;
+            return m_audio2.isPlaying;
         }
 
         // -------------------------------------------
