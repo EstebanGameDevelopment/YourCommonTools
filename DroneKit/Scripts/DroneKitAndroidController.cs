@@ -547,7 +547,7 @@ namespace YourCommonTools
                     }
                     else
                     {
-                        if (m_dronekitAndroid.Call<System.Boolean>("setVelocityDrone", m_currentVelocity.x, m_currentVelocity.y, m_currentVelocity.z, m_speedDrone))
+                        if (m_dronekitAndroid.Call<System.Boolean>("setVelocityDrone", m_currentVelocity.x, -m_currentVelocity.y, m_currentVelocity.z, m_speedDrone))
                         {
                             m_timeoutRunning -= Time.deltaTime;
                             BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_FLYING, m_timeoutRunning);
