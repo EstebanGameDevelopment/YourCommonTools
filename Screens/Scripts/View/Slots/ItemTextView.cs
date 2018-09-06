@@ -80,6 +80,7 @@ namespace YourCommonTools
 		{
 			m_parent = null;
 			UIEventController.Instance.UIEvent -= OnMenuEvent;
+            GameObject.Destroy(this.gameObject);
 			return true;
 		}
 
