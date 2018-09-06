@@ -77,7 +77,10 @@ namespace YourCommonTools
 			if (LoadingText != null) m_textLoading = LoadingText.transform;
 			if (m_textLoading!=null)
 			{
-				m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
+                if (LanguageController.Instance != null)
+                {
+                    m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
+                }				
 			}
 			if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
 			if (m_textLoading != null) m_textLoading.gameObject.SetActive(true);
@@ -103,7 +106,7 @@ namespace YourCommonTools
 		 */
 		public void ClearCurrentGameObject(bool _resetPage)
 		{
-			for (int i = 0; i < m_gameObjects.Count; i++)
+            for (int i = 0; i < m_gameObjects.Count; i++)
 			{
 				if (m_gameObjects[i] != null)
 				{
@@ -113,7 +116,7 @@ namespace YourCommonTools
 			}
 			m_gameObjects.Clear();
 
-			if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
+            if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
 			if (m_textLoading != null)
 			{
 				m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
