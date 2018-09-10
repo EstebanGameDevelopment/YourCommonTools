@@ -17,5 +17,9 @@ namespace YourCommonTools
 		void Destroy();
 		void Logic();
 		GameObject GetGameObject();
-	}
+
+        float Life { get; set; }
+        string Name { get; set; }
+        string ModelState { get; set; }
+    }
 }

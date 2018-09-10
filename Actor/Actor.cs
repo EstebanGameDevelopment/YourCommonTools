@@ -23,8 +23,11 @@ namespace YourCommonTools
 		// PROTECTED MEMBERS
 		// ----------------------------------------------
 		protected int m_id;
-		protected GameObject m_model;
-		protected float m_life;
+        protected string m_name;
+        protected GameObject m_model;
+        protected Dictionary<string,GameObject> m_modelStates = new Dictionary<string, GameObject>();
+        protected string m_modelState;
+        protected float m_life;
 		protected float m_speed;
 		protected float m_yaw;
 		protected float m_directionLeft;
@@ -51,7 +54,15 @@ namespace YourCommonTools
 		{
 			get { return m_id; }
 		}
-		public float Speed
+        public string Name
+        {
+            get { return m_name; }
+            set {
+                m_name = value;
+                this.gameObject.name = m_name;
+            }
+        }
+        public float Speed
 		{
 			get { return m_speed; }
 			set { m_speed = value; }
@@ -88,12 +99,32 @@ namespace YourCommonTools
 			get { return m_applyGravity; }
 			set { m_applyGravity = value; }
 		}
+        public string ModelState
+        {
+            get { return m_modelState; }
+            set {
+                m_modelState = value;
+                foreach (KeyValuePair<string, GameObject> submodel in m_modelStates)
+                {
+                    if (submodel.Key.Equals(m_modelState))
+                    {
+                        submodel.Value.SetActive(true);
+                    }
+                    else
+                    {
+                        submodel.Value.SetActive(false);
+                    }                    
+                }
+            }
+        }
 
-		// -------------------------------------------
-		/* 
+
+
+        // -------------------------------------------
+        /* 
 		 * Initialization of the element
 		 */
-		public virtual void Initialize(params object[] _list)
+        public virtual void Initialize(params object[] _list)
 		{
 			m_id = (int)_list[0];
 		}
@@ -118,7 +149,23 @@ namespace YourCommonTools
 				if (transform.Find("Model") != null)
 				{
 					m_model = transform.Find("Model").gameObject;
-				}				
+                    if (m_model.transform.childCount == 1)
+                    {
+                        m_modelState = "";
+                    }
+                    else
+                    {
+                        if (m_model.transform.childCount > 0)
+                        {
+                            for (int i = 0; i < m_model.transform.childCount; i++)
+                            {
+                                GameObject submodel = m_model.transform.GetChild(i).gameObject;
+                                m_modelStates.Add(submodel.name, submodel);
+                            }
+                            ModelState = m_model.transform.GetChild(0).gameObject.name;
+                        }
+                    }
+                }				
 			}
 			if (m_model != null)
 			{

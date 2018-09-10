@@ -194,7 +194,7 @@ namespace YourCommonTools
 										float _xIni,
 										float _yIni,
 										float _zIni,
-										int[][][] _initContent)
+										int[][][] _initContent = null)
 		{
 			m_cols = _rows;
 			m_rows = _cols;
@@ -219,20 +219,23 @@ namespace YourCommonTools
 				}
 			}
 
-			// COLLISION
-			for (int z = 0; z < m_layers; z++)
-			{
-				for (int x = 0; x < m_rows; x++)
-				{
-					for (int y = 0; y < m_cols; y++)
-					{
-						int cellContent = _initContent[z][x][y];
-						m_cells[z][(x * m_cols) + y] = ((cellContent != 0) ? CELL_COLLISION : CELL_EMPTY);
-					}
-				}
-			}
+            // COLLISION
+            if (_initContent != null)
+            {
+                for (int z = 0; z < m_layers; z++)
+                {
+                    for (int x = 0; x < m_rows; x++)
+                    {
+                        for (int y = 0; y < m_cols; y++)
+                        {
+                            int cellContent = _initContent[z][x][y];
+                            m_cells[z][(x * m_cols) + y] = ((cellContent != 0) ? CELL_COLLISION : CELL_EMPTY);
+                        }
+                    }
+                }
+            }
 
-			m_matrixAI = new List<NodePathMatrix>();
+            m_matrixAI = new List<NodePathMatrix>();
 			for (int i = 0; i < m_totalCells; i++)
 			{
 				m_matrixAI.Add(new NodePathMatrix());
