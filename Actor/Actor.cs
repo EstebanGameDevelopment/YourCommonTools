@@ -19,10 +19,21 @@ namespace YourCommonTools
 	*/
 	public class Actor : StateManager
 	{
-		// ----------------------------------------------
-		// PROTECTED MEMBERS
-		// ----------------------------------------------
-		protected int m_id;
+        // ----------------------------------------------
+        // PUBLIC EVENTS
+        // ----------------------------------------------
+        public const string EVENT_ACTOR_COLLISION_ENTER = "EVENT_ACTOR_COLLISION_ENTER";
+        public const string EVENT_ACTOR_COLLISION_EXIT = "EVENT_ACTOR_COLLISION_EXIT";
+
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------
+        public bool EnableAutoInitialization = false;
+
+        // ----------------------------------------------
+        // PROTECTED MEMBERS
+        // ----------------------------------------------
+        protected int m_id;
         protected string m_name;
         protected GameObject m_model;
         protected Dictionary<string,GameObject> m_modelStates = new Dictionary<string, GameObject>();
@@ -57,10 +68,7 @@ namespace YourCommonTools
         public string Name
         {
             get { return m_name; }
-            set {
-                m_name = value;
-                this.gameObject.name = m_name;
-            }
+            set { m_name = value; }
         }
         public float Speed
 		{
@@ -118,7 +126,18 @@ namespace YourCommonTools
             }
         }
 
-
+        // -------------------------------------------
+        /* 
+		 * Initialization of the element
+		 */
+        public virtual void Start()
+        {
+            if (EnableAutoInitialization)
+            {
+                m_name = this.gameObject.name;
+                GetModel();                
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -421,5 +440,48 @@ namespace YourCommonTools
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
 
-	}
+
+        // -------------------------------------------
+        /* 
+		 * OnCollisionEnter
+		 */
+        public virtual void OnCollisionEnter(Collision _collision)
+        {
+            // Debug.LogError("Actor::OnCollisionEnter::OBJECT[" + this.gameObject.name + "] COLLIDES WITH [" + _collision.collider.gameObject.name + "]");
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.collider.gameObject);
+        }
+
+
+        // -------------------------------------------
+        /* 
+		 * OnTriggerEnter
+		 */
+        public virtual void OnTriggerEnter(Collider _collision)
+        {
+            // Debug.LogError("Actor::OnTriggerEnter::OBJECT[" + this.gameObject.name + "] TRIGGERS WITH [" + _collision.gameObject.name + "]");
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.gameObject);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * OnCollisionExit
+		 */
+        public virtual void OnCollisionExit(Collision _collision)
+        {
+            // Debug.LogError("Actor::OnCollisionExit::OBJECT[" + this.gameObject.name + "] EXIT COLLIDES WITH [" + _collision.collider.gameObject.name + "]");
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.collider.gameObject);
+        }
+
+
+        // -------------------------------------------
+        /* 
+		 * OnTriggerExit
+		 */
+        public virtual void OnTriggerExit(Collider _collision)
+        {
+            // Debug.LogError("Actor::OnTriggerExit::OBJECT[" + this.gameObject.name + "] EXIT TRIGGERS WITH [" + _collision.gameObject.name + "]");
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.gameObject);
+        }
+
+    }
 }
