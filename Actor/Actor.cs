@@ -28,13 +28,14 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------
+        public string NameActor = "";
         public bool EnableAutoInitialization = false;
+        public GameObject[] ModelStateGO;
 
         // ----------------------------------------------
         // PROTECTED MEMBERS
         // ----------------------------------------------
         protected int m_id;
-        protected string m_name;
         protected GameObject m_model;
         protected Dictionary<string,GameObject> m_modelStates = new Dictionary<string, GameObject>();
         protected string m_modelState;
@@ -67,8 +68,8 @@ namespace YourCommonTools
 		}
         public string Name
         {
-            get { return m_name; }
-            set { m_name = value; }
+            get { return NameActor; }
+            set { NameActor = value; }
         }
         public float Speed
 		{
@@ -134,7 +135,7 @@ namespace YourCommonTools
         {
             if (EnableAutoInitialization)
             {
-                m_name = this.gameObject.name;
+                if (NameActor.Length == 0) NameActor = this.gameObject.name;
                 GetModel();                
             }
         }
@@ -174,14 +175,17 @@ namespace YourCommonTools
                     }
                     else
                     {
-                        if (m_model.transform.childCount > 0)
+                        if (ModelStateGO.Length > 0)
                         {
-                            for (int i = 0; i < m_model.transform.childCount; i++)
+                            for (int i = 0; i < ModelStateGO.Length; i++)
                             {
-                                GameObject submodel = m_model.transform.GetChild(i).gameObject;
+                                GameObject submodel = ModelStateGO[i];
                                 m_modelStates.Add(submodel.name, submodel);
+                                if (submodel.activeSelf)
+                                {
+                                    m_modelState = ModelStateGO[i].name;
+                                }
                             }
-                            ModelState = m_model.transform.GetChild(0).gameObject.name;
                         }
                     }
                 }				
