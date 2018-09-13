@@ -23,13 +23,17 @@ namespace YourCommonTools
         // PUBLIC EVENTS
         // ----------------------------------------------
         public const string EVENT_ACTOR_COLLISION_ENTER = "EVENT_ACTOR_COLLISION_ENTER";
-        public const string EVENT_ACTOR_COLLISION_EXIT = "EVENT_ACTOR_COLLISION_EXIT";
+        public const string EVENT_ACTOR_COLLISION_EXIT  = "EVENT_ACTOR_COLLISION_EXIT";
+        public const string EVENT_ACTOR_DEAD            = "EVENT_ACTOR_DEAD";
+        public const string EVENT_ACTOR_DESTROYED       = "EVENT_ACTOR_DESTROYED";
 
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------
         public string NameActor = "";
+        public string ClassName = "";
         public bool EnableAutoInitialization = false;
+        public bool EnableTriggerCollision = true;
         public GameObject[] ModelStateGO;
 
         // ----------------------------------------------
@@ -37,8 +41,9 @@ namespace YourCommonTools
         // ----------------------------------------------
         protected int m_id;
         protected GameObject m_model;
-        protected Dictionary<string,GameObject> m_modelStates = new Dictionary<string, GameObject>();
+        protected List<GameObject> m_modelStates = new List<GameObject>();
         protected string m_modelState;
+        protected int m_modelIndex;
         protected float m_life;
 		protected float m_speed;
 		protected float m_yaw;
@@ -58,11 +63,12 @@ namespace YourCommonTools
 		protected float m_angleDetectionView;
 
 		protected bool m_initializationCommon = false;
+        private bool m_hasBeenDestroyed = false;
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------
-		public int Id
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------
+        public int Id
 		{
 			get { return m_id; }
 		}
@@ -79,7 +85,13 @@ namespace YourCommonTools
 		public float Life
 		{
 			get { return m_life; }
-			set { m_life = value; }
+			set {
+                if ((value <= 0) && (m_life > 0))
+                {
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_DEAD, Name);
+                }
+                m_life = value;
+            }
 		}
 		public float Yaw
 		{
@@ -113,19 +125,56 @@ namespace YourCommonTools
             get { return m_modelState; }
             set {
                 m_modelState = value;
-                foreach (KeyValuePair<string, GameObject> submodel in m_modelStates)
+
+                bool existsState = false;
+                for (int i = 0; i < m_modelStates.Count; i++)
                 {
-                    if (submodel.Key.Equals(m_modelState))
+                    if (m_modelStates[i].name.Equals(m_modelState))
                     {
-                        submodel.Value.SetActive(true);
+                        existsState = true;
                     }
-                    else
+                }
+
+                if (existsState)
+                {
+                    for (int i = 0; i < m_modelStates.Count; i++)
                     {
-                        submodel.Value.SetActive(false);
-                    }                    
+                        if (m_modelStates[i].name.Equals(m_modelState))
+                        {
+                            m_modelStates[i].SetActive(true);
+                            m_modelIndex = i;
+                        }
+                        else
+                        {
+                            m_modelStates[i].SetActive(false);
+                        }
+                    }
                 }
             }
         }
+        public int ModelIndex
+        {
+            get { return m_modelIndex; }
+            set {
+                m_modelIndex = value;
+                if (m_modelIndex > m_modelStates.Count)
+                {
+                    m_modelIndex = m_modelIndex % m_modelStates.Count;
+                }
+                if (m_modelIndex >= 0)
+                {
+                    for (int i = 0; i < m_modelStates.Count; i++)
+                    {
+                        if (m_modelStates[i].name.Equals(m_modelState))
+                        {
+                            m_modelStates[i].SetActive(false);
+                        }
+                    }
+                    m_modelStates[m_modelIndex].SetActive(true);
+                }
+            }
+        }
+
 
         // -------------------------------------------
         /* 
@@ -138,6 +187,19 @@ namespace YourCommonTools
                 if (NameActor.Length == 0) NameActor = this.gameObject.name;
                 GetModel();                
             }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Destroy the current object
+		 */
+        public virtual bool Destroy()
+        {
+            if (m_hasBeenDestroyed) return true;
+            m_hasBeenDestroyed = true;
+
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_DESTROYED, ClassName, Name);
+            return false;
         }
 
         // -------------------------------------------
@@ -180,10 +242,11 @@ namespace YourCommonTools
                             for (int i = 0; i < ModelStateGO.Length; i++)
                             {
                                 GameObject submodel = ModelStateGO[i];
-                                m_modelStates.Add(submodel.name, submodel);
+                                m_modelStates.Add(submodel);
                                 if (submodel.activeSelf)
                                 {
                                     m_modelState = ModelStateGO[i].name;
+                                    m_modelIndex = i;
                                 }
                             }
                         }
@@ -452,7 +515,7 @@ namespace YourCommonTools
         public virtual void OnCollisionEnter(Collision _collision)
         {
             // Debug.LogError("Actor::OnCollisionEnter::OBJECT[" + this.gameObject.name + "] COLLIDES WITH [" + _collision.collider.gameObject.name + "]");
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.collider.gameObject);
+            if (!EnableTriggerCollision) BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.collider.gameObject);
         }
 
 
@@ -463,7 +526,7 @@ namespace YourCommonTools
         public virtual void OnTriggerEnter(Collider _collision)
         {
             // Debug.LogError("Actor::OnTriggerEnter::OBJECT[" + this.gameObject.name + "] TRIGGERS WITH [" + _collision.gameObject.name + "]");
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.gameObject);
+            if (EnableTriggerCollision) BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_ENTER, this.gameObject, _collision.gameObject);
         }
 
         // -------------------------------------------
@@ -473,7 +536,7 @@ namespace YourCommonTools
         public virtual void OnCollisionExit(Collision _collision)
         {
             // Debug.LogError("Actor::OnCollisionExit::OBJECT[" + this.gameObject.name + "] EXIT COLLIDES WITH [" + _collision.collider.gameObject.name + "]");
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.collider.gameObject);
+            if (!EnableTriggerCollision) BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.collider.gameObject);
         }
 
 
@@ -484,7 +547,7 @@ namespace YourCommonTools
         public virtual void OnTriggerExit(Collider _collision)
         {
             // Debug.LogError("Actor::OnTriggerExit::OBJECT[" + this.gameObject.name + "] EXIT TRIGGERS WITH [" + _collision.gameObject.name + "]");
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.gameObject);
+            if (EnableTriggerCollision) BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_COLLISION_EXIT, this.gameObject, _collision.gameObject);
         }
 
     }

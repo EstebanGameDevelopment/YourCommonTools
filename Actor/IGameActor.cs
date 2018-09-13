@@ -14,7 +14,7 @@ namespace YourCommonTools
 	{
 		// FUNCTIONS
 		void Initialize(params object[] _list);
-		void Destroy();
+		bool Destroy();
 		void Logic();
 		GameObject GetGameObject();
 
