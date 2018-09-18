@@ -62,7 +62,11 @@ namespace YourCommonTools
 			get { return m_life; }
 			set { m_life = value; }
 		}
-		public float Yaw
+        public int Animation
+        {
+            get { return m_animation; }
+        }        
+        public float Yaw
 		{
 			get { return m_yaw; }
 			set

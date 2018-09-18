@@ -23,11 +23,12 @@ namespace YourCommonTools
         public const string SCREEN_UNLOCK_CURRENCY      = "SCREEN_UNLOCK_CURRENCY";
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
+        public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
 
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
 		public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
 
 		// ----------------------------------------------

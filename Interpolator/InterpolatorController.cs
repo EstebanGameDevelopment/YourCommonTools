@@ -45,12 +45,13 @@ namespace YourCommonTools
 		// PRIVATE MEMBERS
 		// ----------------------------------------------	
 		private List<InterpolateData> m_inteporlateObjects = new List<InterpolateData>();
+        private List<InterpolateData> m_inteporlateQueue = new List<InterpolateData>();
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		* Destroy all references
 		*/
-		void OnDestroy()
+        void OnDestroy()
 		{
 			Destroy();
 		}
@@ -93,21 +94,7 @@ namespace YourCommonTools
 		*/
 		public void Interpolate(GameObject _actor, Vector3 _goal, float _time)
 		{
-			bool found = false;
-			for (int i = 0; i < m_inteporlateObjects.Count; i++)
-			{
-				InterpolateData item = m_inteporlateObjects[i];
-				if (item.GameActor == _actor)
-				{
-					item.ResetData(_actor.transform.position, _goal, _time, 0);
-					found = true;
-				}
-			}
-
-			if (!found)
-			{
-				m_inteporlateObjects.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0));
-			}
+            m_inteporlateQueue.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0));
 		}
 
 		// -------------------------------------------
@@ -126,6 +113,30 @@ namespace YourCommonTools
 					i--;
 				}
 			}
-		}
+            for (int j = 0; j < m_inteporlateQueue.Count; j++)
+            {
+                InterpolateData newItem = m_inteporlateQueue[j];
+                bool found = false;
+                for (int i = 0; i < m_inteporlateObjects.Count; i++)
+                {
+                    InterpolateData item = m_inteporlateObjects[i];
+                    if (item.GameActor == newItem.GameActor)
+                    {
+                        item.ResetData(newItem.GameActor.transform.position, newItem.Goal, newItem.TotalTime, 0);
+                        found = true;
+                    }
+                }
+                if (!found)
+                {
+                    m_inteporlateObjects.Add(newItem);
+                }
+                else
+                {
+                    newItem.Destroy();
+                    newItem = null;
+                }
+            }
+            m_inteporlateQueue.Clear();
+        }
 	}
 }
