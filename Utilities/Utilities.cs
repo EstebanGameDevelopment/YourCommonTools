@@ -58,11 +58,21 @@ namespace YourCommonTools
 			return newObj;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Attach a child to the parent
+		 */
+        public static GameObject AttachChild(Transform _parent, GameObject _prefab)
+        {
+            _prefab.transform.SetParent(_parent, false);
+            return _prefab;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * SetChild
 		 */
-		public static void SetChild(Transform _parent, GameObject _go)
+        public static void SetChild(Transform _parent, GameObject _go)
 		{
 			_go.transform.SetParent(_parent, false);
 		}

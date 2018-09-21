@@ -103,16 +103,20 @@ namespace YourCommonTools
 		 */
 		void Update()
 		{
-			for (int i = 0; i < m_inteporlateObjects.Count; i++)
-			{
-				InterpolateData itemData = m_inteporlateObjects[i];
-				if (itemData.Inperpolate())
-				{
-					itemData.Destroy();
-					m_inteporlateObjects.RemoveAt(i);
-					i--;
-				}
-			}
+            try
+            {
+                for (int i = 0; i < m_inteporlateObjects.Count; i++)
+                {
+                    InterpolateData itemData = m_inteporlateObjects[i];
+                    if (itemData.Inperpolate())
+                    {
+                        itemData.Destroy();
+                        m_inteporlateObjects.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            catch (Exception err) { };
             for (int j = 0; j < m_inteporlateQueue.Count; j++)
             {
                 InterpolateData newItem = m_inteporlateQueue[j];
