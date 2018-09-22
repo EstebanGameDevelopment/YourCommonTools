@@ -248,11 +248,42 @@ namespace YourCommonTools
 			LoadCurrentPage();
 		}
 
-		// -------------------------------------------
-		/* 
-		 * CheckSlotExisting
+        // -------------------------------------------
+        /* 
+		 * HideAllItems
 		 */
-		public bool CheckSlotExisting(GameObject _slot)
+        public void HideAllItems(int _indexException = -1)
+        {
+            for (int i = 0; i < m_gameObjects.Count; i++)
+            {
+                if (_indexException != i)
+                {
+                    m_gameObjects[i].SetActive(false);
+                }
+                else
+                {
+                    m_gameObjects[i].SetActive(true);
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ShowAllItems
+		 */
+        public void ShowAllItems()
+        {
+            for (int i = 0; i < m_gameObjects.Count; i++)
+            {
+                m_gameObjects[i].SetActive(true);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+        * CheckSlotExisting
+        */
+        public bool CheckSlotExisting(GameObject _slot)
 		{
 			if (_slot == null) return false;
 
