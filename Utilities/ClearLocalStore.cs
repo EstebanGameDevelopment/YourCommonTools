@@ -15,6 +15,19 @@ namespace YourCommonTools
 			PlayerPrefs.DeleteAll();
 			Debug.Log("PlayerPrefs CLEARED!!!");
 		}
-	#endif
-	}
+
+        [MenuItem("Clear Local Data/Clear Cache")]
+        private static void CleanCache()
+        {
+            if (Caching.ClearCache())
+            {
+                Debug.Log("Successfully cleaned the cache.");
+            }
+            else
+            {
+                Debug.Log("Cache is being used.");
+            }
+        }
+#endif
+    }
 }
