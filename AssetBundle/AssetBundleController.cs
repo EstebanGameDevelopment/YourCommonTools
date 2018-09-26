@@ -147,6 +147,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * Create a game audioclip
+		 */
+        public AudioClip CreateAudioclip(string _name)
+        {
+            return Instantiate(m_assetBundle.LoadAsset(_name)) as AudioClip;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will process the queue of delayed events 
 		 */
         void Update()

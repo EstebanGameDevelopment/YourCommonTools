@@ -98,6 +98,11 @@ namespace YourCommonTools
 			get { return m_audio1.volume; }
 			set { m_audio1.volume = value; }
 		}
+        public float VolumeFX
+        {
+            get { return m_audio2.volume; }
+            set { m_audio2.volume = value; }
+        }
         public int RequestAudioData
         {
             get { return m_requestAudioData; }
@@ -135,7 +140,8 @@ namespace YourCommonTools
 				if (aSources.Length > 1) m_audio2 = aSources[1];
 			}
 
-			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);            
+			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
+            m_enabled = true;
         }
 
 		// -------------------------------------------
@@ -171,7 +177,7 @@ namespace YourCommonTools
 		/* 
 		 * Play loop
 		 */
-		public void PlaySoundLoop(AudioClip _audio)
+		public void PlaySoundLoop(AudioClip _audio, bool _loop = true)
 		{
 			if (_audio == null) return;
 			if (!m_enabled) return;
@@ -180,7 +186,7 @@ namespace YourCommonTools
 			if (m_audio1 != null)
 			{
 				m_audio1.clip = _audio;
-				m_audio1.loop = true;
+				m_audio1.loop = _loop;
 				if (!m_audio1.isPlaying)
 				{
 					m_audio1.Play();
@@ -201,11 +207,23 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * StopFXs
+		 */
+        public void StopFXs()
+        {
+            if (m_audio1 != null)
+            {
+                m_audio2.clip = null;
+                m_audio2.Stop();
+            }
+        }
+        // -------------------------------------------
+        /* 
 		 * PlayLoopSound
 		 */
-		public void PlayLoopSound(string _audioName)
+        public void PlayLoopSound(string _audioName)
 		{
 			for (int i = 0; i < Sounds.Length; i++)
 			{
@@ -253,10 +271,89 @@ namespace YourCommonTools
 			{
 				if (m_audio2 != null)
 				{
-					m_audio2.PlayOneShot(_audio);
+                    m_audio2.clip = null;
+                    m_audio2.loop = false;
+                    m_audio2.PlayOneShot(_audio);
 				}					
 			}
 		}
+
+        // -------------------------------------------
+        /* 
+		 * PlaySingleLoop
+		 */
+        public void PlaySingleLoop(AudioClip _audio, bool _force = false)
+        {
+            if (!_force)
+            {
+                if (!m_enableFX) return;
+                if (!m_enabled) return;
+            }
+
+            if (_audio != null)
+            {
+                if (m_audio2 != null)
+                {
+                    m_audio2.clip = _audio;
+                    m_audio2.loop = true;
+                    m_audio2.Play();
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Play3DSound
+		 */
+        public void Play3DSound(AudioClip _audioClip, Vector3 _position, float _volume, GameObject _objectSound = null)
+        {
+            AudioSource audioSource;
+            GameObject soundGameObject = null;
+            if (_objectSound == null)
+            {
+                soundGameObject = new GameObject("One Shot Sound");
+                soundGameObject.AddComponent<CustomAudioSource>();
+                soundGameObject.GetComponent<CustomAudioSource>().Initialize();
+                soundGameObject.transform.position = _position;
+                audioSource = soundGameObject.GetComponent<CustomAudioSource>().AudioSource;
+            }
+            else
+            {
+                if (_objectSound.GetComponent<CustomAudioSource>() == null)
+                {
+                    _objectSound.AddComponent<CustomAudioSource>();
+                    _objectSound.GetComponent<CustomAudioSource>().Initialize();
+                }
+                audioSource = _objectSound.GetComponent<CustomAudioSource>().AudioSource;
+            }
+
+            // Configure the audio source component
+            audioSource.clip = _audioClip;
+            audioSource.volume = _volume;
+            audioSource.spatialBlend = 1;
+            audioSource.loop = false;
+
+            // Starts playing the sound
+            audioSource.Play();
+
+            if (_objectSound == null)
+            {
+                GameObject.Destroy(soundGameObject, 5);
+            }                
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Stop3DSounds
+		 */
+        public void Stop3DSounds()
+        {
+            CustomAudioSource[] threeDSounds = GameObject.FindObjectsOfType<CustomAudioSource>();
+            for (int i = 0; i < threeDSounds.Length; i++)
+            {
+                threeDSounds[i].AudioSource.Stop();
+            }
+        }
 
         // -------------------------------------------
         /* 
