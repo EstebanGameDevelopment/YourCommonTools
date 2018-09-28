@@ -55,6 +55,8 @@ namespace YourCommonTools
         private AssetBundle m_assetBundle;
         private List<TimedEventData> listEvents = new List<TimedEventData>();
 
+        private Dictionary<string, Object> m_loadedObjects = new Dictionary<string, Object>();
+
         // -------------------------------------------
         /* 
 		 * Constructor
@@ -81,6 +83,7 @@ namespace YourCommonTools
             if (_instance != null)
             {
                 Destroy(_instance.gameObject);
+                m_loadedObjects.Clear();
                 _instance = null;
             }
         }
@@ -142,7 +145,12 @@ namespace YourCommonTools
 		 */
         public GameObject CreateGameObject(string _name)
         {
-            return Instantiate(m_assetBundle.LoadAsset(_name)) as GameObject;
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as GameObject;
         }
 
         // -------------------------------------------
@@ -151,7 +159,12 @@ namespace YourCommonTools
 		 */
         public AudioClip CreateAudioclip(string _name)
         {
-            return Instantiate(m_assetBundle.LoadAsset(_name)) as AudioClip;
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as AudioClip;
         }
 
         // -------------------------------------------
