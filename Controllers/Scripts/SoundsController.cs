@@ -61,6 +61,9 @@ namespace YourCommonTools
         private int m_requestAudioData = 0;
         private string m_microphoneDeviceName = "";
 
+        private AudioClip m_audio1Playing;
+        private AudioClip m_audio2Playing;
+
         public AudioSource Audio1
         {
             get { return m_audio1; }
@@ -108,6 +111,14 @@ namespace YourCommonTools
             get { return m_requestAudioData; }
             set { m_requestAudioData = value; }
         }
+        public AudioClip Audio1Playing
+        {
+            get { return m_audio1Playing; }
+        }
+        public AudioClip Audio2Playing
+        {
+            get { return m_audio2Playing; }
+        }
 
         // ----------------------------------------------
         // CONSTRUCTOR
@@ -141,7 +152,6 @@ namespace YourCommonTools
 			}
 
 			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
-            m_enabled = true;
         }
 
 		// -------------------------------------------
@@ -161,7 +171,10 @@ namespace YourCommonTools
 		{
 			if (m_audio1 != null) Destroy(m_audio1);
 			if (m_audio2 != null) Destroy(m_audio2);
-		}
+
+            m_audio1Playing = null;
+            m_audio2Playing = null;
+        }
 
 		// -------------------------------------------
 		/* 
@@ -185,7 +198,8 @@ namespace YourCommonTools
 
 			if (m_audio1 != null)
 			{
-				m_audio1.clip = _audio;
+                m_audio1Playing = _audio;
+                m_audio1.clip = _audio;
 				m_audio1.loop = _loop;
 				if (!m_audio1.isPlaying)
 				{
@@ -202,7 +216,8 @@ namespace YourCommonTools
 		{
 			if (m_audio1 != null)
 			{
-				m_audio1.clip = null;
+                m_audio1Playing = null;
+                m_audio1.clip = null;
 				m_audio1.Stop();
 			}
 		}
@@ -213,8 +228,9 @@ namespace YourCommonTools
 		 */
         public void StopFXs()
         {
-            if (m_audio1 != null)
+            if (m_audio2 != null)
             {
+                m_audio2Playing = null;
                 m_audio2.clip = null;
                 m_audio2.Stop();
             }
@@ -271,6 +287,7 @@ namespace YourCommonTools
 			{
 				if (m_audio2 != null)
 				{
+                    m_audio2Playing = _audio;
                     m_audio2.clip = null;
                     m_audio2.loop = false;
                     m_audio2.PlayOneShot(_audio);
@@ -294,6 +311,7 @@ namespace YourCommonTools
             {
                 if (m_audio2 != null)
                 {
+                    m_audio2Playing = _audio;
                     m_audio2.clip = _audio;
                     m_audio2.loop = true;
                     m_audio2.Play();
@@ -305,33 +323,32 @@ namespace YourCommonTools
         /* 
 		 * Play3DSound
 		 */
-        public void Play3DSound(AudioClip _audioClip, Vector3 _position, float _volume, GameObject _objectSound = null)
+        public void Play3DSound(AudioClip _audioClip, Vector3 _position, float _volume, GameObject _objectSound = null, bool _loop = false)
         {
             AudioSource audioSource;
             GameObject soundGameObject = null;
             if (_objectSound == null)
             {
                 soundGameObject = new GameObject("One Shot Sound");
-                soundGameObject.AddComponent<CustomAudioSource>();
-                soundGameObject.GetComponent<CustomAudioSource>().Initialize();
-                soundGameObject.transform.position = _position;
-                audioSource = soundGameObject.GetComponent<CustomAudioSource>().AudioSource;
             }
             else
             {
-                if (_objectSound.GetComponent<CustomAudioSource>() == null)
-                {
-                    _objectSound.AddComponent<CustomAudioSource>();
-                    _objectSound.GetComponent<CustomAudioSource>().Initialize();
-                }
-                audioSource = _objectSound.GetComponent<CustomAudioSource>().AudioSource;
+                soundGameObject = new GameObject("Passenger Object");
+                soundGameObject.AddComponent<PassengerObject>();
+                soundGameObject.GetComponent<PassengerObject>().MainObject = _objectSound;
+                soundGameObject.transform.position = _objectSound.transform.position;
             }
+
+            soundGameObject.AddComponent<CustomAudioSource>();
+            soundGameObject.GetComponent<CustomAudioSource>().Initialize();
+            soundGameObject.transform.position = _position;
+            audioSource = soundGameObject.GetComponent<CustomAudioSource>().AudioSource;
 
             // Configure the audio source component
             audioSource.clip = _audioClip;
             audioSource.volume = _volume;
             audioSource.spatialBlend = 1;
-            audioSource.loop = false;
+            audioSource.loop = _loop;
 
             // Starts playing the sound
             audioSource.Play();
