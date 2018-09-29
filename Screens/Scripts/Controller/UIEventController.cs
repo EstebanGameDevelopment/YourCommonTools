@@ -132,25 +132,60 @@ namespace YourCommonTools
 			listEvents.Add(new AppEventData(_nameEvent, -1, true, -1, _time, _list));
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will dispatch a delayed UI event
+		 */
+        public void ClearUIEvents(string _nameEvent = "")
+        {
+            if (_nameEvent.Length == 0)
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    listEvents[i].Time = -1000;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    AppEventData eventData = listEvents[i];
+                    if (eventData.NameEvent == _nameEvent)
+                    {
+                        eventData.Time = -1000;
+                    }
+                }
+            }            
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will process the queue of delayed events 
 		 */
-		void Update()
+        void Update()
 		{
 			// DELAYED EVENTS
 			for (int i = 0; i < listEvents.Count; i++)
 			{
-				AppEventData eventData = listEvents[i];
-				eventData.Time -= Time.deltaTime;
-				if (eventData.Time <= 0)
-				{
-					UIEvent(eventData.NameEvent, eventData.ListParameters);
-					eventData.Destroy();
-					listEvents.RemoveAt(i);
-					break;
-				}
-			}
+				AppEventData eventData = listEvents[i];				
+                if (eventData.Time == -1000)
+                {
+                    eventData.Destroy();
+                    listEvents.RemoveAt(i);
+                    break;
+                }
+                else
+                {
+                    eventData.Time -= Time.deltaTime;
+                    if (eventData.Time <= 0)
+                    {
+                        UIEvent(eventData.NameEvent, eventData.ListParameters);
+                        eventData.Destroy();
+                        listEvents.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
 		}
 	}
 }
