@@ -56,6 +56,10 @@ namespace YourCommonTools
 		 */
         public void InitializeCardboard()
         {
+#if ENABLE_WORLDSENSE
+            ForceActivation = true;
+            DefaultDeviceName = "Daydream";
+#endif
             if (LoadEnableCardboard() || ForceActivation)
             {
                 string nameDeviceLoaded = DefaultDeviceName;

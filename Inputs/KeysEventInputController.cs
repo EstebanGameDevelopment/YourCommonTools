@@ -195,7 +195,11 @@ namespace YourCommonTools
 		 */
 		private void KeyInputPressActionButton()
 		{
-			bool hasEntered = false;
+#if ENABLE_WORLDSENSE
+            m_isDaydreamActivated = true;
+#endif
+
+            bool hasEntered = false;
 			if (m_enableActionOnMouseDown)
 			{
 				// DAYDREAM CONTROLLER				
