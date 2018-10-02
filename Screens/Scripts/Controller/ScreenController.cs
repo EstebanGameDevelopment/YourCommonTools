@@ -29,12 +29,15 @@ namespace YourCommonTools
 		public const string EVENT_CONFIRMATION_POPUP = "EVENT_CONFIRMATION_POPUP";
 		public const string EVENT_FORCE_DESTRUCTION_POPUP = "EVENT_FORCE_DESTRUCTION_POPUP";
 		public const string EVENT_FORCE_TRIGGER_OK_BUTTON = "EVENT_FORCE_TRIGGER_OK_BUTTON";
-		public const string EVENT_FORCE_DESTRUCTION_WAIT = "EVENT_FORCE_DESTRUCTION_WAIT";		
+		public const string EVENT_FORCE_DESTRUCTION_WAIT = "EVENT_FORCE_DESTRUCTION_WAIT";
 
-		// ----------------------------------------------
-		// PUBLIC MEMBERS
-		// ----------------------------------------------	
-		[Tooltip("It allows the debug of most common messages")]
+        public const string EVENT_APP_LOST_FOCUS = "EVENT_APP_LOST_FOCUS";
+        public const string EVENT_APP_PAUSED = "EVENT_APP_PAUSED";
+
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
+        [Tooltip("It allows the debug of most common messages")]
 		public bool DebugMode = true;
 
 		[Tooltip("This shader will be applied on the UI elements and it allows to draw over everything else so the screen is not hidden by another object")]
@@ -107,6 +110,24 @@ namespace YourCommonTools
 			DestroyScreensPool();
 			DestroyScreensOverlay();
 		}
+
+        // -------------------------------------------
+        /* 
+		 * OnApplicationFocus
+		 */
+        void OnApplicationFocus(bool hasFocus)
+        {
+            UIEventController.Instance.DispatchUIEvent(EVENT_APP_LOST_FOCUS, hasFocus);
+        }
+
+        // -------------------------------------------
+        /* 
+         * OnApplicationPause
+         */
+        void OnApplicationPause(bool pauseStatus)
+        {
+            UIEventController.Instance.DispatchUIEvent(EVENT_APP_PAUSED, pauseStatus);
+        }
 
         // -------------------------------------------
         /* 
