@@ -21,17 +21,20 @@ namespace YourCommonTools
 
 	public abstract class JSONNode
 	{
-		#region common interface
+        #region common interface
 
 		public virtual void Add(string aKey, JSONNode aItem)
 		{
-		}
+
+        }
 
 		public virtual JSONNode this[int aIndex] { get { return null; } set { } }
 
 		public virtual JSONNode this[string aKey] { get { return null; } set { } }
 
-		public virtual string Value { get { return ""; } set { } }
+        public virtual string KeyCode { get { return ""; } set { } }
+
+        public virtual string Value { get { return ""; } set { } }
 
 		public virtual int Count { get { return 0; } }
 
@@ -319,7 +322,11 @@ namespace YourCommonTools
 							if (ctx is JSONArray)
 								ctx.Add(stack.Peek());
 							else if (TokenName != "")
-								ctx.Add(TokenName, stack.Peek());
+                            {
+                                JSONNode peek = stack.Peek();
+                                peek.KeyCode = TokenName;
+                                ctx.Add(TokenName, peek);
+                            }								
 						}
 						TokenName = "";
 						Token = "";
@@ -690,8 +697,15 @@ namespace YourCommonTools
 	public class JSONArray : JSONNode, IEnumerable
 	{
 		private List<JSONNode> m_List = new List<JSONNode>();
+        private string m_keyCode = "";
 
-		public override JSONNode this[int aIndex]
+        public override string KeyCode
+        {
+            get { return m_keyCode; }
+            set { m_keyCode = value; }
+        }
+
+        public override JSONNode this[int aIndex]
 		{
 			get
 			{
@@ -813,7 +827,15 @@ namespace YourCommonTools
 	{
 		private Dictionary<string, JSONNode> m_Dict = new Dictionary<string, JSONNode>();
 
-		public override JSONNode this[string aKey]
+        private string m_keyCode = "";
+
+        public override string KeyCode
+        {
+            get { return m_keyCode; }
+            set { m_keyCode = value; }
+        }
+
+        public override JSONNode this[string aKey]
 		{
 			get
 			{
@@ -856,7 +878,7 @@ namespace YourCommonTools
 
 		public override void Add(string aKey, JSONNode aItem)
 		{
-			if (!string.IsNullOrEmpty(aKey))
+            if (!string.IsNullOrEmpty(aKey))
 			{
 				if (m_Dict.ContainsKey(aKey))
 					m_Dict[aKey] = aItem;
@@ -1080,7 +1102,15 @@ namespace YourCommonTools
 		private JSONNode m_Node = null;
 		private string m_Key = null;
 
-		public JSONLazyCreator(JSONNode aNode)
+        private string m_keyCode = "";
+
+        public override string KeyCode
+        {
+            get { return m_keyCode; }
+            set { m_keyCode = value; }
+        }
+
+        public JSONLazyCreator(JSONNode aNode)
 		{
 			m_Node = aNode;
 			m_Key = null;
@@ -1142,7 +1172,7 @@ namespace YourCommonTools
 
 		public override void Add(string aKey, JSONNode aItem)
 		{
-			var tmp = new JSONClass();
+            var tmp = new JSONClass();
 			tmp.Add(aKey, aItem);
 			Set(tmp);
 		}
