@@ -443,9 +443,22 @@ namespace YourCommonTools
                     if (_list[3] is List<PageInformation>)
                     {
                         pages = (List<PageInformation>)_list[3];
+                        CreateNewScreen(nameScreen, previousAction, hidePreviousScreens, pages);
+                    }
+                    else
+                    {
+                        object[] dataParams = new object[_list.Length - 3];
+                        for (int k = 3; k < _list.Length; k++)
+                        {
+                            dataParams[k - 3] = _list[k];
+                        }
+                        CreateNewScreen(nameScreen, previousAction, hidePreviousScreens, dataParams);
                     }
                 }
-                CreateNewScreen(nameScreen, previousAction, hidePreviousScreens, pages);
+                else
+                {
+                    CreateNewScreen(nameScreen, previousAction, hidePreviousScreens, pages);
+                }                
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
             {
