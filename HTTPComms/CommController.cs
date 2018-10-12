@@ -22,7 +22,8 @@ namespace YourCommonTools
 		// CONSTANTS
 		// ----------------------------------------------	
 		public const char TOKEN_SEPARATOR_COMA = ',';
-		public const string TOKEN_SEPARATOR_EVENTS = "<par>";
+        public const string TOKEN_SEPARATOR_BLOCKS = "<block>";
+        public const string TOKEN_SEPARATOR_EVENTS = "<par>";
 		public const string TOKEN_SEPARATOR_LINES = "<line>";
 
 		public const bool DEBUG_LOG = true;
