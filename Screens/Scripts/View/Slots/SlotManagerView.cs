@@ -126,8 +126,6 @@ namespace YourCommonTools
 			if (_resetPage)
 			{
 				m_currentPage = 0;
-				if (m_buttonNext != null) m_buttonNext.GetComponent<Button>().onClick.RemoveAllListeners();
-				if (m_buttonPrevious != null) m_buttonPrevious.GetComponent<Button>().onClick.RemoveAllListeners();
 			}
 		}
 
