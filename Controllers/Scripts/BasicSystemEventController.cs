@@ -106,29 +106,63 @@ namespace YourCommonTools
 			listEvents.Add(new TimedEventData(_nameEvent, _time, _list));
 		}
 
-		
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will dispatch a delayed basic system events
+		 */
+        public void ClearBasicSystemEvents(string _nameEvent = "")
+        {
+            if (_nameEvent.Length == 0)
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    listEvents[i].Time = -1000;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    TimedEventData eventData = listEvents[i];
+                    if (eventData.NameEvent == _nameEvent)
+                    {
+                        eventData.Time = -1000;
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will process the queue of delayed events 
 		 */
-		void Update()
-		{
-			// DELAYED EVENTS
-			for (int i = 0; i < listEvents.Count; i++)
-			{
-				TimedEventData eventData = listEvents[i];
-				eventData.Time -= Time.deltaTime;
-				if (eventData.Time <= 0)
-				{
-                    if ((eventData != null) && (BasicSystemEvent != null))
-                    {
-                        BasicSystemEvent(eventData.NameEvent, eventData.List);
-                        eventData.Destroy();
-                    }
+        void Update()
+        {
+            // DELAYED EVENTS
+            for (int i = 0; i < listEvents.Count; i++)
+            {
+                TimedEventData eventData = listEvents[i];
+                if (eventData.Time == -1000)
+                {
+                    eventData.Destroy();
                     listEvents.RemoveAt(i);
-					break;
-				}
-			}
-		}
+                    break;
+                }
+                else
+                {
+                    eventData.Time -= Time.deltaTime;
+                    if (eventData.Time <= 0)
+                    {
+                        if ((eventData != null) && (BasicSystemEvent != null))
+                        {
+                            BasicSystemEvent(eventData.NameEvent, eventData.List);
+                            eventData.Destroy();
+                        }
+                        listEvents.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
+        }
 	}
 }

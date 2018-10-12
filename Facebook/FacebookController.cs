@@ -65,8 +65,9 @@ namespace YourCommonTools
 		private bool m_invitationAccepted = false;
 
 		private List<ItemMultiTextEntry> m_friends = new List<ItemMultiTextEntry>();
+        private string m_friendsCompact = "";
 
-		public string Id
+        public string Id
 		{
 			get { return m_id; }
 			set { m_id = value; }
@@ -260,12 +261,18 @@ namespace YourCommonTools
 
 			JSONNode friends = jsonResponse["data"];
 			Debug.Log("FacebookController::HandleListOfFriends::friends.Count=" + friends.Count);
+            m_friendsCompact = "";
 			for (int i = 0; i < friends.Count; i++)
 			{
 				string nameFriend = friends[i]["name"];
 				string idFriend = friends[i]["id"];
 				m_friends.Add(new ItemMultiTextEntry(idFriend, nameFriend));
-				Debug.Log("   NAME=" + nameFriend + ";ID=" + idFriend);
+                if (m_friendsCompact.Length > 0)
+                {
+                    m_friendsCompact += ";";
+                }
+                m_friendsCompact += idFriend;
+                Debug.Log("   NAME=" + nameFriend + ";ID=" + idFriend);
 			}
 
 			UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_FRIENDS_LOADED);
@@ -292,7 +299,7 @@ namespace YourCommonTools
 			}
 			if (_dispatchCompletedFacebookInit)
 			{
-				UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_COMPLETE_INITIALITZATION, m_id, m_nameHuman, m_email);
+                UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_COMPLETE_INITIALITZATION, m_id, m_nameHuman, m_email, m_friendsCompact);
 			}
 		}
 
