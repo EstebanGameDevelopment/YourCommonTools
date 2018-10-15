@@ -25,8 +25,9 @@ namespace YourCommonTools
         public const string TOKEN_SEPARATOR_BLOCKS = "<block>";
         public const string TOKEN_SEPARATOR_EVENTS = "<par>";
 		public const string TOKEN_SEPARATOR_LINES = "<line>";
+        public const string TOKEN_SEPARATOR_USER_DATA = "<udata>";
 
-		public const bool DEBUG_LOG = true;
+        public const bool DEBUG_LOG = true;
 
 
 		public const int STATE_IDLE = 0;
