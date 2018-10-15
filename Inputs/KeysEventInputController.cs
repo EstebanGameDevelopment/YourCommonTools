@@ -37,8 +37,9 @@ namespace YourCommonTools
 		public const string ACTION_KEY_LEFT_RELEASED = "ACTION_KEY_LEFT_RELEASED";
 		public const string ACTION_KEY_RIGHT_RELEASED = "ACTION_KEY_RIGHT_RELEASED";
 
+        public const string ACTION_RECENTER = "ACTION_RECENTER";
 
-		private int DIRECTION_NONE = -1;
+        private int DIRECTION_NONE = -1;
 		private int DIRECTION_LEFT = 1;
 		private int DIRECTION_RIGHT = 2;
 		private int DIRECTION_DOWN = 3;
@@ -197,6 +198,18 @@ namespace YourCommonTools
 		{
 #if ENABLE_WORLDSENSE
             m_isDaydreamActivated = true;
+
+            if (GvrControllerInput.Recentered)
+            {
+                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+            }
+#endif
+
+#if ENABLE_OCULUS && !UNITY_EDITOR
+            if (OVRInput.GetControllerWasRecentered())
+            {
+                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+            }
 #endif
 
             bool hasEntered = false;
@@ -213,7 +226,8 @@ namespace YourCommonTools
 					}
 #endif
 				}
-				if (!hasEntered)
+
+                if (!hasEntered)
 				{
 					bool fire1Triggered = false;
 
