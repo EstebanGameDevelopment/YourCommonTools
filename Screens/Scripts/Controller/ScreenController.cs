@@ -82,11 +82,6 @@ namespace YourCommonTools
 		 */
         public virtual void Awake()
 		{
-#if !ENABLE_OCULUS
-			Screen.orientation = ScreenOrientation.LandscapeLeft;
-			Screen.autorotateToPortrait = false;
-			Screen.autorotateToLandscapeRight = false;
-#endif
 		}
 
 		// -------------------------------------------
