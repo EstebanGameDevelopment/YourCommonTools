@@ -306,9 +306,9 @@ namespace YourCommonTools
 		{
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
-                for (int i = 0; i < screenPool.Value.Count; i++)
+                while (screenPool.Value.Count > 0)
                 {
-                    GameObject screen = screenPool.Value[i];
+                    GameObject screen = screenPool.Value[0];
                     if (screen != null)
                     {
                         if (screen.GetComponent<IBasicView>() != null)
