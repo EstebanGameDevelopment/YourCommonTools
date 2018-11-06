@@ -153,7 +153,7 @@ namespace YourCommonTools
             List<PageInformation> pages = new List<PageInformation>();
             pages.Add(new PageInformation(_title, _description, _image, _eventData, _okButtonText, _cancelButtonText));
 
-            CreateNewScreenLayer(1, _nameScreen, _previousAction, false, pages);
+            CreateNewScreenLayer(1, null, _nameScreen, _previousAction, false, pages);
         }
 
         // -------------------------------------------
@@ -180,7 +180,7 @@ namespace YourCommonTools
 		 */
         public virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
         {
-            CreateNewScreenLayer(1, _nameScreen, _previousAction, false, _pages);
+            CreateNewScreenLayer(1, null, _nameScreen, _previousAction, false, _pages);
         }
 
         // -------------------------------------------
@@ -189,14 +189,14 @@ namespace YourCommonTools
 		*/
         public virtual void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _ignore, params object[] _list)
         {
-            CreateNewScreenLayer(0, _nameScreen, _previousAction, _list);
+            CreateNewScreenLayer(0, null, _nameScreen, _previousAction, _list);
         }
 
         // -------------------------------------------
         /* 
 		* Create a new screen
 		*/
-        public virtual void CreateNewScreenLayer(int _layer, string _nameScreen, UIScreenTypePreviousAction _previousAction, params object[] _list)
+        public virtual void CreateNewScreenLayer(int _layer, object _animation, string _nameScreen, UIScreenTypePreviousAction _previousAction, params object[] _list)
         {
             if (!m_enableScreens) return;
 
@@ -272,6 +272,11 @@ namespace YourCommonTools
 			}
 
             m_screensPool[_layer].Add(currentScreen);
+
+            if (_animation != null)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_ANIMATION_SHOW, currentScreen);
+            }
 
 			if (DebugMode)
 			{
@@ -426,7 +431,7 @@ namespace YourCommonTools
                     if (_list[3] is List<PageInformation>)
                     {
                         pages = (List<PageInformation>)_list[3];
-                        CreateNewScreenLayer(0, nameScreen, previousAction, pages);
+                        CreateNewScreenLayer(0, null, nameScreen, previousAction, pages);
                     }
                     else
                     {
@@ -435,41 +440,42 @@ namespace YourCommonTools
                         {
                             dataParams[k - 3] = _list[k];
                         }
-                        CreateNewScreenLayer(0, nameScreen, previousAction, dataParams);
+                        CreateNewScreenLayer(0, null, nameScreen, previousAction, dataParams);
                     }
                 }
                 else
                 {
-                    CreateNewScreenLayer(0, nameScreen, previousAction, pages);
+                    CreateNewScreenLayer(0, null, nameScreen, previousAction, pages);
                 }                
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN)
             {
                 int layer = (int)_list[0];
-                string nameScreen = (string)_list[1];
-                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[2];
-                bool hidePreviousScreens = (bool)_list[3];
+                object animation = (object)_list[1];
+                string nameScreen = (string)_list[2];
+                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[3];
+                bool hidePreviousScreens = (bool)_list[4];
                 List<PageInformation> pages = null;
-                if (_list.Length > 4)
+                if (_list.Length > 5)
                 {
-                    if (_list[4] is List<PageInformation>)
+                    if (_list[5] is List<PageInformation>)
                     {
-                        pages = (List<PageInformation>)_list[4];
-                        CreateNewScreenLayer(layer, nameScreen, previousAction, pages);
+                        pages = (List<PageInformation>)_list[5];
+                        CreateNewScreenLayer(layer, animation, nameScreen, previousAction, pages);
                     }
                     else
                     {
-                        object[] dataParams = new object[_list.Length - 4];
-                        for (int k = 4; k < _list.Length; k++)
+                        object[] dataParams = new object[_list.Length - 5];
+                        for (int k = 5; k < _list.Length; k++)
                         {
-                            dataParams[k - 4] = _list[k];
+                            dataParams[k - 5] = _list[k];
                         }
-                        CreateNewScreenLayer(layer, nameScreen, previousAction, dataParams);
+                        CreateNewScreenLayer(layer, animation, nameScreen, previousAction, dataParams);
                     }
                 }
                 else
                 {
-                    CreateNewScreenLayer(layer, nameScreen, previousAction, pages);
+                    CreateNewScreenLayer(layer, animation, nameScreen, previousAction, pages);
                 }
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN)
@@ -482,20 +488,21 @@ namespace YourCommonTools
                 string eventData = (string)_list[5];
                 List<PageInformation> pages = new List<PageInformation>();
                 pages.Add(new PageInformation(title, description, image, eventData));
-                CreateNewScreenLayer(TOTAL_LAYERS_SCREENS - 1, nameScreen, previousAction, pages);
+                CreateNewScreenLayer(TOTAL_LAYERS_SCREENS - 1, null, nameScreen, previousAction, pages);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_INFORMATION_SCREEN)
             {
                 int layer = (int)_list[0];
-                string nameScreen = (string)_list[1];
-                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[2];
-                string title = (string)_list[3];
-                string description = (string)_list[4];
-                Sprite image = (Sprite)_list[5];
-                string eventData = (string)_list[6];
+                object animation = (object)_list[1];
+                string nameScreen = (string)_list[2];
+                UIScreenTypePreviousAction previousAction = (UIScreenTypePreviousAction)_list[3];
+                string title = (string)_list[4];
+                string description = (string)_list[5];
+                Sprite image = (Sprite)_list[6];
+                string eventData = (string)_list[7];
                 List<PageInformation> pages = new List<PageInformation>();
                 pages.Add(new PageInformation(title, description, image, eventData));
-                CreateNewScreenLayer(layer, nameScreen, previousAction, pages);
+                CreateNewScreenLayer(layer, null, nameScreen, previousAction, pages);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN)
             {

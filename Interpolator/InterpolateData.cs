@@ -32,6 +32,7 @@ namespace YourCommonTools
 		private float m_totalTime;
 		private float m_timeDone;
         private bool m_activated;
+        private bool m_setTargetWhenFinished;
 
         // -----------------------------------------
         // GETTERS/SETTERS
@@ -55,15 +56,21 @@ namespace YourCommonTools
 			get { return m_timeDone; }
 			set { m_timeDone = 0; }
 		}
+        public bool SetTargetWhenFinished
+        {
+            get { return m_setTargetWhenFinished; }
+            set { m_setTargetWhenFinished = value; }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Constructor
 		 */
-		public InterpolateData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone)
+        public InterpolateData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
 		{
 			m_gameActor = _actor;
             m_activated = true;
+            m_setTargetWhenFinished = _setTargetWhenFinished;
 
             ResetData(_origin, _goal, _totalTime, _timeDone);
 
@@ -118,6 +125,10 @@ namespace YourCommonTools
 				}
 				else
 				{
+                    if (m_setTargetWhenFinished)
+                    {
+                        m_gameActor.transform.position = m_goal;
+                    }
 					BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
 					return true;
 				}

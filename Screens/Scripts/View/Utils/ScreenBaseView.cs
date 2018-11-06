@@ -16,22 +16,28 @@ namespace YourCommonTools
 	 */
 	public class ScreenBaseView : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// CONSTANTS
-		// ----------------------------------------------	
-		public const string CONTENT_COMPONENT_NAME = "Content";
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_SCREENBASE_ANIMATION_SHOW = "EVENT_SCREENBASE_ANIMATION_SHOW";
+        public const string EVENT_SCREENBASE_ANIMATION_HIDE = "EVENT_SCREENBASE_ANIMATION_HIDE";
 
-		// ----------------------------------------------
-		// PUBLIC VARIABLE MEMBERS
-		// ----------------------------------------------	
-		public Sprite SelectorGraphic;
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string CONTENT_COMPONENT_NAME = "Content";
+
+        // ----------------------------------------------
+        // PUBLIC VARIABLE MEMBERS
+        // ----------------------------------------------	
+        public Sprite SelectorGraphic;
 
 		// ----------------------------------------------
 		// PRIVATE VARIABLE MEMBERS
 		// ----------------------------------------------	
 		protected string m_nameOfScreen;
 		private GameObject m_screen;
-		private CanvasGroup m_canvasGroup;
+        protected CanvasGroup m_canvasGroup;
 		private bool m_hasFocus = true;
 
 		private int m_selectionButton;
@@ -76,10 +82,10 @@ namespace YourCommonTools
 			m_screen = this.gameObject;
 			if (m_screen.transform.Find(CONTENT_COMPONENT_NAME) != null)
 			{
-				m_canvasGroup = m_screen.transform.Find(CONTENT_COMPONENT_NAME).GetComponent<CanvasGroup>();
+                m_canvasGroup = m_screen.transform.Find(CONTENT_COMPONENT_NAME).GetComponent<CanvasGroup>();
 				if (m_canvasGroup != null)
 				{
-					m_canvasGroup.alpha = 1;
+                    m_canvasGroup.alpha = 1;
 				}
 			}
 
@@ -206,7 +212,23 @@ namespace YourCommonTools
 				EnableSelector();
 			}
 
-			if (!this.gameObject.activeSelf) return;
+            if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SHOW)
+            {
+                if (this.gameObject == (GameObject)_list[0])
+                {
+                    m_canvasGroup.gameObject.transform.position = new Vector3(UnityEngine.Screen.width, 0, 0);
+                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(0, 0, 0), 0.5f, true);
+                }
+            }
+            if (_nameEvent == EVENT_SCREENBASE_ANIMATION_HIDE)
+            {
+                if (this.gameObject == (GameObject)_list[0])
+                {
+                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(UnityEngine.Screen.width, 0, 0), 0.5f, true);
+                }
+            }
+
+            if (!this.gameObject.activeSelf) return;
 			if (m_selectors == null) return;
 			if (m_selectors.Count == 0) return;
 			if (!m_hasFocus) return;
@@ -227,7 +249,6 @@ namespace YourCommonTools
 					}
 				}
 			}
-
 
 			bool keepSearching = true;
 
