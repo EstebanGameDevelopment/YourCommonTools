@@ -73,11 +73,37 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        public int Layer
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public bool IsMarkedToBeDestroyed
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Initialitzation of all the references to the graphic resources
 		 */
-		public virtual void Initialize(params object[] _list)
+        public virtual void Initialize(params object[] _list)
 		{
 			string messageNoContainer = "BaseItemView::Initialize::The item should always have a reference to the container parent";
 			if (_list == null)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace YourCommonTools
 {
@@ -37,6 +38,16 @@ namespace YourCommonTools
 
         public const int TOTAL_LAYERS_SCREENS = 5;
 
+        public const int ANIMATION_MOVEMENT = 0;
+        public const int DIRECTION_UP       = 0;
+        public const int DIRECTION_DOWN     = 1;
+        public const int DIRECTION_LEFT     = 2;
+        public const int DIRECTION_RIGHT    = 3;
+
+        public const int ANIMATION_ALPHA    = 1;
+
+        public const int ANIMATION_FADE     = 2;
+
         // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
@@ -48,6 +59,9 @@ namespace YourCommonTools
 
         [Tooltip("All the screens used by the application")]
         public GameObject[] ScreensPrefabs;
+
+        [Tooltip("Screen used for fade to black")]
+        public GameObject FadeScreen;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -250,7 +264,7 @@ namespace YourCommonTools
 					break;
 
 				case UIScreenTypePreviousAction.DESTROY_ALL_SCREENS:
-					DestroyScreensPool();
+                    DestroyScreensPool();
 					break;
 			}
 
@@ -272,16 +286,37 @@ namespace YourCommonTools
 			}
 
             m_screensPool[_layer].Add(currentScreen);
+            currentScreen.GetComponent<IBasicView>().Layer = _layer;
 
             if (_animation != null)
             {
-                UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_ANIMATION_SHOW, currentScreen);
+                UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_ANIMATION_SHOW, currentScreen, _animation);
             }
 
 			if (DebugMode)
 			{
 				Utilities.DebugLogError("CreateNewScreen::POOL[" + ScreensEnabled + "]");
 			}
+        }
+
+        // -------------------------------------------
+        /* 
+         * AreThereLayersOverMe
+         */
+        public bool AreThereLayersOverMe(int _layer)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Value.Count > 0)
+                {
+                    if (screenPool.Key > _layer)
+                    {
+                        return true;
+                    }
+                }                
+            }
+
+            return false;
         }
 
         // -------------------------------------------
@@ -335,12 +370,46 @@ namespace YourCommonTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * Destroy all the screens below a specific layer
+		 */
+        public void DestroyScreensBelowLayerPool(int _layer)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Key < _layer)
+                {
+                    while (screenPool.Value.Count > 0)
+                    {
+                        GameObject screen = screenPool.Value[0];
+                        if (screen != null)
+                        {
+                            if (screen.GetComponent<IBasicView>() != null)
+                            {
+                                screen.GetComponent<IBasicView>().Destroy();
+                            }
+                            if (screen != null)
+                            {
+                                GameObject.Destroy(screen);
+                                screen = null;
+                            }
+                        }
+                    }
+                    screenPool.Value.Clear();
+                }
+            }
+            if (DebugMode)
+            {
+                Utilities.DebugLogError("ScreenController::DestroyScreensPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
+            }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Remove the screen from the list of screens
 		 */
-		private void DestroyGameObjectSingleScreen(GameObject _screen, bool _runDestroy)
+        private void DestroyGameObjectSingleScreen(GameObject _screen, bool _runDestroy)
 		{
 			if (_screen == null) return;
 
@@ -410,7 +479,7 @@ namespace YourCommonTools
 		 * Manager of ui events
 		 */
         protected virtual void OnUIEvent(string _nameEvent, params object[] _list)
-		{
+        {
             ProcessScreenEvents(_nameEvent, _list);
         }
 
@@ -502,7 +571,7 @@ namespace YourCommonTools
                 string eventData = (string)_list[7];
                 List<PageInformation> pages = new List<PageInformation>();
                 pages.Add(new PageInformation(title, description, image, eventData));
-                CreateNewScreenLayer(layer, null, nameScreen, previousAction, pages);
+                CreateNewScreenLayer(((layer == -1)?(TOTAL_LAYERS_SCREENS - 1):layer), animation, nameScreen, previousAction, pages);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN)
             {
@@ -525,6 +594,22 @@ namespace YourCommonTools
                 bool accepted = (bool)_list[1];
                 string subnameEvent = (string)_list[2];
                 if (screen != null) Debug.Log("POP UP[" + screen.name + "] CLOSED");
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN)
+            {
+                if (FadeScreen != null)
+                {
+                    GameObject parentScreen = (GameObject)_list[0];
+                    float startAlpha = (float)_list[1];
+                    float endAlpha = (float)_list[2];
+                    Color finalColor = (Color)_list[3];
+                    float timeColor = (float)_list[4];
+                    GameObject fadeScreen = Utilities.AddChild(parentScreen.transform, FadeScreen);
+                    fadeScreen.GetComponent<Image>().color = finalColor;
+                    fadeScreen.GetComponent<CanvasGroup>().alpha = startAlpha;
+                    AlphaController.Instance.Interpolate(fadeScreen, startAlpha, endAlpha, timeColor, true);
+                    GameObject.Destroy(fadeScreen, timeColor + 0.1f);
+                }
             }
         }
 

@@ -50,6 +50,8 @@ namespace YourCommonTools
 		private bool m_forceLastPage = false;
 		private bool m_lastPageVisited = false;
 
+        private bool m_animationDissappearTriggered = false;
+
 		// ----------------------------------------------
 		// GETTERS/SETTERS
 		// ----------------------------------------------	
@@ -76,13 +78,21 @@ namespace YourCommonTools
 			{
 				m_okButton = m_container.Find("Button_OK").GetComponent<Button>();
 				m_okButton.gameObject.GetComponent<Button>().onClick.AddListener(OkPressed);
+                if (m_okButton.gameObject.transform.Find("Text") != null)
+                {
+                    m_okButton.gameObject.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.ok");
+                }
 			}
 			if (m_container.Find("Button_Cancel") != null)
 			{
 				m_cancelButton = m_container.Find("Button_Cancel").GetComponent<Button>();
 				m_cancelButton.gameObject.GetComponent<Button>().onClick.AddListener(CancelPressed);
-			}
-			if (m_container.Find("Button_Next") != null)
+                if (m_cancelButton.gameObject.transform.Find("Text") != null)
+                {
+                    m_cancelButton.gameObject.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.cancel");
+                }
+            }
+            if (m_container.Find("Button_Next") != null)
 			{
 				m_nextButton = m_container.Find("Button_Next").GetComponent<Button>();
 				m_nextButton.gameObject.GetComponent<Button>().onClick.AddListener(NextPressed);
@@ -121,6 +131,7 @@ namespace YourCommonTools
 			}
 
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
 			ChangePage(0);
 		}
@@ -131,19 +142,42 @@ namespace YourCommonTools
 		 */
 		public override bool Destroy()
 		{
-			if (base.Destroy()) return true;
-
-			UIEventController.Instance.UIEvent -= OnUIEvent;
-			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
-
-			return false;
+            if (m_paramsAnimation != null)
+            {
+                if (!m_animationDissappearTriggered)
+                {
+                    m_animationDissappearTriggered = true;
+                    DisappearAnimation(m_paramsAnimation);
+                }                
+                return true;
+            }
+            else
+            {
+                return DestroyReal();
+            }			
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * DestroyReal
+		 */
+        public bool DestroyReal()
+        {
+            if (base.Destroy()) return true;
+
+            UIEventController.Instance.UIEvent -= OnUIEvent;
+            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OkPressed
 		 */
-		private void OkPressed()
+        private void OkPressed()
 		{
 			if (m_currentPage + 1 < m_pagesInfo.Count)
 			{
@@ -268,15 +302,36 @@ namespace YourCommonTools
 			{
 				m_title.text = _text;
 			}
-		}
+        }
 
-		// -------------------------------------------
-		/* 
-		 * OnUIEvent
-		 */
-		private void OnUIEvent(string _nameEvent, params object[] _list)
+        // -------------------------------------------
+        /* 
+         * OnBasicSystemEvent
+         */
+        private void OnBasicSystemEvent(string _nameEvent, params object[] _list)
+        {
+            if (m_animationDissappearTriggered)
+            {
+                if (_nameEvent == InterpolateData.EVENT_INTERPOLATE_COMPLETED)
+                {
+                    if (m_canvasGroup.gameObject == (GameObject)_list[0])
+                    {
+                        m_paramsAnimation = null;
+                        DestroyReal();
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+         * OnUIEvent
+         */
+        private void OnUIEvent(string _nameEvent, params object[] _list)
 		{
-			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
+            base.OnMenuEvent(_nameEvent, _list);
+
+            if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
 			{
 				Destroy();
 			}

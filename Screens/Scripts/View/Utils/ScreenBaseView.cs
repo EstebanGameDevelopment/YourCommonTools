@@ -36,7 +36,8 @@ namespace YourCommonTools
 		// PRIVATE VARIABLE MEMBERS
 		// ----------------------------------------------	
 		protected string m_nameOfScreen;
-		private GameObject m_screen;
+        protected int m_layer = -1;
+        private GameObject m_screen;
         protected CanvasGroup m_canvasGroup;
 		private bool m_hasFocus = true;
 
@@ -46,11 +47,14 @@ namespace YourCommonTools
 		private bool m_enabledSelector = true;
 
 		protected bool m_hasBeenDestroyed = false;
+        protected List<object> m_paramsAnimation;
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------	
-		public string NameOfScreen
+        protected bool m_isMarkedToBeDestroyed = false;
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
+        public string NameOfScreen
 		{
 			get { return m_nameOfScreen; }
 			set { m_nameOfScreen = value; }
@@ -70,12 +74,22 @@ namespace YourCommonTools
 			get { return m_hasFocus; }
 			set { m_hasFocus = value; }
 		}
+        public int Layer
+        {
+            get { return m_layer; }
+            set { m_layer = value; }
+        }
+        public bool IsMarkedToBeDestroyed
+        {
+            get { return m_isMarkedToBeDestroyed; }
+            set { m_isMarkedToBeDestroyed = value;  }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Initialitzation
 		 */
-		public virtual void Initialize(params object[] _list)
+        public virtual void Initialize(params object[] _list)
 		{
 			m_selectionButton = 0;
 			m_selectors = new List<GameObject>();
@@ -198,11 +212,109 @@ namespace YourCommonTools
 			};
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * AppearAnimation
+		 */
+        protected virtual void AppearAnimation(List<object> _paramsAnimation)
+        {
+            m_paramsAnimation = _paramsAnimation;
+            switch ((int)m_paramsAnimation[0])
+            {
+                case ScreenController.ANIMATION_MOVEMENT:
+                    Vector3 startingPosition = new Vector3();
+                    switch ((int)m_paramsAnimation[1])
+                    {
+                        case ScreenController.DIRECTION_UP:
+                            startingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
+                            break;
+                        case ScreenController.DIRECTION_DOWN:
+                            startingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
+                            break;
+                        case ScreenController.DIRECTION_LEFT:
+                            startingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
+                            break;
+                        case ScreenController.DIRECTION_RIGHT:
+                            startingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
+                            break;
+                    }
+                    float animationTime = (float)m_paramsAnimation[2];
+                    m_canvasGroup.gameObject.transform.position = startingPosition;
+                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(0, 0, 0), animationTime, true);
+                    break;
+
+                case ScreenController.ANIMATION_ALPHA:
+                    float startAlpha = (float)m_paramsAnimation[1];
+                    float endAlpha = (float)m_paramsAnimation[2];
+                    float alphaTime = (float)m_paramsAnimation[3];
+                    m_canvasGroup.alpha = startAlpha;
+                    AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, startAlpha, endAlpha, alphaTime);
+                    break;
+
+                case ScreenController.ANIMATION_FADE:
+                    Color endColor = (Color)m_paramsAnimation[1];
+                    float colorTime = (float)m_paramsAnimation[2];
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 1f, 0f, endColor, colorTime);
+                    BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
+                    break;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DisappearAnimation
+		 */
+        protected virtual void DisappearAnimation(List<object> _paramsAnimation)
+        {
+            if (_paramsAnimation != null)
+            {
+                m_paramsAnimation = _paramsAnimation;
+            }            
+            switch ((int)m_paramsAnimation[0])
+            {
+                case ScreenController.ANIMATION_MOVEMENT:
+                    Vector3 endingPosition = new Vector3();
+                    switch ((int)m_paramsAnimation[1])
+                    {
+                        case ScreenController.DIRECTION_UP:
+                            endingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
+                            break;
+                        case ScreenController.DIRECTION_DOWN:
+                            endingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
+                            break;
+                        case ScreenController.DIRECTION_LEFT:
+                            endingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
+                            break;
+                        case ScreenController.DIRECTION_RIGHT:
+                            endingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
+                            break;
+                    }
+                    float animationTime = (float)m_paramsAnimation[2];
+                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
+                    break;
+
+                case ScreenController.ANIMATION_ALPHA:
+                    float startAlpha = (float)m_paramsAnimation[1];
+                    float endAlpha = (float)m_paramsAnimation[2];
+                    float alphaTime = (float)m_paramsAnimation[3];
+                    m_canvasGroup.alpha = endAlpha;
+                    AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, endAlpha, startAlpha, alphaTime);
+                    break;
+
+                case ScreenController.ANIMATION_FADE:
+                    Color endColor = (Color)m_paramsAnimation[1];
+                    float colorTime = (float)m_paramsAnimation[2];
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 0f, 1f, endColor, colorTime);
+                    BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
+                    break;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Global manager of events
 		 */
-		protected virtual void OnMenuEvent(string _nameEvent, params object[] _list)
+        protected virtual void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
 			if ((_nameEvent == KeysEventInputController.ACTION_KEY_UP_PRESSED) ||
 				(_nameEvent == KeysEventInputController.ACTION_KEY_DOWN_PRESSED) ||
@@ -216,15 +328,14 @@ namespace YourCommonTools
             {
                 if (this.gameObject == (GameObject)_list[0])
                 {
-                    m_canvasGroup.gameObject.transform.position = new Vector3(UnityEngine.Screen.width, 0, 0);
-                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(0, 0, 0), 0.5f, true);
+                    AppearAnimation(((List<object>)_list[1]));
                 }
             }
             if (_nameEvent == EVENT_SCREENBASE_ANIMATION_HIDE)
             {
                 if (this.gameObject == (GameObject)_list[0])
                 {
-                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(UnityEngine.Screen.width, 0, 0), 0.5f, true);
+                    DisappearAnimation((_list.Length > 1)?((List<object>)_list[1]):null);
                 }
             }
 

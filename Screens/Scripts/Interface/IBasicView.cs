@@ -14,9 +14,11 @@
 	{
 		// GETTERS/SETTERS
 		string NameOfScreen { get; set; }
+        int Layer { get; set; }
+        bool IsMarkedToBeDestroyed { get; set; }
 
-		// FUNCTIONS
-		void Initialize(params object[] _list);
+        // FUNCTIONS
+        void Initialize(params object[] _list);
 		bool Destroy();
 		void SetActivation(bool _activation);
 	}
