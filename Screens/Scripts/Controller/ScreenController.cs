@@ -36,7 +36,7 @@ namespace YourCommonTools
         public const string EVENT_APP_LOST_FOCUS = "EVENT_APP_LOST_FOCUS";
         public const string EVENT_APP_PAUSED = "EVENT_APP_PAUSED";
 
-        public const int TOTAL_LAYERS_SCREENS = 5;
+        public const int TOTAL_LAYERS_SCREENS = 10;
 
         public const int ANIMATION_MOVEMENT = 0;
         public const int DIRECTION_UP       = 0;
@@ -402,6 +402,27 @@ namespace YourCommonTools
             if (DebugMode)
             {
                 Utilities.DebugLogError("ScreenController::DestroyScreensPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
+            }
+
+            // SET THE CURRENT LAYER TO 0
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Key == _layer)
+                {
+                    for (int k = 0; k < screenPool.Value.Count; k++)
+                    {
+                        GameObject screen = screenPool.Value[k];
+                        if (screen != null)
+                        {
+                            if (screen.GetComponent<IBasicView>() != null)
+                            {
+                                screen.GetComponent<IBasicView>().Layer = 0;
+                                Utilities.AttachChild(m_layers[0].transform, screen);
+                                screen.GetComponent<Canvas>().sortingOrder = 0;
+                            }
+                        }
+                    }
+                }
             }
         }
 
