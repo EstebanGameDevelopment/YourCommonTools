@@ -121,20 +121,22 @@ namespace YourCommonTools
 			{
 				m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
 				m_textLoading.gameObject.SetActive(true);
-			}
+                if (m_buttonNext != null) m_buttonNext.gameObject.SetActive(false);
+                if (m_buttonPrevious != null) m_buttonPrevious.gameObject.SetActive(false);
+            }
 
-			if (_resetPage)
-			{
-				m_currentPage = 0;
-			}
-		}
+            if (_resetPage)
+            {
+                m_currentPage = 0;
+            }
+        }
 
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * LoadCurrentPage
 		 */
-		public void LoadCurrentPage()
+        public void LoadCurrentPage()
 		{
 			if ((m_buttonNext != null) && (m_buttonPrevious != null) && (m_data.Count > m_itemsEachPage))
 			{
