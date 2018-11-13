@@ -299,6 +299,27 @@ namespace YourCommonTools
 			}
         }
 
+
+        // -------------------------------------------
+        /* 
+         * AreThereBlockingLayersOverMe
+         */
+        public bool AreThereBlockingLayersOverMe(int _layer)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Value.Count > 0)
+                {
+                    if ((screenPool.Key > _layer) && (screenPool.Key + 1 != TOTAL_LAYERS_SCREENS))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         // -------------------------------------------
         /* 
          * AreThereLayersOverMe
