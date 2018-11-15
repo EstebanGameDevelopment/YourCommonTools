@@ -29,12 +29,13 @@ namespace YourCommonTools
         // EVENTS
         // ----------------------------------------------	
         public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
-		public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
+        public const string EVENT_SCREEN_UPDATE_TEXTS_BUTTONS       = "EVENT_SCREEN_UPDATE_TEXTS_BUTTONS";
+        public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private GameObject m_root;
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        private GameObject m_root;
 		private Transform m_container;
 		private Button m_okButton;
 		private Button m_cancelButton;
@@ -343,7 +344,18 @@ namespace YourCommonTools
 			{
 				if (m_textDescription != null) m_textDescription.text = (string)_list[0];
 			}
-			if (_nameEvent == EVENT_SCREEN_ENABLE_OK_BUTTON)
+            if (_nameEvent == EVENT_SCREEN_UPDATE_TEXTS_BUTTONS)
+            {
+                if (m_okButton.gameObject.transform.Find("Text") != null)
+                {
+                    m_okButton.gameObject.transform.Find("Text").GetComponent<Text>().text = (string)_list[0];
+                }
+                if (m_cancelButton.gameObject.transform.Find("Text") != null)
+                {
+                    m_cancelButton.gameObject.transform.Find("Text").GetComponent<Text>().text = (string)_list[1];
+                }
+            }
+            if (_nameEvent == EVENT_SCREEN_ENABLE_OK_BUTTON)
 			{
 				if (m_okButton != null) m_okButton.gameObject.SetActive((bool)_list[0]);
 			}
