@@ -342,6 +342,29 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+         * EnableLayersBelowMe
+         */
+        public bool EnableLayersBelowMe(int _layer, bool _enable)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Value.Count > 0)
+                {
+                    if (screenPool.Key < _layer)
+                    {
+                        for (int i = 0; i < screenPool.Value.Count; i++)
+                        {
+                            screenPool.Value[i].SetActive(_enable);
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
          * GetScreenPrefabByName
          */
         public GameObject GetScreenPrefabByName(string _nameScreen)
@@ -620,7 +643,10 @@ namespace YourCommonTools
                 m_enableScreens = true;
                 GameObject screen = (GameObject)_list[0];
                 DestroyGameObjectSingleScreen(screen, true);
-                EnableScreens(0, true);
+                if (screen.GetComponent<ScreenBaseView>().Layer == 0)
+                {
+                    EnableScreens(0, true);
+                }
                 if (DebugMode)
                 {
                     Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_SCREEN::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
@@ -629,6 +655,12 @@ namespace YourCommonTools
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
             {
                 DestroyScreensPool();
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ENABLE_LAYERS_BELOW_ME)
+            {
+                int layer = (int)_list[0];
+                bool activation = (bool)_list[1];
+                EnableLayersBelowMe(layer, activation);
             }
             if (_nameEvent == EVENT_CONFIRMATION_POPUP)
             {
