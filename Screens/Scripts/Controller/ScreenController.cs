@@ -443,12 +443,9 @@ namespace YourCommonTools
                     screenPool.Value.Clear();
                 }
             }
-            if (DebugMode)
-            {
-                Utilities.DebugLogError("ScreenController::DestroyScreensPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
-            }
 
             // SET THE CURRENT LAYER TO 0
+            List<GameObject> screenToBottom = new List<GameObject>();
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
                 if (screenPool.Key == _layer)
@@ -463,10 +460,25 @@ namespace YourCommonTools
                                 screen.GetComponent<IBasicView>().Layer = 0;
                                 Utilities.AttachChild(m_layers[0].transform, screen);
                                 screen.GetComponent<Canvas>().sortingOrder = 0;
+                                screenToBottom.Add(screen);
+                                screenPool.Value.Remove(screen);
                             }
                         }
                     }
                 }
+            }
+
+            for (int i = 0; i < screenToBottom.Count; i++)
+            {
+                if (!m_screensPool[0].Contains(screenToBottom[i]))
+                {
+                    m_screensPool[0].Add(screenToBottom[i]);
+                }                
+            }
+
+            if (DebugMode)
+            {
+                Utilities.DebugLogError("ScreenController::DestroyScreensPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
             }
         }
 

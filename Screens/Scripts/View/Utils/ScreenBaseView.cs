@@ -248,7 +248,7 @@ namespace YourCommonTools
                     float endAlpha = (float)m_paramsAnimation[2];
                     float alphaTime = (float)m_paramsAnimation[3];
                     m_canvasGroup.alpha = startAlpha;
-                    AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, startAlpha, endAlpha, alphaTime);
+                    AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, startAlpha, endAlpha, alphaTime, true);
                     break;
 
                 case ScreenController.ANIMATION_FADE:
