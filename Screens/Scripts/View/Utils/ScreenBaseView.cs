@@ -22,6 +22,9 @@ namespace YourCommonTools
         public const string EVENT_SCREENBASE_ANIMATION_SHOW = "EVENT_SCREENBASE_ANIMATION_SHOW";
         public const string EVENT_SCREENBASE_ANIMATION_HIDE = "EVENT_SCREENBASE_ANIMATION_HIDE";
 
+        public const string EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY      = "EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY";
+        public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER    = "EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------	
@@ -50,6 +53,8 @@ namespace YourCommonTools
         protected List<object> m_paramsAnimation;
 
         protected bool m_isMarkedToBeDestroyed = false;
+
+        protected List<List<object>> m_paramsSlide = new List<List<object>>();
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -216,44 +221,68 @@ namespace YourCommonTools
         /* 
 		 * AppearAnimation
 		 */
-        protected virtual void AppearAnimation(List<object> _paramsAnimation)
+        protected virtual void AppearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation)
         {
-            m_paramsAnimation = _paramsAnimation;
-            switch ((int)m_paramsAnimation[0])
+            if (!_isSlideAnimation) m_paramsAnimation = _paramsAnimation;
+            switch ((int)_paramsAnimation[0])
             {
                 case ScreenController.ANIMATION_MOVEMENT:
                     Vector3 startingPosition = new Vector3();
-                    switch ((int)m_paramsAnimation[1])
+                    Vector3 endingPosition = new Vector3();
+                    if (!_isSlideAnimation)
                     {
-                        case ScreenController.DIRECTION_UP:
-                            startingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
-                            break;
-                        case ScreenController.DIRECTION_DOWN:
-                            startingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
-                            break;
-                        case ScreenController.DIRECTION_LEFT:
-                            startingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
-                            break;
-                        case ScreenController.DIRECTION_RIGHT:
-                            startingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
-                            break;
+                        endingPosition = new Vector3(0, 0, 0);
+                        switch ((int)_paramsAnimation[1])
+                        {
+                            case ScreenController.DIRECTION_UP:
+                                startingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
+                                break;
+                            case ScreenController.DIRECTION_DOWN:
+                                startingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
+                                break;
+                            case ScreenController.DIRECTION_LEFT:
+                                startingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
+                                break;
+                            case ScreenController.DIRECTION_RIGHT:
+                                startingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
+                                break;
+                        }
                     }
-                    float animationTime = (float)m_paramsAnimation[2];
+                    else
+                    {
+                        startingPosition = Utilities.Clone(m_canvasGroup.gameObject.transform.position);
+                        switch ((int)_paramsAnimation[1])
+                        {
+                            case ScreenController.DIRECTION_UP:
+                                endingPosition = startingPosition - new Vector3(0, UnityEngine.Screen.height, 0);
+                                break;
+                            case ScreenController.DIRECTION_DOWN:
+                                endingPosition = startingPosition - new Vector3(0, -UnityEngine.Screen.height, 0);
+                                break;
+                            case ScreenController.DIRECTION_LEFT:
+                                endingPosition = startingPosition - new Vector3(-UnityEngine.Screen.width, 0, 0);
+                                break;
+                            case ScreenController.DIRECTION_RIGHT:
+                                endingPosition = startingPosition - new Vector3(UnityEngine.Screen.width, 0, 0);
+                                break;
+                        }
+                    }
+                    float animationTime = (float)_paramsAnimation[2];
                     m_canvasGroup.gameObject.transform.position = startingPosition;
-                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, new Vector3(0, 0, 0), animationTime, true);
+                    InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
                     break;
 
                 case ScreenController.ANIMATION_ALPHA:
-                    float startAlpha = (float)m_paramsAnimation[1];
-                    float endAlpha = (float)m_paramsAnimation[2];
-                    float alphaTime = (float)m_paramsAnimation[3];
+                    float startAlpha = (float)_paramsAnimation[1];
+                    float endAlpha = (float)_paramsAnimation[2];
+                    float alphaTime = (float)_paramsAnimation[3];
                     m_canvasGroup.alpha = startAlpha;
                     AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, startAlpha, endAlpha, alphaTime, true);
                     break;
 
                 case ScreenController.ANIMATION_FADE:
-                    Color endColor = (Color)m_paramsAnimation[1];
-                    float colorTime = (float)m_paramsAnimation[2];
+                    Color endColor = (Color)_paramsAnimation[1];
+                    float colorTime = (float)_paramsAnimation[2];
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 1f, 0f, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
@@ -264,46 +293,75 @@ namespace YourCommonTools
         /* 
 		 * DisappearAnimation
 		 */
-        protected virtual void DisappearAnimation(List<object> _paramsAnimation)
+        protected virtual void DisappearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation)
         {
+            List<object> paramsAnimation = m_paramsAnimation;
             if (_paramsAnimation != null)
             {
-                m_paramsAnimation = _paramsAnimation;
-            }            
-            switch ((int)m_paramsAnimation[0])
+                paramsAnimation = _paramsAnimation;
+            }
+            switch ((int)paramsAnimation[0])
             {
                 case ScreenController.ANIMATION_MOVEMENT:
                     Vector3 endingPosition = new Vector3();
-                    switch ((int)m_paramsAnimation[1])
+                    switch ((int)paramsAnimation[1])
                     {
                         case ScreenController.DIRECTION_UP:
-                            endingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
+                            if (!_isSlideAnimation)
+                            {
+                                endingPosition = new Vector3(0, UnityEngine.Screen.height, 0);
+                            }
+                            else
+                            {
+                                endingPosition = new Vector3(0, UnityEngine.Screen.height, 0) + m_canvasGroup.gameObject.transform.position;
+                            }                            
                             break;
                         case ScreenController.DIRECTION_DOWN:
-                            endingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
+                            if (!_isSlideAnimation)
+                            {
+                                endingPosition = new Vector3(0, -UnityEngine.Screen.height, 0);
+                            }
+                            else
+                            {
+                                endingPosition = new Vector3(0, -UnityEngine.Screen.height, 0) + m_canvasGroup.gameObject.transform.position;
+                            }
                             break;
                         case ScreenController.DIRECTION_LEFT:
-                            endingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
+                            if (!_isSlideAnimation)
+                            {
+                                endingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0);
+                            }
+                            else
+                            {
+                                endingPosition = new Vector3(-UnityEngine.Screen.width, 0, 0) + m_canvasGroup.gameObject.transform.position;
+                            }
                             break;
                         case ScreenController.DIRECTION_RIGHT:
-                            endingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
+                            if (!_isSlideAnimation)
+                            {
+                                endingPosition = new Vector3(UnityEngine.Screen.width, 0, 0);
+                            }
+                            else
+                            {
+                                endingPosition = new Vector3(UnityEngine.Screen.width, 0, 0) + m_canvasGroup.gameObject.transform.position;
+                            }
                             break;
                     }
-                    float animationTime = (float)m_paramsAnimation[2];
+                    float animationTime = (float)paramsAnimation[2];
                     InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
                     break;
 
                 case ScreenController.ANIMATION_ALPHA:
-                    float startAlpha = (float)m_paramsAnimation[1];
-                    float endAlpha = (float)m_paramsAnimation[2];
-                    float alphaTime = (float)m_paramsAnimation[3];
+                    float startAlpha = (float)paramsAnimation[1];
+                    float endAlpha = (float)paramsAnimation[2];
+                    float alphaTime = (float)paramsAnimation[3];
                     m_canvasGroup.alpha = endAlpha;
                     AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, endAlpha, startAlpha, alphaTime);
                     break;
 
                 case ScreenController.ANIMATION_FADE:
-                    Color endColor = (Color)m_paramsAnimation[1];
-                    float colorTime = (float)m_paramsAnimation[2];
+                    Color endColor = (Color)paramsAnimation[1];
+                    float colorTime = (float)paramsAnimation[2];
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 0f, 1f, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
@@ -328,14 +386,36 @@ namespace YourCommonTools
             {
                 if (this.gameObject == (GameObject)_list[0])
                 {
-                    AppearAnimation(((List<object>)_list[1]));
+                    AppearAnimation(((List<object>)_list[1]), false);
                 }
             }
             if (_nameEvent == EVENT_SCREENBASE_ANIMATION_HIDE)
             {
                 if (this.gameObject == (GameObject)_list[0])
                 {
-                    DisappearAnimation((_list.Length > 1)?((List<object>)_list[1]):null);
+                    DisappearAnimation((_list.Length > 1)?((List<object>)_list[1]):null, false);
+                }
+            }
+
+            if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY)
+            {
+                if (this.gameObject != (GameObject)_list[0])
+                {
+                    List<object> currentParamsSlide = (List<object>)_list[1];
+                    m_paramsSlide.Add(currentParamsSlide);
+                    AppearAnimation(currentParamsSlide, true);
+                }
+            }
+            if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER)
+            {
+                if (this.gameObject != (GameObject)_list[0])
+                {
+                    if (m_paramsSlide.Count > 0)
+                    {
+                        List<object> currentParamsSlide = m_paramsSlide[m_paramsSlide.Count - 1];
+                        m_paramsSlide.RemoveAt(m_paramsSlide.Count - 1);
+                        DisappearAnimation(currentParamsSlide, true);
+                    }
                 }
             }
 

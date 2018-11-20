@@ -148,7 +148,7 @@ namespace YourCommonTools
                 if (!m_animationDissappearTriggered)
                 {
                     m_animationDissappearTriggered = true;
-                    DisappearAnimation(m_paramsAnimation);
+                    DisappearAnimation(m_paramsAnimation, false);
                 }                
                 return true;
             }
