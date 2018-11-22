@@ -283,7 +283,19 @@ namespace YourCommonTools
                 case ScreenController.ANIMATION_FADE:
                     Color endColor = (Color)_paramsAnimation[1];
                     float colorTime = (float)_paramsAnimation[2];
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 1f, 0f, endColor, colorTime);
+                    float startingAlphaFade = 1f;
+                    float endingAlphaFade = 0f;
+                    if (!_isSlideAnimation)
+                    {
+                        startingAlphaFade = 1f;
+                        endingAlphaFade = 0f;
+                    }
+                    else
+                    {
+                        startingAlphaFade = 0f;
+                        endingAlphaFade = 1f;
+                    }
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, startingAlphaFade, endingAlphaFade, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
             }
@@ -362,7 +374,19 @@ namespace YourCommonTools
                 case ScreenController.ANIMATION_FADE:
                     Color endColor = (Color)paramsAnimation[1];
                     float colorTime = (float)paramsAnimation[2];
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, 0f, 1f, endColor, colorTime);
+                    float startingAlphaFade = 1f;
+                    float endingAlphaFade = 0f;
+                    if (!_isSlideAnimation)
+                    {
+                        startingAlphaFade = 0f;
+                        endingAlphaFade = 1f;
+                    }
+                    else
+                    {
+                        startingAlphaFade = 1f;
+                        endingAlphaFade = 0f;
+                    }
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, startingAlphaFade, endingAlphaFade, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
             }

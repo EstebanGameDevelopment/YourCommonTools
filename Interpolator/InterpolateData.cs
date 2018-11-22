@@ -16,10 +16,11 @@ namespace YourCommonTools
 	 */
 	public class InterpolateData : IEquatable<InterpolateData>
 	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------
-		public const string EVENT_INTERPOLATE_COMPLETED = "EVENT_INTERPOLATE_COMPLETED";
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------
+        public const string EVENT_INTERPOLATE_STARTED   = "EVENT_INTERPOLATE_STARTED";
+        public const string EVENT_INTERPOLATE_COMPLETED = "EVENT_INTERPOLATE_COMPLETED";
         public const string EVENT_INTERPOLATE_FREEZE    = "EVENT_INTERPOLATE_FREEZE";
         public const string EVENT_INTERPOLATE_RESUME    = "EVENT_INTERPOLATE_RESUME";
 
@@ -33,6 +34,7 @@ namespace YourCommonTools
 		private float m_timeDone;
         private bool m_activated;
         private bool m_setTargetWhenFinished;
+        private bool m_firstRun = true;
 
         // -----------------------------------------
         // GETTERS/SETTERS
@@ -109,7 +111,13 @@ namespace YourCommonTools
             if (!m_activated) return false;
 			if (m_gameActor == null) return true;
 
-			m_timeDone += Time.deltaTime;
+            if (m_firstRun)
+            {
+                m_firstRun = false;
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_STARTED, m_gameActor);
+            }
+
+            m_timeDone += Time.deltaTime;
             if (m_timeDone <= m_totalTime)
 			{
 				Vector3 forwardTarget = (m_goal - m_origin);

@@ -649,6 +649,7 @@ namespace YourCommonTools
                 List<PageInformation> pages = new List<PageInformation>();
                 pages.Add(new PageInformation(title, description, image, eventData));
                 CreateNewScreenLayer(((layer == -1)?(TOTAL_LAYERS_SCREENS - 1):layer), animation, nameScreen, previousAction, pages);
+                if (animation != null) BasicSystemEventController.Instance.DispatchBasicSystemEvent(ScreenInformationView.EVENT_SCREEN_FADE_BACKGROUND, 0f, 1f, 0.4f);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN)
             {

@@ -31,13 +31,15 @@ namespace YourCommonTools
         public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
         public const string EVENT_SCREEN_UPDATE_TEXTS_BUTTONS       = "EVENT_SCREEN_UPDATE_TEXTS_BUTTONS";
         public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
+        public const string EVENT_SCREEN_FADE_BACKGROUND            = "EVENT_SCREEN_FADE_BACKGROUND";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private GameObject m_root;
 		private Transform m_container;
-		private Button m_okButton;
+        private Transform m_background;
+        private Button m_okButton;
 		private Button m_cancelButton;
 		private Button m_nextButton;
 		private Button m_previousButton;
@@ -75,7 +77,12 @@ namespace YourCommonTools
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
-			if (m_container.Find("Button_OK") != null)
+            if (m_root.transform.Find("Background") != null)
+            {
+                m_background = m_root.transform.Find("Background");
+            }
+
+            if (m_container.Find("Button_OK") != null)
 			{
 				m_okButton = m_container.Find("Button_OK").GetComponent<Button>();
 				m_okButton.gameObject.GetComponent<Button>().onClick.AddListener(OkPressed);
@@ -311,8 +318,30 @@ namespace YourCommonTools
          */
         private void OnBasicSystemEvent(string _nameEvent, params object[] _list)
         {
+            if (_nameEvent == EVENT_SCREEN_FADE_BACKGROUND)
+            {
+                if (m_background != null)
+                {
+                    m_background.GetComponent<CanvasGroup>().alpha = (float)_list[0];
+                    AlphaController.Instance.Interpolate(m_background.gameObject, (float)_list[0], (float)_list[1], (float)_list[2]);
+                }
+            }
+
             if (m_animationDissappearTriggered)
             {
+                if (_nameEvent == InterpolateData.EVENT_INTERPOLATE_STARTED)
+                {
+                    if (m_canvasGroup.gameObject == (GameObject)_list[0])
+                    {
+                        if (m_paramsAnimation != null)
+                        {
+                            if (m_background != null)
+                            {
+                                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SCREEN_FADE_BACKGROUND, 1f, 0f, 0.4f);
+                            }
+                        }
+                    }
+                }
                 if (_nameEvent == InterpolateData.EVENT_INTERPOLATE_COMPLETED)
                 {
                     if (m_canvasGroup.gameObject == (GameObject)_list[0])

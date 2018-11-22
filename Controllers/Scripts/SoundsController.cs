@@ -20,6 +20,7 @@ namespace YourCommonTools
         // EVENTS
         // ----------------------------------------------
         public const string EVENT_SOUNDSCONTROLLER_AUDIO_DATA = "EVENT_SOUNDSCONTROLLER_AUDIO_DATA";
+        public const string EVENT_SOUNDSCONTROLLER_PLAY_BUTTON_SOUND = "EVENT_SOUNDSCONTROLLER_PLAY_NAME_SOUND";
 
         // ----------------------------------------------
         // SINGLETON
@@ -139,7 +140,7 @@ namespace YourCommonTools
 		/* 
 		 * Destroy audio's gameObject		
 		 */
-		public void Initialize()
+		public void Initialize(bool _forceEnableSound = false)
 		{
 			if (m_hasBeenInitialized) return;
 			m_hasBeenInitialized = true;
@@ -151,7 +152,16 @@ namespace YourCommonTools
 				if (aSources.Length > 1) m_audio2 = aSources[1];
 			}
 
-			m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
+            if (!_forceEnableSound)
+            {
+                m_enabled = (PlayerPrefs.GetInt(SOUND_COOCKIE, 1) == 1);
+            }
+            else
+            {
+                m_enabled = true;
+            }			
+
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
         }
 
 		// -------------------------------------------
@@ -174,13 +184,15 @@ namespace YourCommonTools
 
             m_audio1Playing = null;
             m_audio2Playing = null;
+
+            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * StopAllSounds
 		 */
-		public void StopAllSounds()
+        public void StopAllSounds()
 		{
 			if (m_audio1 != null) m_audio1.Stop();
 			if (m_audio2 != null) m_audio2.Stop();
@@ -445,6 +457,29 @@ namespace YourCommonTools
                 m_requestAudioData = 0;
                 m_audio1.clip.GetData(clipData, 0);                
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SOUNDSCONTROLLER_AUDIO_DATA, clipData);                
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * OnBasicSystemEvent		
+		 */
+        private void OnBasicSystemEvent(string _nameEvent, object[] _list)
+        {
+            if (_nameEvent == EVENT_SOUNDSCONTROLLER_PLAY_BUTTON_SOUND)
+            {
+                string nameSound = (string)_list[0];
+                if (nameSound.Length == 0)
+                {
+                    if (Sounds.Length > 0)
+                    {
+                        nameSound = Sounds[0].name;
+                    }
+                }
+                if (nameSound.Length > 0)
+                {
+                    PlaySingleSound(nameSound, false);
+                }                
             }
         }
     }
