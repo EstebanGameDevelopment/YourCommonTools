@@ -310,9 +310,17 @@ namespace YourCommonTools
             {
                 if (screenPool.Value.Count > 0)
                 {
-                    if ((screenPool.Key > _layer) && (screenPool.Key + 1 != TOTAL_LAYERS_SCREENS))
+                    if (screenPool.Key > _layer)
                     {
-                        return true;
+                        bool isBlockingInteraction = false;
+                        for (int i = 0; i< screenPool.Value.Count; i++)
+                        {
+                            if (screenPool.Value[i].GetComponent<ScreenBaseView>() != null)
+                            {
+                                isBlockingInteraction = isBlockingInteraction || screenPool.Value[i].GetComponent<ScreenBaseView>().BlocksInteraction;
+                            }
+                        }
+                        return isBlockingInteraction;
                     }
                 }
             }

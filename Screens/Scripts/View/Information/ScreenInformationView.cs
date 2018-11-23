@@ -32,6 +32,7 @@ namespace YourCommonTools
         public const string EVENT_SCREEN_UPDATE_TEXTS_BUTTONS       = "EVENT_SCREEN_UPDATE_TEXTS_BUTTONS";
         public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
         public const string EVENT_SCREEN_FADE_BACKGROUND            = "EVENT_SCREEN_FADE_BACKGROUND";
+        public const string EVENT_SCREEN_RESET_ANIMATION_PARAMS     = "EVENT_SCREEN_RESET_ANIMATION_PARAMS";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -150,7 +151,7 @@ namespace YourCommonTools
 		 */
 		public override bool Destroy()
 		{
-            if (m_paramsAnimation != null)
+            if ((m_paramsAnimation != null) && (!m_animationDissappearTriggered))
             {
                 if (!m_animationDissappearTriggered)
                 {
@@ -395,6 +396,10 @@ namespace YourCommonTools
 					Destroy();
 				}
 			}
+            if (_nameEvent == EVENT_SCREEN_RESET_ANIMATION_PARAMS)
+            {
+                m_animationDissappearTriggered = true;
+            }
 		}
 	}
 }

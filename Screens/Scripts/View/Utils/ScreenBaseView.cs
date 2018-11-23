@@ -25,6 +25,8 @@ namespace YourCommonTools
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY      = "EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY";
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER    = "EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER";
 
+        public const string EVENT_SCREENBASE_BLOCK_INTERACTION = "EVENT_SCREENBASE_BLOCK_INTERACTION";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------	
@@ -53,6 +55,8 @@ namespace YourCommonTools
         protected List<object> m_paramsAnimation;
 
         protected bool m_isMarkedToBeDestroyed = false;
+
+        protected bool m_blocksInteraction = true;
 
         protected List<List<object>> m_paramsSlide = new List<List<object>>();
 
@@ -89,6 +93,12 @@ namespace YourCommonTools
             get { return m_isMarkedToBeDestroyed; }
             set { m_isMarkedToBeDestroyed = value;  }
         }
+        public bool BlocksInteraction
+        {
+            get { return m_blocksInteraction; }
+            set { m_blocksInteraction = value; }
+        }
+        
 
         // -------------------------------------------
         /* 
@@ -441,6 +451,10 @@ namespace YourCommonTools
                         DisappearAnimation(currentParamsSlide, true);
                     }
                 }
+            }
+            if(_nameEvent == EVENT_SCREENBASE_BLOCK_INTERACTION)
+            {
+                m_blocksInteraction = (bool)_list[0];
             }
 
             if (!this.gameObject.activeSelf) return;
