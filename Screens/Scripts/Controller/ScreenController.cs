@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -167,7 +168,7 @@ namespace YourCommonTools
             List<PageInformation> pages = new List<PageInformation>();
             pages.Add(new PageInformation(_title, _description, _image, _eventData, _okButtonText, _cancelButtonText));
 
-            CreateNewScreenLayer(1, null, _nameScreen, _previousAction, false, pages);
+            CreateNewScreenLayer(TOTAL_LAYERS_SCREENS - 1, null, _nameScreen, _previousAction, pages);
         }
 
         // -------------------------------------------
@@ -194,7 +195,7 @@ namespace YourCommonTools
 		 */
         public virtual void CreateNewInformationScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, List<PageInformation> _pages)
         {
-            CreateNewScreenLayer(1, null, _nameScreen, _previousAction, false, _pages);
+            CreateNewScreenLayer(1, null, _nameScreen, _previousAction, _pages);
         }
 
         // -------------------------------------------
@@ -203,7 +204,7 @@ namespace YourCommonTools
 		*/
         public virtual void CreateNewScreen(string _nameScreen, UIScreenTypePreviousAction _previousAction, bool _ignore, params object[] _list)
         {
-            CreateNewScreenLayer(0, null, _nameScreen, _previousAction, _list);
+            CreateNewScreenLayer(-1, null, _nameScreen, _previousAction, _list);
         }
 
         // -------------------------------------------
@@ -213,6 +214,9 @@ namespace YourCommonTools
         public virtual void CreateNewScreenLayer(int _layer, object _animation, string _nameScreen, UIScreenTypePreviousAction _previousAction, params object[] _list)
         {
             if (!m_enableScreens) return;
+
+            int finalLayer = _layer;
+            if (finalLayer < 0) finalLayer = 0;
 
             if (m_layers.Count == 0)
             {
@@ -234,11 +238,11 @@ namespace YourCommonTools
             switch (_previousAction)
             {
                 case UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN:
-                    if (m_screensPool[_layer].Count > 0)
+                    if (m_screensPool[finalLayer].Count > 0)
                     {
-                        for (int k = 0; k < m_screensPool[_layer].Count; k++)
+                        for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
                         {
-                            m_screensPool[_layer][k].SetActive(false);
+                            m_screensPool[finalLayer][k].SetActive(false);
                         }
 					}
 					break;
@@ -257,9 +261,9 @@ namespace YourCommonTools
 					break;
 
 				case UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN:
-                    if (m_screensPool[_layer].Count > 0)
+                    if (m_screensPool[finalLayer].Count > 0)
                     {
-                        DestroyGameObjectSingleScreen(m_screensPool[_layer][m_screensPool[_layer].Count - 1], true);
+                        DestroyGameObjectSingleScreen(m_screensPool[finalLayer][m_screensPool[finalLayer].Count - 1], true);
                     }
 					break;
 
@@ -276,8 +280,11 @@ namespace YourCommonTools
 				{
 					if (ScreensPrefabs[i].name == _nameScreen)
 					{
-                        currentScreen = (GameObject)Utilities.AddChild(m_layers[_layer].transform, ScreensPrefabs[i]);
-                        currentScreen.GetComponent<Canvas>().sortingOrder = _layer;
+                        currentScreen = (GameObject)Utilities.AddChild(m_layers[finalLayer].transform, ScreensPrefabs[i]);
+                        if (_layer >= 0)
+                        {
+                            currentScreen.GetComponent<Canvas>().sortingOrder = _layer;
+                        }                        
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
 						currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
 						break;
@@ -285,7 +292,7 @@ namespace YourCommonTools
 				}
 			}
 
-            m_screensPool[_layer].Add(currentScreen);
+            m_screensPool[finalLayer].Add(currentScreen);
             currentScreen.GetComponent<IBasicView>().Layer = _layer;
 
             if (_animation != null)
@@ -486,7 +493,43 @@ namespace YourCommonTools
 
             if (DebugMode)
             {
-                Utilities.DebugLogError("ScreenController::DestroyScreensPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
+                Utilities.DebugLogError("ScreenController::DestroyScreensBelowLayerPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Destroy all the screens above a specific layer
+		 */
+        public void DestroyScreensAboveLayerPool(int _layer = 0)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Key > _layer)
+                {
+                    while (screenPool.Value.Count > 0)
+                    {
+                        GameObject screen = screenPool.Value[0];
+                        if (screen != null)
+                        {
+                            if (screen.GetComponent<IBasicView>() != null)
+                            {
+                                screen.GetComponent<IBasicView>().Destroy();
+                            }
+                            if (screen != null)
+                            {
+                                GameObject.Destroy(screen);
+                                screen = null;
+                            }
+                        }
+                    }
+                    screenPool.Value.Clear();
+                }
+            }
+
+            if (DebugMode)
+            {
+                Utilities.DebugLogError("ScreenController::DestroyScreensAboveLayerPool::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
             }
         }
 
@@ -498,6 +541,7 @@ namespace YourCommonTools
 		{
 			if (_screen == null) return;
 
+            string nameScreen = _screen.name;
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
                 for (int i = 0; i < screenPool.Value.Count; i++)
@@ -513,18 +557,25 @@ namespace YourCommonTools
                         {
                             GameObject.Destroy(screen);
                         }
-                        if (i < m_screensPool.Count) screenPool.Value.RemoveAt(i);
+                        try
+                        {
+                            if (i < m_screensPool.Count) screenPool.Value.RemoveAt(i);
+                        }
+                        catch (Exception err)
+                        {
+                            Debug.LogError("DestroyGameObjectSingleScreen::ERROR TO DESTROY::nameScreen[" + nameScreen + "]");
+                        }                        
                         return;
                     }
                 }
             }
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Changes the enable of the screens
 		 */
-		private void EnableAllScreens(int _layer, bool _activation)
+        private void EnableAllScreens(int _layer, bool _activation)
 		{
             for (int i = 0; i < m_screensPool[_layer].Count; i++)
             {
@@ -545,18 +596,21 @@ namespace YourCommonTools
 		 */
 		private void EnableScreens(int _layer, bool _activation)
 		{
-			if (m_screensPool[_layer].Count > 0)
-			{
-                List<GameObject> screensPool = m_screensPool[_layer];
+            if (m_screensPool.ContainsKey(_layer))
+            {
+                if (m_screensPool[_layer].Count > 0)
+                {
+                    List<GameObject> screensPool = m_screensPool[_layer];
 
-                if (screensPool[screensPool.Count - 1] != null)
-				{
-					if (screensPool[screensPool.Count - 1].GetComponent<IBasicView>() != null)
-					{
-                        screensPool[screensPool.Count - 1].GetComponent<IBasicView>().SetActivation(_activation);
-					}
-				}
-			}
+                    if (screensPool[screensPool.Count - 1] != null)
+                    {
+                        if (screensPool[screensPool.Count - 1].GetComponent<IBasicView>() != null)
+                        {
+                            screensPool[screensPool.Count - 1].GetComponent<IBasicView>().SetActivation(_activation);
+                        }
+                    }
+                }
+            }
         }
 
         // -------------------------------------------
@@ -585,7 +639,7 @@ namespace YourCommonTools
                     if (_list[3] is List<PageInformation>)
                     {
                         pages = (List<PageInformation>)_list[3];
-                        CreateNewScreenLayer(0, null, nameScreen, previousAction, pages);
+                        CreateNewScreenLayer(-1, null, nameScreen, previousAction, pages);
                     }
                     else
                     {
@@ -594,12 +648,12 @@ namespace YourCommonTools
                         {
                             dataParams[k - 3] = _list[k];
                         }
-                        CreateNewScreenLayer(0, null, nameScreen, previousAction, dataParams);
+                        CreateNewScreenLayer(-1, null, nameScreen, previousAction, dataParams);
                     }
                 }
                 else
                 {
-                    CreateNewScreenLayer(0, null, nameScreen, previousAction, pages);
+                    CreateNewScreenLayer(-1, null, nameScreen, previousAction, pages);
                 }                
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN)
@@ -664,7 +718,8 @@ namespace YourCommonTools
                 m_enableScreens = true;
                 GameObject screen = (GameObject)_list[0];
                 DestroyGameObjectSingleScreen(screen, true);
-                if (screen.GetComponent<ScreenBaseView>().Layer == 0)
+                if (((screen.GetComponent<ScreenBaseView>().Layer == 0) || (screen.GetComponent<ScreenBaseView>().Layer == -1)) 
+                    && (screen.GetComponent<ScreenInformationView>() == null))
                 {
                     EnableScreens(0, true);
                 }
