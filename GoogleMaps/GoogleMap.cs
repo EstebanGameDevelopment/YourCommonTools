@@ -60,11 +60,12 @@ namespace YourCommonTools
 		public bool DoubleResolution = false;
 		public GoogleMapMarker[] Markers;
 		public GoogleMapPath[] Paths;
+        public string GoogleAPICredentials;
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private bool m_calculateLocationWithGPS = true;
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        private bool m_calculateLocationWithGPS = true;
 		private bool m_firstTimeLoad = true;
 
 		// -------------------------------------------
@@ -90,10 +91,12 @@ namespace YourCommonTools
             CenterLocation.longitude = 2.082185f;
             AutoLocateCenter = false;
             Zoom = 11;
-#endif
 
+            BasicSystemEventController.Instance.DelayBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 1f, CenterLocation.latitude, CenterLocation.longitude);
+#else
             StartCoroutine(GetPositionDevice());
-		}
+#endif
+        }
 
         // -------------------------------------------
         /* 
@@ -316,8 +319,9 @@ namespace YourCommonTools
 		usingSensor = Input.location.isEnabledByUser && Input.location.status == LocationServiceStatus.Running;
 #endif
 			qs += "&sensor=" + (usingSensor ? "true" : "false");
+            qs += "&key=" + GoogleAPICredentials;
 
-			foreach (var i in Markers)
+            foreach (var i in Markers)
 			{
 				qs += "&markers=" + string.Format("size:{0}|color:{1}|label:{2}", i.size.ToString().ToLower(), i.color, i.label);
 				foreach (var loc in i.locations)
@@ -352,7 +356,8 @@ namespace YourCommonTools
 			// REQUEST INFO
 			var urlInfo = "https://maps.googleapis.com/maps/api/geocode/json";
 			string parametersLatLong = "latlng=" + CenterLocation.latitude + "," + CenterLocation.longitude;
-			WWW reqInfo = new WWW(urlInfo + "?" + parametersLatLong);
+            string finalURL = urlInfo + "?" + parametersLatLong + "&key=" + GoogleAPICredentials;
+            WWW reqInfo = new WWW(finalURL);
 			yield return reqInfo;
 
 			bool foundCity = false;
