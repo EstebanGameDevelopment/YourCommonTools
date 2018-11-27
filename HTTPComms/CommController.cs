@@ -49,7 +49,8 @@ namespace YourCommonTools
 					if (!_instance)
 					{
 						GameObject container = new GameObject();
-						container.name = "CommController";
+                        DontDestroyOnLoad(container);
+                        container.name = "CommController";
 						_instance = container.AddComponent(typeof(CommController)) as CommController;
 					}
 				}
