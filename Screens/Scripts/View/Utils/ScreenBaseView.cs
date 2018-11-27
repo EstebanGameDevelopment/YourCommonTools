@@ -408,7 +408,10 @@ namespace YourCommonTools
 		 */
         protected virtual void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
-			if ((_nameEvent == KeysEventInputController.ACTION_KEY_UP_PRESSED) ||
+            if (this == null) return;
+            if (this.gameObject == null) return;
+
+            if ((_nameEvent == KeysEventInputController.ACTION_KEY_UP_PRESSED) ||
 				(_nameEvent == KeysEventInputController.ACTION_KEY_DOWN_PRESSED) ||
 				(_nameEvent == KeysEventInputController.ACTION_KEY_LEFT_PRESSED) ||
 				(_nameEvent == KeysEventInputController.ACTION_KEY_RIGHT_PRESSED))
