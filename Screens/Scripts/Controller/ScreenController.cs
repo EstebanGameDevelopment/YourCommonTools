@@ -380,6 +380,20 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+         * MoveScreenToLayer
+         */
+        public void MoveScreenToLayer(GameObject _screen, int _layer)
+        {
+            if (m_screensPool[_screen.GetComponent<IBasicView>().Layer].Remove(_screen))
+            {
+                m_screensPool[_layer].Add(_screen);
+                _screen.GetComponent<IBasicView>().Layer = _layer;
+                _screen.GetComponent<Canvas>().sortingOrder = _layer;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
          * GetScreenPrefabByName
          */
         public GameObject GetScreenPrefabByName(string _nameScreen)
@@ -737,6 +751,10 @@ namespace YourCommonTools
                 int layer = (int)_list[0];
                 bool activation = (bool)_list[1];
                 EnableLayersBelowMe(layer, activation);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_MOVE_SCREEN_TO_LAYER)
+            {
+                MoveScreenToLayer((GameObject)_list[0], (int)_list[1]);
             }
             if (_nameEvent == EVENT_CONFIRMATION_POPUP)
             {
