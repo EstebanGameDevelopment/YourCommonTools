@@ -135,13 +135,23 @@ namespace YourCommonTools
 			ChangeState(STATE_IDLE);
 		}
 
+        // -------------------------------------------
+        /* 
+		 * OnDestroy
+		 */
+        void OnDestroy()
+        {
+#if DESTROY_MEMORY_ALLOCATED
+            Destroy();
+#endif            
+        }
 
-		
-		// -------------------------------------------
-		/* 
+
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		public void Destroy()
+        public void Destroy()
 		{
 			if (_instance != null)
 			{
