@@ -515,29 +515,45 @@ namespace YourCommonTools
         /* 
 		 * Destroy all the screens above a specific layer
 		 */
-        public void DestroyScreensAboveLayerPool(int _layer = 0)
+        public void DestroyScreensAboveLayerPool(int _layer = 0, GameObject[] _excludeScreens = null)
         {
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
                 if (screenPool.Key > _layer)
                 {
-                    while (screenPool.Value.Count > 0)
+                    bool ignoreDestruction = false;
+                    while ((screenPool.Value.Count > 0) && (!ignoreDestruction))
                     {
                         GameObject screen = screenPool.Value[0];
                         if (screen != null)
                         {
-                            if (screen.GetComponent<IBasicView>() != null)
+                            if (_excludeScreens!=null)
                             {
-                                screen.GetComponent<IBasicView>().Destroy();
+                                for (int k = 0; k < _excludeScreens.Length; k++)
+                                {
+                                    if (screen == _excludeScreens[k])
+                                    {
+                                        ignoreDestruction = true;
+                                        break;
+                                    }
+                                }
                             }
-                            if (screen != null)
+
+                            if (!ignoreDestruction)
                             {
-                                GameObject.Destroy(screen);
-                                screen = null;
+                                if (screen.GetComponent<IBasicView>() != null)
+                                {
+                                    screen.GetComponent<IBasicView>().Destroy();
+                                }
+                                if (screen != null)
+                                {
+                                    GameObject.Destroy(screen);
+                                    screen = null;
+                                }
                             }
                         }
                     }
-                    screenPool.Value.Clear();
+                    if (!ignoreDestruction) screenPool.Value.Clear();
                 }
             }
 
@@ -751,6 +767,20 @@ namespace YourCommonTools
                 int layer = (int)_list[0];
                 bool activation = (bool)_list[1];
                 EnableLayersBelowMe(layer, activation);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_ABOVE)
+            {
+                int layer = (int)_list[0];
+                GameObject[] excludeScreens = null;
+                if (_list.Length > 1)
+                {
+                    excludeScreens = new GameObject[_list.Length - 1];
+                    for (int k = 1; k < _list.Length; k++)
+                    {
+                        excludeScreens[k - 1] = (GameObject)_list[k];
+                    }
+                }
+                DestroyScreensAboveLayerPool(layer, excludeScreens);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_MOVE_SCREEN_TO_LAYER)
             {
