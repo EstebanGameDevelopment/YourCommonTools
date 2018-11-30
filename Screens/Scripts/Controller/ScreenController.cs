@@ -515,7 +515,7 @@ namespace YourCommonTools
         /* 
 		 * Destroy all the screens above a specific layer
 		 */
-        public void DestroyScreensFromLayerPool(bool _above, int _layer = 0, GameObject[] _excludeScreens = null)
+        public void DestroyScreensFromLayerPool(bool _above = true, int _layer = 0, GameObject[] _excludeScreens = null)
         {
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
