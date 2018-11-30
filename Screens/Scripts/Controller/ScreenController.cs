@@ -515,11 +515,21 @@ namespace YourCommonTools
         /* 
 		 * Destroy all the screens above a specific layer
 		 */
-        public void DestroyScreensAboveLayerPool(int _layer = 0, GameObject[] _excludeScreens = null)
+        public void DestroyScreensFromLayerPool(bool _above, int _layer = 0, GameObject[] _excludeScreens = null)
         {
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
-                if (screenPool.Key > _layer)
+                bool considerScreen = true;
+                if (_above)
+                {
+                    considerScreen = (screenPool.Key > _layer);
+                }
+                else
+                {
+                    considerScreen = (screenPool.Key < _layer);
+                }
+
+                if (considerScreen)
                 {
                     bool ignoreDestruction = false;
                     while ((screenPool.Value.Count > 0) && (!ignoreDestruction))
@@ -780,7 +790,21 @@ namespace YourCommonTools
                         excludeScreens[k - 1] = (GameObject)_list[k];
                     }
                 }
-                DestroyScreensAboveLayerPool(layer, excludeScreens);
+                DestroyScreensFromLayerPool(true, layer, excludeScreens);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_BELOW)
+            {
+                int layer = (int)_list[0];
+                GameObject[] excludeScreens = null;
+                if (_list.Length > 1)
+                {
+                    excludeScreens = new GameObject[_list.Length - 1];
+                    for (int k = 1; k < _list.Length; k++)
+                    {
+                        excludeScreens[k - 1] = (GameObject)_list[k];
+                    }
+                }
+                DestroyScreensFromLayerPool(false, layer, excludeScreens);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_MOVE_SCREEN_TO_LAYER)
             {
