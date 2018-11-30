@@ -436,9 +436,20 @@ namespace YourCommonTools
 
             if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY)
             {
-                if (this.gameObject != (GameObject)_list[0])
+                List<object> currentParamsSlide = (List<object>)_list[0];
+                bool applySlide = true;
+                if (_list.Length > 1)
                 {
-                    List<object> currentParamsSlide = (List<object>)_list[1];
+                    for (int i = 1; i < _list.Length; i++)
+                    {
+                        if (this.gameObject == (GameObject)_list[i])
+                        {
+                            applySlide = false;
+                        }
+                    }
+                }
+                if (applySlide)
+                {
                     m_paramsSlide.Add(currentParamsSlide);
                     AppearAnimation(currentParamsSlide, true);
                 }
