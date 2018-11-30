@@ -27,6 +27,8 @@ namespace YourCommonTools
 
         public const string EVENT_SCREENBASE_BLOCK_INTERACTION = "EVENT_SCREENBASE_BLOCK_INTERACTION";
 
+        public const string EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS = "EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------	
@@ -470,6 +472,10 @@ namespace YourCommonTools
             {
                 m_blocksInteraction = (bool)_list[0];
             }
+            if (_nameEvent == EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS)
+            {
+                m_paramsAnimation = null;
+            }            
 
             if (!this.gameObject.activeSelf) return;
 			if (m_selectors == null) return;
