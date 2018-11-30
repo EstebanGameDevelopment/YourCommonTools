@@ -292,18 +292,25 @@ namespace YourCommonTools
 				}
 			}
 
-            m_screensPool[finalLayer].Add(currentScreen);
-            currentScreen.GetComponent<IBasicView>().Layer = _layer;
-
-            if (_animation != null)
+            if (currentScreen != null)
             {
-                UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_ANIMATION_SHOW, currentScreen, _animation);
-            }
+                m_screensPool[finalLayer].Add(currentScreen);
+                currentScreen.GetComponent<IBasicView>().Layer = _layer;
 
-			if (DebugMode)
-			{
-				Utilities.DebugLogError("CreateNewScreen::POOL[" + ScreensEnabled + "]");
-			}
+                if (_animation != null)
+                {
+                    UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_ANIMATION_SHOW, currentScreen, _animation);
+                }
+
+                if (DebugMode)
+                {
+                    Utilities.DebugLogError("CreateNewScreen::POOL[" + ScreensEnabled + "]");
+                }
+            }
+            else
+            {
+                Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
+            }
         }
 
 
