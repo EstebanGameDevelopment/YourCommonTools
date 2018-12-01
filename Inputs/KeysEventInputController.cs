@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace YourCommonTools
@@ -53,10 +54,17 @@ namespace YourCommonTools
 		private const int AXIS_KEY_UP_EVENT = 1;
 		private const int AXIS_KEY_DOWN_STILL_PRESSED_CODE = 2;
 
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static KeysEventInputController _instance;
+        // Buttons that can trigger pointer switching.
+#if ENABLE_WORLDSENSE
+        private const GvrControllerButton POINTER_ACTION_DOWN_DAYDREAMCONTROLLER = GvrControllerButton.TouchPadButton | GvrControllerButton.Trigger;
+
+        private static readonly GvrControllerHand[] AllHands = { GvrControllerHand.Right, GvrControllerHand.Left };
+#endif
+
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static KeysEventInputController _instance;
 
 		public static KeysEventInputController Instance
 		{
@@ -85,10 +93,13 @@ namespace YourCommonTools
 		private int m_temporalNumberScreensActive = 0;
 		private float m_timeAcumInventory = 0;
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------	
-		public bool EnableActionOnMouseDown
+        // DAYDREAM
+        private List<GameObject> m_controllerPointers;
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
+        public bool EnableActionOnMouseDown
 		{
 			get { return m_enableActionOnMouseDown; }
 			set { m_enableActionOnMouseDown = value; }
@@ -190,11 +201,78 @@ namespace YourCommonTools
 			return eventType;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetActionDaydreamController
+		 */
+        public bool GetActionDaydreamController(bool _down, string _eventDown = null, string _eventUp = null)
+        {
+#if ENABLE_WORLDSENSE
+            if (m_controllerPointers == null)
+            {
+                GvrTrackedController[] gvrTrackedControllers = GameObject.FindObjectsOfType<GvrTrackedController>();
+                if (gvrTrackedControllers.Length > 0)
+                {
+                    m_controllerPointers = new List<GameObject>();
+                    foreach (GvrTrackedController trackControl in gvrTrackedControllers)
+                    {
+                        m_controllerPointers.Add(trackControl.gameObject);
+                    }
+                }
+            }
+
+            if (m_controllerPointers != null)
+            {
+                if (m_controllerPointers.Count > 0 && m_controllerPointers[0] != null)
+                {
+                    GvrTrackedController trackedController1 = m_controllerPointers[0].GetComponent<GvrTrackedController>();
+                    foreach (var hand in AllHands)
+                    {
+                        GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
+                        if (_down)
+                        {
+                            if (device.GetButtonDown(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            {
+                                // Match the button to our own controllerPointers list.
+                                if (device == trackedController1.ControllerInputDevice)
+                                {
+                                    if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (device.GetButtonUp(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            {
+                                // Match the button to our own controllerPointers list.
+                                if (device == trackedController1.ControllerInputDevice)
+                                {
+                                    if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+#endif
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * KeyInputPressActionButton
 		 */
-		private void KeyInputPressActionButton()
+        private void KeyInputPressActionButton()
 		{
 #if ENABLE_WORLDSENSE
             m_isDaydreamActivated = true;
@@ -218,14 +296,8 @@ namespace YourCommonTools
 				// DAYDREAM CONTROLLER				
 				if (m_isDaydreamActivated)
 				{
-#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-					if (GvrControllerInput.TouchDown)
-					{
-						hasEntered = true;
-						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-					}
-#endif
-				}
+                    hasEntered = GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+                }
 
                 if (!hasEntered)
 				{
@@ -262,19 +334,8 @@ namespace YourCommonTools
 				// DAYDREAM CONTROLLER
 				if (m_isDaydreamActivated)
 				{
-#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-					if (GvrControllerInput.TouchUp)
-					{
-						hasEntered = true;
-						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-					}
-					if (GvrControllerInput.TouchDown)
-					{
-						hasEntered = true;
-						UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
-					}
-#endif
-				}
+                    hasEntered = GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+                }
 
 				if (!hasEntered)
 				{
@@ -348,11 +409,7 @@ namespace YourCommonTools
                 if (m_isDaydreamActivated)
                 {
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-					if (GvrControllerInput.TouchUp)
-					{
-						hasEntered = true;
-						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
-					}
+                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_DOWN, ACTION_BUTTON_DOWN);
 #endif
                 }
                 if (!hasEntered)
@@ -393,23 +450,7 @@ namespace YourCommonTools
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 			if (m_isDaydreamActivated)
 			{
-				if (GvrControllerInput.AppButtonDown)
-				{
-					UIEventController.Instance.DispatchUIEvent(ACTION_CANCEL_BUTTON);
-				}
-				if (GvrControllerInput.AppButton)
-				{
-					m_timeAcumInventory += Time.deltaTime;
-					if (m_timeAcumInventory > 1.5f)
-					{
-						m_timeAcumInventory = 0;
-						UIEventController.Instance.DispatchUIEvent(ACTION_INVENTORY_VERTICAL);
-					}
-				}
-				if (GvrControllerInput.AppButtonUp)
-				{
-					m_timeAcumInventory = 0;
-				}
+
 			}
 #endif
 
@@ -500,11 +541,11 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * KeyInputManagment
 		 */
-		private void KeyInputManagment()
+        private void KeyInputManagment()
 		{
 			// ACTION BUTTON MANAGEMENT
 			KeyInputPressActionButton();
