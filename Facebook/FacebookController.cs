@@ -26,7 +26,8 @@ namespace YourCommonTools
 		// EVENTS
 		// ----------------------------------------------	
 		public const string EVENT_FACEBOOK_REQUEST_INITIALITZATION = "EVENT_FACEBOOK_REQUEST_INITIALITZATION";
-		public const string EVENT_FACEBOOK_MY_INFO_LOADED = "EVENT_FACEBOOK_MY_INFO_LOADED";
+        public const string EVENT_FACEBOOK_CANCELATION = "EVENT_FACEBOOK_CANCELATION";
+        public const string EVENT_FACEBOOK_MY_INFO_LOADED = "EVENT_FACEBOOK_MY_INFO_LOADED";
 		public const string EVENT_FACEBOOK_FRIENDS_LOADED = "EVENT_FACEBOOK_FRIENDS_LOADED";
 		public const string EVENT_FACEBOOK_COMPLETE_INITIALITZATION = "EVENT_FACEBOOK_COMPLETE_INITIALITZATION";
 		public const string EVENT_REGISTER_IAP_COMPLETED = "EVENT_REGISTER_IAP_COMPLETED";
@@ -167,11 +168,18 @@ namespace YourCommonTools
 			Debug.Log("Success - Check log for details");
 			Debug.Log("Success Response: OnInitComplete Called");
 			Debug.Log("OnInitCompleteCalled IsLoggedIn='{" + FB.IsLoggedIn + "}' IsInitialized='{" + FB.IsInitialized + "}'");
-			if (AccessToken.CurrentAccessToken != null)
-			{
-				Debug.Log(AccessToken.CurrentAccessToken.ToString());
-			}
-			LogInWithPermissions();
+            if (FB.IsInitialized)
+            {
+                if (AccessToken.CurrentAccessToken != null)
+                {
+                    Debug.Log(AccessToken.CurrentAccessToken.ToString());
+                }
+                LogInWithPermissions();
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_CANCELATION);
+            }
 #endif
 		}
 
@@ -184,7 +192,8 @@ namespace YourCommonTools
 			Debug.Log("Success - Check log for details");
 			Debug.Log("Success Response: OnHideUnity Called {" + _isGameShown + "}");
 			Debug.Log("Is game shown: " + _isGameShown);
-		}
+            UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_CANCELATION);
+        }
 
 		// -------------------------------------------
 		/* 
@@ -206,12 +215,19 @@ namespace YourCommonTools
 		{
 			if (_result == null)
 			{
-				// if (ScreenController.Instance.DebugMode) Debug.Log("Null Response");
-				return;
+                UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_CANCELATION);
+                return;
 			}
 
-			// if (ScreenController.Instance.DebugMode) Debug.Log("FacebookController::LoggedWithPermissions::result.RawResult=" + _result.RawResult);
-			FB.API("/me?fields=id,name,email", HttpMethod.GET, HandleMyInformation);
+            if (FB.IsLoggedIn)
+            {
+                // if (ScreenController.Instance.DebugMode) Debug.Log("FacebookController::LoggedWithPermissions::result.RawResult=" + _result.RawResult);
+                FB.API("/me?fields=id,name,email", HttpMethod.GET, HandleMyInformation);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_CANCELATION);
+            }
 		}
 #endif
 
