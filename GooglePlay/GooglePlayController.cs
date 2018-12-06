@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using YourCommonTools;
+#if ENABLE_GOOGLE_PLAY
 using GooglePlayGames;
+#endif
 
 namespace YourCommonTools
 {
