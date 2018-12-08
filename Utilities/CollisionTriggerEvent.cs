@@ -19,7 +19,9 @@ namespace YourCommonTools
 		public const string EVENT_COLLIDERTRIGGER_EXIT_EVENT = "EVENT_COLLIDERTRIGGER_EXIT_EVENT";
 
 		public GameObject TargetObject = null;
-		public bool DestroyOnEnter = false;
+        public string CustomEventEnter = "";
+        public string CustomEventExit = "";
+        public bool DestroyOnEnter = false;
 		public bool DestroyOnExit = false;
 
 		void OnTriggerEnter(Collider _collision)
@@ -39,7 +41,15 @@ namespace YourCommonTools
 				
 			if (hasCollided)
 			{
-				BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_COLLIDERTRIGGER_ENTER_EVENT, this.gameObject, _collision.gameObject);
+                if (CustomEventEnter.Length > 0)
+                {
+                    Debug.LogError("CollisionTriggerEvent::TargetObject=" + TargetObject.name);
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(CustomEventEnter, this.gameObject, _collision.gameObject);
+                }
+				else
+                {
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_COLLIDERTRIGGER_ENTER_EVENT, this.gameObject, _collision.gameObject);
+                }
 				if (DestroyOnEnter)
 				{
 					TargetObject = null;
@@ -65,7 +75,14 @@ namespace YourCommonTools
 
 			if (hasCollided)
 			{
-				BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_COLLIDERTRIGGER_EXIT_EVENT, this.gameObject, _collision.gameObject);
+                if (CustomEventExit.Length > 0)
+                {
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(CustomEventExit, this.gameObject, _collision.gameObject);
+                }
+                else
+                {
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_COLLIDERTRIGGER_EXIT_EVENT, this.gameObject, _collision.gameObject);
+                }                    
 				if (DestroyOnExit)
 				{
 					TargetObject = null;
