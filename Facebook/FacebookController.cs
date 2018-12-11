@@ -68,6 +68,8 @@ namespace YourCommonTools
 		private List<ItemMultiTextEntry> m_friends = new List<ItemMultiTextEntry>();
         private string m_friendsCompact = "";
 
+        private string m_accessToken = "";
+
         public string Id
 		{
 			get { return m_id; }
@@ -94,6 +96,10 @@ namespace YourCommonTools
 		{
 			get { return m_invitationAccepted; }
 		}
+        public string AccessToken
+        {
+            get { return m_accessToken; }
+        }
 
 		// ----------------------------------------------
 		// CONSTRUCTOR
@@ -170,10 +176,6 @@ namespace YourCommonTools
 			Debug.Log("OnInitCompleteCalled IsLoggedIn='{" + FB.IsLoggedIn + "}' IsInitialized='{" + FB.IsInitialized + "}'");
             if (FB.IsInitialized)
             {
-                if (AccessToken.CurrentAccessToken != null)
-                {
-                    Debug.Log(AccessToken.CurrentAccessToken.ToString());
-                }
                 LogInWithPermissions();
             }
             else
@@ -218,6 +220,11 @@ namespace YourCommonTools
                 UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_CANCELATION);
                 return;
 			}
+
+            if (Facebook.Unity.AccessToken.CurrentAccessToken != null)
+            {
+                m_accessToken = Facebook.Unity.AccessToken.CurrentAccessToken.TokenString;
+            }
 
             if (FB.IsLoggedIn)
             {
