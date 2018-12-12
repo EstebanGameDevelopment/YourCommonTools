@@ -16,11 +16,12 @@ namespace YourCommonTools
 	 */
     public class LoadSceneOnClick : MonoBehaviour
 	{
+        public bool InformationMessage = true;
         public string NameScene;
 
         public void OnGUI()
         {
-            GUI.Label(new Rect(0, 0, 100, 100), "Load scene[" + NameScene + "] on click");
+            if (InformationMessage) GUI.Label(new Rect(0, 0, 100, 100), "Load scene[" + NameScene + "] on click");
         }
 
         private void Update()
