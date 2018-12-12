@@ -64,6 +64,9 @@ namespace YourCommonTools
         [Tooltip("Screen used for fade to black")]
         public GameObject FadeScreen;
 
+        [Tooltip("Time used for default animation transitions")]
+        public float PushAnimationTime = 0.3f;
+
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
