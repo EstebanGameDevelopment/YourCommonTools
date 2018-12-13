@@ -493,7 +493,7 @@ namespace YourCommonTools
             }
             if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_RESET)
             {
-                if (this.gameObject != (GameObject)_list[0])
+                if (!((_list != null) && (_list.Length != 0) && (this.gameObject == (GameObject)_list[0])))
                 {
                     m_canvasGroup.gameObject.transform.position = Utilities.Clone(m_initialPosition);
                 }
