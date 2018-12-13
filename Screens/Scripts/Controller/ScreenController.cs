@@ -640,11 +640,23 @@ namespace YourCommonTools
             }
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Changes the visibility of all the layers
+		 */
+        protected void VisibilityLayers(bool _visibility)
+        {
+            for (int i = 0; i < m_layers.Count; i++)
+            {
+                m_layers[i].SetActive(_visibility);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Changes the enable of the screens
 		 */
-		private void EnableScreens(int _layer, bool _activation)
+        private void EnableScreens(int _layer, bool _activation)
 		{
             if (m_screensPool.ContainsKey(_layer))
             {

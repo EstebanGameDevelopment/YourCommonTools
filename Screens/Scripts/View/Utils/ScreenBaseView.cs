@@ -21,9 +21,11 @@ namespace YourCommonTools
         // ----------------------------------------------	
         public const string EVENT_SCREENBASE_ANIMATION_SHOW = "EVENT_SCREENBASE_ANIMATION_SHOW";
         public const string EVENT_SCREENBASE_ANIMATION_HIDE = "EVENT_SCREENBASE_ANIMATION_HIDE";
+        public const string EVENT_SCREENBASE_FORCE_HIDE     = "EVENT_SCREENBASE_FORCE_HIDE";
 
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY      = "EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY";
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER    = "EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER";
+        public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RESET      = "EVENT_SCREENBASE_ANIMATION_SLIDE_RESET";
 
         public const string EVENT_SCREENBASE_BLOCK_INTERACTION = "EVENT_SCREENBASE_BLOCK_INTERACTION";
 
@@ -46,6 +48,7 @@ namespace YourCommonTools
         protected int m_layer = -1;
         private GameObject m_screen;
         protected CanvasGroup m_canvasGroup;
+        protected Vector3 m_initialPosition;
 		private bool m_hasFocus = true;
 
 		private int m_selectionButton;
@@ -114,10 +117,11 @@ namespace YourCommonTools
 			if (m_screen.transform.Find(CONTENT_COMPONENT_NAME) != null)
 			{
                 m_canvasGroup = m_screen.transform.Find(CONTENT_COMPONENT_NAME).GetComponent<CanvasGroup>();
-				if (m_canvasGroup != null)
+                if (m_canvasGroup != null)
 				{
                     m_canvasGroup.alpha = 1;
-				}
+                    m_initialPosition = Utilities.Clone(m_canvasGroup.transform.position);
+                }
 			}
 
 			// AddAutomaticallyButtons(m_screen);
@@ -317,7 +321,7 @@ namespace YourCommonTools
         /* 
 		 * DisappearAnimation
 		 */
-        protected virtual void DisappearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation)
+        protected virtual void DisappearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation, bool _withAnimation = true)
         {
             List<object> paramsAnimation = m_paramsAnimation;
             if (_paramsAnimation != null)
@@ -372,6 +376,10 @@ namespace YourCommonTools
                             break;
                     }
                     float animationTime = (float)paramsAnimation[2];
+                    if (!_withAnimation)
+                    {
+                        animationTime = 0;
+                    }
                     InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
                     break;
 
@@ -380,6 +388,10 @@ namespace YourCommonTools
                     float endAlpha = (float)paramsAnimation[2];
                     float alphaTime = (float)paramsAnimation[3];
                     m_canvasGroup.alpha = endAlpha;
+                    if (!_withAnimation)
+                    {
+                        alphaTime = 0;
+                    }
                     AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, endAlpha, startAlpha, alphaTime);
                     break;
 
@@ -397,6 +409,10 @@ namespace YourCommonTools
                     {
                         startingAlphaFade = 1f;
                         endingAlphaFade = 0f;
+                    }
+                    if (!_withAnimation)
+                    {
+                        colorTime = 0;
                     }
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, startingAlphaFade, endingAlphaFade, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
@@ -432,10 +448,17 @@ namespace YourCommonTools
             {
                 if (this.gameObject == (GameObject)_list[0])
                 {
-                    DisappearAnimation((_list.Length > 1)?((List<object>)_list[1]):null, false);
+                    bool noAnimation = (_list.Length > 2);
+                    DisappearAnimation((_list.Length > 1)?((List<object>)_list[1]):null, false, !noAnimation);
                 }
             }
-
+            if (_nameEvent == EVENT_SCREENBASE_FORCE_HIDE)
+            {
+                if (this.gameObject == (GameObject)_list[0])
+                {
+                    DisappearAnimation((_list.Length > 1) ? ((List<object>)_list[1]) : null, false, false);
+                }
+            }
             if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY)
             {
                 List<object> currentParamsSlide = (List<object>)_list[0];
@@ -468,7 +491,14 @@ namespace YourCommonTools
                     }
                 }
             }
-            if(_nameEvent == EVENT_SCREENBASE_BLOCK_INTERACTION)
+            if (_nameEvent == EVENT_SCREENBASE_ANIMATION_SLIDE_RESET)
+            {
+                if (this.gameObject != (GameObject)_list[0])
+                {
+                    m_canvasGroup.gameObject.transform.position = Utilities.Clone(m_initialPosition);
+                }
+            }
+            if (_nameEvent == EVENT_SCREENBASE_BLOCK_INTERACTION)
             {
                 m_blocksInteraction = (bool)_list[0];
             }
