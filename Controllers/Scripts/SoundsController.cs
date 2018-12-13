@@ -22,6 +22,9 @@ namespace YourCommonTools
         public const string EVENT_SOUNDSCONTROLLER_AUDIO_DATA = "EVENT_SOUNDSCONTROLLER_AUDIO_DATA";
         public const string EVENT_SOUNDSCONTROLLER_PLAY_BUTTON_SOUND = "EVENT_SOUNDSCONTROLLER_PLAY_NAME_SOUND";
 
+        public const string EVENT_SOUNDSCONTROLLER_PLAY_MAIN_LOOP   = "EVENT_SOUNDSCONTROLLER_PLAY_MAIN_LOOP";
+        public const string EVENT_SOUNDSCONTROLLER_PLAY_FX          = "EVENT_SOUNDSCONTROLLER_PLAY_FX";
+
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------
