@@ -33,6 +33,7 @@ namespace YourCommonTools
 		private float m_timeDone;
         private bool m_activated;
         private bool m_setTargetWhenFinished;
+        private bool m_loop;
 
         // -----------------------------------------
         // GETTERS/SETTERS
@@ -66,11 +67,12 @@ namespace YourCommonTools
         /* 
 		 * Constructor
 		 */
-        public AlphaData(GameObject _actor, float _origin, float _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
+        public AlphaData(GameObject _actor, float _origin, float _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished, bool _loop)
 		{
 			m_gameActor = _actor;
             m_activated = true;
             m_setTargetWhenFinished = _setTargetWhenFinished;
+            m_loop = _loop;
 
             ResetData(_origin, _goal, _totalTime, _timeDone);
 
@@ -129,7 +131,16 @@ namespace YourCommonTools
                     {
                         m_gameActor.GetComponent<CanvasGroup>().alpha = m_goal;
                     }
-					BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
+                    if (m_loop)
+                    {
+                        m_timeDone = 0;
+                        m_gameActor.GetComponent<CanvasGroup>().alpha = m_origin;
+                        return false;
+                    }	
+                    else
+                    {
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
+                    }
 					return true;
 				}
 			}

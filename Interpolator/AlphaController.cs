@@ -88,20 +88,34 @@ namespace YourCommonTools
 			return false;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* Clear all interpolations
+		*/
+        public void Clear()
+        {
+            for (int i = 0; i < m_inteporlateObjects.Count; i++)
+            {
+                AlphaData item = m_inteporlateObjects[i];
+                item.Destroy();
+            }
+            m_inteporlateObjects.Clear();
+        }
+
+        // -------------------------------------------
+        /* 
 		* Instantiate a new shoot
 		*/
-		public void Interpolate(GameObject _actor, float _origin, float _goal, float _time, bool _setTargetWhenFinished = false)
+        public void Interpolate(GameObject _actor, float _origin, float _goal, float _time, bool _setTargetWhenFinished = false, bool _loop = false)
 		{
-            m_inteporlateQueue.Add(new AlphaData(_actor, _origin, _goal, _time, 0, _setTargetWhenFinished));
+            m_inteporlateQueue.Add(new AlphaData(_actor, _origin, _goal, _time, 0, _setTargetWhenFinished, _loop));
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Run logic of the interpolation
 		 */
-		void Update()
+        void Update()
 		{
             try
             {
