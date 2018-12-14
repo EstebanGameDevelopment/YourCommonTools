@@ -24,6 +24,7 @@ namespace YourCommonTools
 
         public const string EVENT_SOUNDSCONTROLLER_PLAY_MAIN_LOOP   = "EVENT_SOUNDSCONTROLLER_PLAY_MAIN_LOOP";
         public const string EVENT_SOUNDSCONTROLLER_PLAY_FX          = "EVENT_SOUNDSCONTROLLER_PLAY_FX";
+        public const string EVENT_SOUNDSCONTROLLER_STOP_ALL_SOUNDS  = "EVENT_SOUNDSCONTROLLER_STOP_ALL_SOUNDS";
 
         // ----------------------------------------------
         // SINGLETON
