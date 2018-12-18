@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace YourCommonTools
@@ -74,6 +75,7 @@ namespace YourCommonTools
         protected bool m_enableScreens = true;
         protected bool m_enableDebugTestingCode = false;
         protected bool m_hasBeenInitialized = false;
+        protected GameObject m_eventSystem;
 
         protected List<GameObject> m_layers = new List<GameObject>();
 
@@ -115,6 +117,8 @@ namespace YourCommonTools
             {
                 Debug.Log("YourVRUIScreenController::Start::First class to initialize for the whole system to work");
             }
+
+            m_eventSystem = GameObject.FindObjectOfType<EventSystem>().gameObject;
         }
 
         // -------------------------------------------
@@ -854,6 +858,10 @@ namespace YourCommonTools
                     AlphaController.Instance.Interpolate(fadeScreen, startAlpha, endAlpha, timeColor, true);
                     GameObject.Destroy(fadeScreen, timeColor + 0.1f);
                 }
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN)
+            {
+                m_eventSystem.SetActive((bool)_list[1]);
             }
         }
 

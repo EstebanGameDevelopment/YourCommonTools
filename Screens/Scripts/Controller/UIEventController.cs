@@ -52,6 +52,7 @@ namespace YourCommonTools
 		public const string EVENT_BASICEVENT_DELAYED_CALL			= "EVENT_BASICEVENT_DELAYED_CALL";
 		public const string EVENT_SCREENMANAGER_REPORT_DESTROYED	= "EVENT_SCREENMANAGER_REPORT_DESTROYED";
         public const string EVENT_SCREENMANAGER_CREATE_FADE_SCREEN  = "EVENT_SCREENMANAGER_CREATE_FADE_SCREEN";
+        public const string EVENT_SCREENMANAGER_ANIMATION_SCREEN    = "EVENT_SCREENMANAGER_ANIMATION_SCREEN";
 
         // ----------------------------------------------
         // EVENTS

@@ -240,6 +240,7 @@ namespace YourCommonTools
         protected virtual void AppearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation)
         {
             if (!_isSlideAnimation) m_paramsAnimation = _paramsAnimation;
+            float totalTimeAppearAnimation = -1;
             switch ((int)_paramsAnimation[0])
             {
                 case ScreenController.ANIMATION_MOVEMENT:
@@ -284,6 +285,7 @@ namespace YourCommonTools
                         }
                     }
                     float animationTime = (float)_paramsAnimation[2];
+                    totalTimeAppearAnimation = animationTime;
                     m_canvasGroup.gameObject.transform.position = startingPosition;
                     InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
                     break;
@@ -292,6 +294,7 @@ namespace YourCommonTools
                     float startAlpha = (float)_paramsAnimation[1];
                     float endAlpha = (float)_paramsAnimation[2];
                     float alphaTime = (float)_paramsAnimation[3];
+                    totalTimeAppearAnimation = alphaTime;
                     m_canvasGroup.alpha = startAlpha;
                     AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, startAlpha, endAlpha, alphaTime, true);
                     break;
@@ -299,6 +302,7 @@ namespace YourCommonTools
                 case ScreenController.ANIMATION_FADE:
                     Color endColor = (Color)_paramsAnimation[1];
                     float colorTime = (float)_paramsAnimation[2];
+                    totalTimeAppearAnimation = colorTime;
                     float startingAlphaFade = 1f;
                     float endingAlphaFade = 0f;
                     if (!_isSlideAnimation)
@@ -315,6 +319,11 @@ namespace YourCommonTools
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
             }
+            if (totalTimeAppearAnimation != -1)
+            {
+                UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN, 0.01f, this.gameObject, false);
+                UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN, totalTimeAppearAnimation, this.gameObject, true);
+            }
         }
 
         // -------------------------------------------
@@ -323,6 +332,7 @@ namespace YourCommonTools
 		 */
         protected virtual void DisappearAnimation(List<object> _paramsAnimation, bool _isSlideAnimation, bool _withAnimation = true)
         {
+            float totalTimeAppearAnimation = -1;
             List<object> paramsAnimation = m_paramsAnimation;
             if (_paramsAnimation != null)
             {
@@ -376,10 +386,12 @@ namespace YourCommonTools
                             break;
                     }
                     float animationTime = (float)paramsAnimation[2];
+                    totalTimeAppearAnimation = animationTime;
                     if (!_withAnimation)
                     {
                         animationTime = 0;
-                    }
+                        totalTimeAppearAnimation = 0.05f;
+                    }                    
                     InterpolatorController.Instance.Interpolate(m_canvasGroup.gameObject, endingPosition, animationTime, true);
                     break;
 
@@ -387,10 +399,12 @@ namespace YourCommonTools
                     float startAlpha = (float)paramsAnimation[1];
                     float endAlpha = (float)paramsAnimation[2];
                     float alphaTime = (float)paramsAnimation[3];
+                    totalTimeAppearAnimation = alphaTime;
                     m_canvasGroup.alpha = endAlpha;
                     if (!_withAnimation)
                     {
                         alphaTime = 0;
+                        totalTimeAppearAnimation = 0.05f;
                     }
                     AlphaController.Instance.Interpolate(m_canvasGroup.gameObject, endAlpha, startAlpha, alphaTime);
                     break;
@@ -398,6 +412,7 @@ namespace YourCommonTools
                 case ScreenController.ANIMATION_FADE:
                     Color endColor = (Color)paramsAnimation[1];
                     float colorTime = (float)paramsAnimation[2];
+                    totalTimeAppearAnimation = colorTime;
                     float startingAlphaFade = 1f;
                     float endingAlphaFade = 0f;
                     if (!_isSlideAnimation)
@@ -413,10 +428,16 @@ namespace YourCommonTools
                     if (!_withAnimation)
                     {
                         colorTime = 0;
+                        totalTimeAppearAnimation = 0.05f;
                     }
                     UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_CREATE_FADE_SCREEN, this.gameObject, startingAlphaFade, endingAlphaFade, endColor, colorTime);
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(InterpolateData.EVENT_INTERPOLATE_COMPLETED, colorTime, m_canvasGroup.gameObject);
                     break;
+            }
+            if (totalTimeAppearAnimation != -1)
+            {
+                UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN, 0.01f, this.gameObject, false);
+                UIEventController.Instance.DelayUIEvent(UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN, totalTimeAppearAnimation, this.gameObject, true);
             }
         }
 
