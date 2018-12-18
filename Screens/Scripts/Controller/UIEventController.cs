@@ -86,10 +86,16 @@ namespace YourCommonTools
 			}
 		}
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------
-		private List<AppEventData> listEvents = new List<AppEventData>();
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------    
+        public string URLAssetBundle = "";
+        public int VersionAssetBundle = -1;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------
+        private List<AppEventData> listEvents = new List<AppEventData>();
 
 		// -------------------------------------------
 		/* 

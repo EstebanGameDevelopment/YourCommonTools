@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace YourCommonTools
@@ -875,6 +876,13 @@ namespace YourCommonTools
 			{
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON);
 			}
-		}
-	}
+
+#if UNITY_EDITOR
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                SceneManager.LoadSceneAsync("EmptyScene");
+            }
+#endif
+        }
+    }
 }
