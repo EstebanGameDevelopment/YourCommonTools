@@ -204,16 +204,20 @@ namespace YourCommonTools
 		private void LogInWithPermissions()
 		{
 #if ENABLE_FACEBOOK
-			FB.LogInWithReadPermissions(new List<string>() { "public_profile", "email", "user_friends" }, LoggedWithPermissions);
+#if ENABLE_FACEBOOK_FRIENDS
+            FB.LogInWithReadPermissions(new List<string>() { "public_profile", "email", "user_friends" }, LoggedWithPermissions);
+#else
+            FB.LogInWithReadPermissions(new List<string>() { "public_profile", "email" }, LoggedWithPermissions);
 #endif
-		}
+#endif
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * LoggedWithPermissions
 		 */
 #if ENABLE_FACEBOOK
-		private void LoggedWithPermissions(IResult _result)
+        private void LoggedWithPermissions(IResult _result)
 		{
 			if (_result == null)
 			{
@@ -261,17 +265,21 @@ namespace YourCommonTools
 
 			UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_MY_INFO_LOADED);
 
-			// if (ScreenController.Instance.DebugMode) Debug.Log("FacebookController::HandleMyInformation::result.RawResult=" + _result.RawResult);
-			FB.API("/me/friends", HttpMethod.GET, HandleListOfFriends);
-		}
+#if ENABLE_FACEBOOK_FRIENDS
+            // if (ScreenController.Instance.DebugMode) Debug.Log("FacebookController::HandleMyInformation::result.RawResult=" + _result.RawResult);
+            FB.API("/me/friends", HttpMethod.GET, HandleListOfFriends);
+#else
+            RegisterConnectionFacebookID(true);
+#endif
+        }
 #endif
 
-		// -------------------------------------------
-		/* 
-		 * HandleListOfFriends
-		 */
+        // -------------------------------------------
+        /* 
+         * HandleListOfFriends
+         */
 #if ENABLE_FACEBOOK
-		private void HandleListOfFriends(IResult _result)
+        private void HandleListOfFriends(IResult _result)
 		{
 			if (_result == null)
 			{
