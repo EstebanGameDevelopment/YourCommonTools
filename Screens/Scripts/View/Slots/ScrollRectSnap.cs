@@ -30,18 +30,27 @@ namespace YourCommonTools
         [Tooltip("Speed to auto-adjust")]
         public float Speed = 100f;
 
+        [Tooltip("Swipe distance")]
+        public float Distance = 30f;
+
+        public bool SwipeMode = true;
+
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
         private float[] m_points;
         private float m_stepSize;
 
+        private int m_currentPage = 0;
         private ScrollRect m_scroll;
         private bool m_lerpH;
         private float m_targetH;
 
         private bool m_lerpV;
         private float m_targetV;
+
+        private float m_swipeHorizontal;
+        private float m_swipeVertical;
 
         // -------------------------------------------
         /* 
@@ -92,20 +101,97 @@ namespace YourCommonTools
 		 */
         public void DragEnd()
         {
-            int pageSelected = -1;
-            if (m_scroll.horizontal && SnapInH)
+            if (SwipeMode)
             {
-                pageSelected = FindNearest(m_scroll.horizontalNormalizedPosition, m_points);
-                m_targetH = m_points[pageSelected];
-                m_lerpH = true;
+                float direction = 0;
+                if (m_scroll.horizontal && SnapInH)
+                {
+                    direction = (m_swipeHorizontal - m_scroll.horizontalNormalizedPosition);
+                    if (Mathf.Abs(direction) > (Distance / Screen.width))
+                    {
+                        m_lerpH = true;
+                    }                        
+                }
+                if (m_scroll.vertical && SnapInV)
+                {
+                    direction = (m_swipeVertical - m_scroll.verticalNormalizedPosition);
+                    if (Mathf.Abs(direction) > (Distance / Screen.height))
+                    {
+                        m_lerpV = true;
+                    }                    
+                }
+
+                if (m_lerpH || m_lerpV)
+                {
+                    if (direction < 0)
+                    {
+                        m_currentPage++;
+                        if (m_currentPage >= Screens) m_currentPage = Screens - 1;
+                    }
+                    else
+                    {
+                        m_currentPage--;
+                        if (m_currentPage < 0) m_currentPage = 0;
+                    }
+                    if (m_lerpH)
+                    {
+                        m_targetH = m_points[m_currentPage];
+                    }
+                    if (m_lerpV)
+                    {
+                        m_targetV = m_points[m_currentPage];
+                    }
+                }
+                else
+                {
+                    // RESTORE POSITION
+                    if (m_scroll.horizontal && SnapInH)
+                    {
+                        m_lerpH = true;
+                        m_targetH = m_points[m_currentPage];
+                    }
+                    if (m_scroll.vertical && SnapInV)
+                    {
+                        m_lerpV = true;
+                        m_targetV = m_points[m_currentPage];
+                    }
+                }
             }
-            if (m_scroll.vertical && SnapInV)
+            else
             {
-                pageSelected = FindNearest(m_scroll.verticalNormalizedPosition, m_points);
-                m_targetH = m_points[pageSelected];
-                m_lerpH = true;
+                if (m_scroll.horizontal && SnapInH)
+                {
+                    m_currentPage = FindNearest(m_scroll.horizontalNormalizedPosition, m_points);
+                    m_targetH = m_points[m_currentPage];
+                    m_lerpH = true;
+                }
+                if (m_scroll.vertical && SnapInV)
+                {
+                    m_currentPage = FindNearest(m_scroll.verticalNormalizedPosition, m_points);
+                    m_targetV = m_points[m_currentPage];
+                    m_lerpV = true;
+                }
             }
-            UIEventController.Instance.DispatchUIEvent(EVENT_SCROLLRECTSNAPE_PAGE_SELECTED, pageSelected);            
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCROLLRECTSNAPE_PAGE_SELECTED, m_currentPage);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * OnDrag
+		 */
+        public void OnDragStart()
+        {
+            if (SwipeMode)
+            {
+                if (m_scroll.horizontal && SnapInH)
+                {
+                    m_swipeHorizontal = m_scroll.horizontalNormalizedPosition;
+                }
+                if (m_scroll.vertical && SnapInV)
+                {
+                    m_swipeVertical = m_scroll.verticalNormalizedPosition;
+                }
+            }
         }
 
         // -------------------------------------------
