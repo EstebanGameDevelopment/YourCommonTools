@@ -146,7 +146,7 @@ namespace YourCommonTools
 					// ScreenController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
 					InitListener();
 					FB.Init(this.OnInitComplete, this.OnHideUnity);
-				}
+                }
 				else
 				{
 					InitListener();
@@ -162,6 +162,18 @@ namespace YourCommonTools
 			}
 #endif
 		}
+
+        // -------------------------------------------
+        /* 
+		 * Logout
+		 */
+        public void Logout()
+        {
+            if (FB.IsInitialized && FB.IsLoggedIn)
+            {
+                FB.LogOut();
+            }
+        }
 
 		// -------------------------------------------
 		/* 
