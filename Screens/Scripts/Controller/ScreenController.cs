@@ -395,6 +395,30 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+         * EnableOneLayerBelowMe
+         */
+        public bool EnableOneLayerBelowMe(int _layer, bool _enable)
+        {
+            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
+            {
+                if (screenPool.Value.Count > 0)
+                {
+                    if (screenPool.Key == _layer - 1)
+                    {
+                        for (int i = 0; i < screenPool.Value.Count; i++)
+                        {
+                            screenPool.Value[i].SetActive(_enable);
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+        
+
+        // -------------------------------------------
+        /* 
          * MoveScreenToLayer
          */
         public void MoveScreenToLayer(GameObject _screen, int _layer)
@@ -804,6 +828,12 @@ namespace YourCommonTools
                 int layer = (int)_list[0];
                 bool activation = (bool)_list[1];
                 EnableLayersBelowMe(layer, activation);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ENABLE_ONE_LAYER_BELOW_ME)
+            {
+                int layer = (int)_list[0];
+                bool activation = (bool)_list[1];
+                EnableOneLayerBelowMe(layer, activation);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_ABOVE)
             {
