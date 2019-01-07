@@ -169,17 +169,19 @@ namespace YourCommonTools
 		 */
         public void Logout()
         {
+#if ENABLE_FACEBOOK
             if (FB.IsInitialized && FB.IsLoggedIn)
             {
                 FB.LogOut();
             }
+#endif
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * OnInitComplete
 		 */
-		private void OnInitComplete()
+        private void OnInitComplete()
 		{
 #if ENABLE_FACEBOOK
 			UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_REQUEST_INITIALITZATION);
