@@ -1574,5 +1574,137 @@ namespace YourCommonTools
             return -1;
         }
 
+        // ---------------------------------------------------
+        /**
+		* Use a 2D plane math to move forward the target
+		*/
+        public static Vector2 LogicAlineation(Actor _target, Vector3 _goal, float _speedMovement, float _speedRotation, bool _applyGravity = false)
+        {
+            float yaw = _target.Yaw * Mathf.Deg2Rad;
+            Vector3 pos = new Vector3(_target.gameObject.transform.position.x, _target.gameObject.transform.position.y, _target.gameObject.transform.position.z);
+
+            Vector3 normalVector = new Vector3(_goal.x, _goal.y, _goal.z) - pos;
+            normalVector.Normalize();
+
+            Vector2 v1 = new Vector2((float)Mathf.Cos(yaw), (float)Mathf.Sin(yaw));
+            Vector2 v2 = new Vector2(_goal.x - pos.x, _goal.z - pos.z);
+
+            float moduloV2 = v2.magnitude;
+            if (moduloV2 == 0)
+            {
+                v2.x = 0.0f;
+                v2.y = 0.0f;
+            }
+            else
+            {
+                v2.x = v2.x / moduloV2;
+                v2.y = v2.y / moduloV2;
+            }
+            float angulo = (v1.x * v2.x) + (v1.y * v2.y);
+
+            float increment = _speedRotation;
+            if (angulo > 0.95) increment = (1 - angulo);
+
+            // ASK DIRECTION OF THE ROTATION TO REACH THE GOAL
+            float directionLeft = Utilities.AskDirectionPoint(new Vector2(pos.x, pos.z), yaw, new Vector2(_goal.x, _goal.z));
+            float yawGoal = yaw;
+            if (directionLeft > 0)
+            {
+                yawGoal += increment;
+            }
+            else
+            {
+                yawGoal -= increment;
+            }
+            Vector2 vf = new Vector2((float)Mathf.Cos(yawGoal), (float)Mathf.Sin(yawGoal));
+            vf.Normalize();
+            // Debug.DrawLine(new Vector3(pos.x, 1, pos.y), new Vector3(pos.x + vf.x, 1, pos.y + vf.y), Color.yellow);			
+
+            // MOVE AND ROTATE
+            yawGoal = yawGoal * Mathf.Rad2Deg;
+            if ((_speedMovement != -1) && (_speedMovement != 0))
+            {
+                CharacterController controller = _target.GetComponent<CharacterController>();
+                if (controller == null)
+                {
+                    _target.gameObject.GetComponent<Rigidbody>().MovePosition(new Vector3(_target.gameObject.GetComponent<Rigidbody>().position.x + (vf.x * _speedMovement * Time.deltaTime)
+                                                                             , _target.gameObject.GetComponent<Rigidbody>().position.y
+                                                                             , _target.gameObject.GetComponent<Rigidbody>().position.z + (vf.y * _speedMovement * Time.deltaTime)));
+                }
+                else
+                {
+                    Vector3 movement = new Vector3((vf.x * _speedMovement * Time.deltaTime),
+                                                    0,
+                                                    (vf.y * _speedMovement * Time.deltaTime)) + ((normalVector.z != 0) ? Vector3.zero : (_applyGravity ? (Physics.gravity * Time.deltaTime) : Vector3.zero));
+                    controller.Move(movement);
+                }
+            }
+            _target.DirectionLeft = directionLeft;
+            _target.Yaw = yawGoal;
+            return vf;
+        }
+
+        // ---------------------------------------------------
+        /**
+		* Use a 2D plane math to move forward the target
+		*/
+        public static Vector2 LogicLocalAlineation(Actor _target, Vector3 _goal, float _speedMovement, float _speedRotation, bool _applyGravity = false)
+        {
+            float yaw = _target.Yaw * Mathf.Deg2Rad;
+            Vector3 pos = new Vector3(_target.gameObject.transform.localPosition.x, _target.gameObject.transform.localPosition.y, _target.gameObject.transform.localPosition.z);
+
+            Vector3 normalVector = new Vector3(_goal.x, _goal.y, _goal.z) - pos;
+            normalVector.Normalize();
+
+            Vector2 v1 = new Vector2((float)Mathf.Cos(yaw), (float)Mathf.Sin(yaw));
+            Vector2 v2 = new Vector2(_goal.x - pos.x, _goal.z - pos.z);
+
+            float moduloV2 = v2.magnitude;
+            if (moduloV2 == 0)
+            {
+                v2.x = 0.0f;
+                v2.y = 0.0f;
+            }
+            else
+            {
+                v2.x = v2.x / moduloV2;
+                v2.y = v2.y / moduloV2;
+            }
+            float angulo = (v1.x * v2.x) + (v1.y * v2.y);
+
+            float increment = _speedRotation;
+            if (angulo > 0.95) increment = (1 - angulo);
+
+            // ASK DIRECTION OF THE ROTATION TO REACH THE GOAL
+            float directionLeft = Utilities.AskDirectionPoint(new Vector2(pos.x, pos.z), yaw, new Vector2(_goal.x, _goal.z));
+            float yawGoal = yaw;
+            if (directionLeft > 0)
+            {
+                yawGoal += increment;
+            }
+            else
+            {
+                yawGoal -= increment;
+            }
+            Vector2 vf = new Vector2((float)Mathf.Cos(yawGoal), (float)Mathf.Sin(yawGoal));
+            vf.Normalize();
+            // Debug.DrawLine(new Vector3(pos.x, 1, pos.y), new Vector3(pos.x + vf.x, 1, pos.y + vf.y), Color.yellow);			
+
+            // MOVE AND ROTATE
+            yawGoal = yawGoal * Mathf.Rad2Deg;
+            if ((_speedMovement != -1) && (_speedMovement != 0))
+            {
+                Vector3 movement = new Vector3((vf.x * _speedMovement * Time.deltaTime),
+                                                0,
+                                                (vf.y * _speedMovement * Time.deltaTime)) + ((normalVector.z != 0) ? Vector3.zero : (_applyGravity ? (Physics.gravity * Time.deltaTime) : Vector3.zero));
+
+                _target.gameObject.transform.localPosition += movement;
+            }
+            _target.DirectionLeft = directionLeft;
+            _target.Yaw = yawGoal;
+            return vf;
+        }
+
+
     }
 }
