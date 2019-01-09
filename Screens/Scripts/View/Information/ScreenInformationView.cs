@@ -46,13 +46,17 @@ namespace YourCommonTools
 		private Button m_previousButton;
 		private Button m_abortButton;
 		private Text m_textDescription;
-		private Text m_title;
+        private Text m_title;
 		private Image m_imageContent;
 
 		private int m_currentPage = 0;
 		private List<PageInformation> m_pagesInfo = new List<PageInformation>();
 		private bool m_forceLastPage = false;
 		private bool m_lastPageVisited = false;
+
+        private float m_timeAcumProgress;
+        private int m_dotNumber;
+        private Text m_textProgress;
 
         private bool m_animationDissappearTriggered = false;
 
@@ -125,8 +129,15 @@ namespace YourCommonTools
 			{
 				m_title = m_container.Find("Title").GetComponent<Text>();
 			}
+            if (m_container.Find("Progress") != null)
+            {
+                m_timeAcumProgress = 0;
+                m_dotNumber = 0;
+                m_textProgress = m_container.Find("Progress").GetComponent<Text>();
+                m_textProgress.text = ".";
+            }
 
-			if (m_container.Find("Image") != null)
+            if (m_container.Find("Image") != null)
 			{
 				m_imageContent = m_container.Find("Image").GetComponent<Image>();
 			}
@@ -401,5 +412,28 @@ namespace YourCommonTools
                 m_animationDissappearTriggered = true;
             }
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+         * Update
+         */
+        void Update()
+        {
+            if (m_textProgress != null)
+            {
+                m_timeAcumProgress += Time.deltaTime;
+                if (m_timeAcumProgress > 0.5f)
+                {
+                    m_timeAcumProgress = 0;
+                    m_dotNumber = (m_dotNumber + 1) % 3;
+                    string dots = "";
+                    for (int i = 0; i < m_dotNumber + 1; i++)
+                    {
+                        dots += ".";
+                    }
+                    m_textProgress.text = dots;
+                }
+            }
+        }
+    }
 }

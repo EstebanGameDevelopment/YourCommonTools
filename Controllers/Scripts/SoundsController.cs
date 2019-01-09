@@ -394,6 +394,7 @@ namespace YourCommonTools
 		 */
         public void StartMicrophoneRecording(int _totalTimeMicrophone)
         {
+#if ENABLE_MICROPHONE_ACCESS
             if (Microphone.devices.Length > 0)
             {
                 m_microphoneDeviceName = Microphone.devices[0];
@@ -411,6 +412,7 @@ namespace YourCommonTools
                 m_microphoneDeviceName = "";
                 return;
             }
+#endif
         }
 
         // -------------------------------------------
@@ -419,9 +421,11 @@ namespace YourCommonTools
 		 */
         public void StopMicrophoneRecording()
         {
+#if ENABLE_MICROPHONE_ACCESS
             m_requestAudioData = Microphone.GetPosition(m_microphoneDeviceName);
             SoundsController.Instance.Audio1.Stop();
             Microphone.End(m_microphoneDeviceName);
+#endif
         }
 
         // -------------------------------------------
