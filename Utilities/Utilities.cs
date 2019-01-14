@@ -818,12 +818,32 @@ namespace YourCommonTools
 		public static string Vector3ToString(Vector3 _data)
 		{
 			return _data.x + "," + _data.y + "," + _data.z;
-		}
-		// -------------------------------------------
-		/* 
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Converst from string to Quaternion
+		 */
+        public static Quaternion StringToQuaternion(string _data)
+        {
+            string[] values = _data.Split(',');
+            return new Quaternion(float.Parse(values[0]), float.Parse(values[1]), float.Parse(values[2]), float.Parse(values[3]));
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Converst from Quaternion to string
+		 */
+        public static string QuaternionToString(Quaternion _data)
+        {
+            return _data.x + "," + _data.y + "," + _data.z + "," + _data.w;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * GetTimestamp
 		 */
-		public static long GetTimestamp()
+        public static long GetTimestamp()
 		{
 			return (long)((DateTime.UtcNow - Jan1St1970).TotalMilliseconds);
 		}
