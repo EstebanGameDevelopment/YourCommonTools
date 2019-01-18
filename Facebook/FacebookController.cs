@@ -344,9 +344,26 @@ namespace YourCommonTools
 			}
 			if (_dispatchCompletedFacebookInit)
 			{
-                UIEventController.Instance.DispatchUIEvent(EVENT_FACEBOOK_COMPLETE_INITIALITZATION, m_id, m_nameHuman, m_email, m_friendsCompact);
-			}
+                DispatchCompletedConnectionEvent();
+            }
 		}
+
+        // -------------------------------------------
+        /* 
+		* DispatchCompletedConnectionEvent
+		*/
+        public bool DispatchCompletedConnectionEvent()
+        {
+            if (m_id == null)
+            {
+                return false;
+            }
+            else
+            {
+                UIEventController.Instance.DelayUIEvent(EVENT_FACEBOOK_COMPLETE_INITIALITZATION, 0.1f, m_id, m_nameHuman, m_email, m_friendsCompact);
+                return true;
+            }            
+        }
 
 		// -------------------------------------------
 		/* 
