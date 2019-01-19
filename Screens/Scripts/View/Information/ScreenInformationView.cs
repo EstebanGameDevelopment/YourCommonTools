@@ -411,7 +411,18 @@ namespace YourCommonTools
             {
                 m_animationDissappearTriggered = true;
             }
-		}
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_SUBEVENT_SCREEN)
+            {
+                string subEvent = (string)_list[0];
+                for (int i = 0; i < m_pagesInfo.Count; i++)
+                {
+                    if (m_pagesInfo[i].EventData == subEvent)
+                    {
+                        Destroy();
+                    }
+                }
+            }
+        }
 
         // -------------------------------------------
         /* 
