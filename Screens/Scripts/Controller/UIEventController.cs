@@ -29,7 +29,8 @@ namespace YourCommonTools
         public const string EVENT_SCREENMANAGER_DESTROY_SCREEN			= "EVENT_SCREENMANAGER_DESTROY_SCREEN";
 		public const string EVENT_SCREENMANAGER_DESTROY_SCREEN_BY_NAME	= "EVENT_SCREENMANAGER_DESTROY_SCREEN_BY_NAME";
 		public const string EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN		= "EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN";
-		public const string EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON		= "EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON";
+        public const string EVENT_SCREENMANAGER_DESTROY_SUBEVENT_SCREEN = "EVENT_SCREENMANAGER_DESTROY_SUBEVENT_SCREEN";        
+        public const string EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON		= "EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON";
 		public const string EVENT_GENERIC_MESSAGE_INFO_OK_BUTTON		= "EVENT_GENERIC_MESSAGE_INFO_OK_BUTTON";
 		public const string EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST	= "EVENT_SCREENMANAGER_OVERLAY_DESTROY_LAST";
 		public const string EVENT_SCREENMANAGER_POOL_DESTROY_LAST		= "EVENT_SCREENMANAGER_POOL_DESTROY_LAST";
@@ -92,17 +93,20 @@ namespace YourCommonTools
         // ----------------------------------------------    
         public string URLAssetBundle = "";
         public int VersionAssetBundle = -1;
+        
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
         private List<AppEventData> listEvents = new List<AppEventData>();
+        private float m_blockEvents = 0;
+        private List<string> m_blockedEvents = new List<string>();
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Constructor
 		 */
-		private UIEventController()
+        private UIEventController()
 		{
 		}
 
@@ -128,14 +132,56 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * BlockUIEvents
+		 */
+        public void BlockUIEvents(float _time, params string[] _list)
+        {
+            m_blockEvents = _time;
+            if (m_blockEvents > 0)
+            {
+                for (int i = 0; i < _list.Length; i++)
+                {
+                    m_blockedEvents.Add(_list[i]);
+                }
+            }
+            else
+            {
+                m_blockedEvents.Clear();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will check if we need to block an event
+		 */
+        private bool CheckBlockEvent(string _nameEvent)
+        {
+            if (m_blockEvents > 0)
+            {
+                for (int i = 0; i < m_blockedEvents.Count; i++)
+                {
+                    if (m_blockedEvents[i].Equals(_nameEvent))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will dispatch a UI event
 		 */
-		public void DispatchUIEvent(string _nameEvent, params object[] _list)
+        public void DispatchUIEvent(string _nameEvent, params object[] _list)
 		{
-			// Debug.Log("[UI]_nameEvent=" + _nameEvent);
-			if (UIEvent != null) UIEvent(_nameEvent, _list);
+            // Debug.Log("[UI]_nameEvent=" + _nameEvent);
+            if (!CheckBlockEvent(_nameEvent))
+            {
+                if (UIEvent != null) UIEvent(_nameEvent, _list);
+            }            
 		}
 
 		// -------------------------------------------
@@ -144,7 +190,10 @@ namespace YourCommonTools
 		 */
 		public void DelayUIEvent(string _nameEvent, float _time, params object[] _list)
 		{
-			listEvents.Add(new AppEventData(_nameEvent, -1, true, -1, _time, _list));
+            if (!CheckBlockEvent(_nameEvent))
+            {
+                listEvents.Add(new AppEventData(_nameEvent, -1, true, -1, _time, _list));
+            }
 		}
 
         // -------------------------------------------
@@ -179,8 +228,18 @@ namespace YourCommonTools
 		 */
         void Update()
 		{
-			// DELAYED EVENTS
-			for (int i = 0; i < listEvents.Count; i++)
+            // BLOCKED EVENTS
+            if (m_blockEvents > 0)
+            {
+                m_blockEvents -= Time.deltaTime;
+                if (m_blockEvents <= 0)
+                {
+                    m_blockedEvents.Clear();
+                }
+            }
+
+            // DELAYED EVENTS
+            for (int i = 0; i < listEvents.Count; i++)
 			{
 				AppEventData eventData = listEvents[i];				
                 if (eventData.Time == -1000)
