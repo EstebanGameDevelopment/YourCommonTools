@@ -15,6 +15,6 @@ namespace YourCommonTools
 	 */
     public class ClassFinder : MonoBehaviour
 	{
-
+        public string Name;
 	}
 }
