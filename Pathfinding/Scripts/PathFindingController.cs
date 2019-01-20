@@ -16,15 +16,18 @@ namespace YourCommonTools
 	*/
 	public class PathFindingController : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// PUBLIC CONSTANTS
-		// ----------------------------------------------
-		public const bool DEBUG_MATRIX_CONSTRUCTION = false;
+        // ----------------------------------------------
+        // PUBLIC CONSTANTS
+        // ----------------------------------------------
+        public const bool DEBUG_MATRIX_CONSTRUCTION = false;
 		public const bool DEBUG_PATHFINDING = false;
 		public const bool DEBUG_DOTPATHS = false;
 
-		// CELLS
-		public const int CELL_EMPTY = 0;
+        public const string TAG_FLOOR = "FLOOR";
+        public const string TAG_PATH  = "PATH";
+
+        // CELLS
+        public const int CELL_EMPTY = 0;
 		public const int CELL_COLLISION = 1;
 
 		// CONSTANTS DIRECTIONS
@@ -55,11 +58,15 @@ namespace YourCommonTools
 		// PUBLIC MEMBERS
 		// ----------------------------------------------
 		public GameObject DotReference;
+        public GameObject DotReferenceEmtpy;
+        public GameObject DotReferenceWay;
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private int m_cols;                     //! Cols of the matrix
+        public bool DebugPathPoints;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        private int m_cols;                     //! Cols of the matrix
 		private int m_rows;                     //! Rows of the matrix
 		private int m_layers;                   //! Height of the matrix
 		private int m_totalCells;               //! Total number of cells
@@ -137,14 +144,11 @@ namespace YourCommonTools
 		 */
 		public void ClearDotPaths()
 		{
-			if (DEBUG_DOTPATHS)
+			foreach (GameObject dot in m_dotPaths)
 			{
-				foreach (GameObject dot in m_dotPaths)
-				{
-					Destroy(dot);
-				}
-				m_dotPaths.Clear();
+				Destroy(dot);
 			}
+			m_dotPaths.Clear();
 		}
 
 		// ---------------------------------------------------
@@ -174,20 +178,33 @@ namespace YourCommonTools
 		 */
 		private void CreateDotPath(Vector3 _position, int _totalDots)
 		{
-			if (DEBUG_DOTPATHS)
+			if (DebugPathPoints)
 			{
-				GameObject newdot = (GameObject)Instantiate(DotReference, _position, new Quaternion());
-				float cellSize = (m_cellSize / 3) + (1.2f * (float)(m_dotPaths.Count + 1) / (float)_totalDots);
-				newdot.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+				GameObject newdot = (GameObject)Instantiate(DotReferenceWay, _position, new Quaternion());
+                // float cellSize = (m_cellSize / 3) + (1.2f * (float)(m_dotPaths.Count + 1) / (float)_totalDots);
+                float cellSize = (m_cellSize / 3);
+                newdot.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
 				m_dotPaths.Add(newdot);
 			}
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 * CreateDot
+		 */
+        private void CreateDot(Vector3 _position)
+        {
+            GameObject newdot = (GameObject)Instantiate(DotReferenceWay, _position, new Quaternion());
+            float cellSize = (m_cellSize / 3);
+            newdot.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+            m_dotPaths.Add(newdot);
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Will initialize the structure to be able to use it
 		 */
-		public void AllocateMemoryMatrix(int _cols,
+        public void AllocateMemoryMatrix(int _cols,
 										int _rows,
 										int _layers,
 										float _cellSize,
@@ -243,7 +260,10 @@ namespace YourCommonTools
 
 			if (DEBUG_MATRIX_CONSTRUCTION)
 			{
-				RenderDebugMatrixConstruction();
+                if (_initContent == null)
+                {
+                    RenderDebugMatrixConstruction(0);
+                }				
 			}
 		}
 
@@ -270,33 +290,75 @@ namespace YourCommonTools
 		/**
 		 * Render an sphere int the empty cells to check if the matrix was build right
 		 */
-		public void RenderDebugMatrixConstruction()
+		public void RenderDebugMatrixConstruction(int _layerToCheck = 0)
 		{
 			if (m_dotPaths.Count > 0) return;
-
-			int layerToCheck = 1;
 
 			for (int x = 0; x < m_rows; x++)
 			{
 				for (int y = 0; y < m_cols; y++)
 				{
-					int cellContent = m_cells[layerToCheck][(x * m_cols) + y];
-					if (cellContent == CELL_EMPTY)
+					int cellContent = m_cells[_layerToCheck][(x * m_cols) + y];
+                    Vector3 pos = new Vector3((float)((x * m_cellSize)) + (m_cellSize / 2) + m_xIni, 0f * m_cellSize + m_yIni, (float)((y * m_cellSize)) + (m_cellSize / 2) + m_zIni);
+                    GameObject newdot;
+                    if (cellContent == CELL_EMPTY)
 					{
-						Vector3 posShit = new Vector3((float)((x * m_cellSize)) + (m_cellSize / 2), 0f * m_cellSize, (float)((y * m_cellSize)) + (m_cellSize / 2));
-						GameObject newdot = (GameObject)Instantiate(DotReference, posShit, new Quaternion());
-						newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
-						m_dotPaths.Add(newdot);
+						newdot = (GameObject)Instantiate(DotReferenceEmtpy);
 					}
-				}
+                    else
+                    {
+                        newdot = (GameObject)Instantiate(DotReference);
+                    }
+                    newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
+                    newdot.transform.position = pos;
+                    m_dotPaths.Add(newdot);
+                }
 			}
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 * Will dynamically calculate the collisions
+		 */
+        public void CalculateCollisions(int _layerToCheck = 0)
+        {
+            m_cells = new int[m_layers][];
+            for (int z = 0; z < m_layers; z++)
+            {
+                m_cells[z] = new int[m_totalCells];
+                for (int x = 0; x < m_rows; x++)
+                {
+                    for (int y = 0; y < m_cols; y++)
+                    {
+                        m_cells[z][(x * m_cols) + y] = CELL_EMPTY;
+                    }
+                }
+            }
+
+            for (int x = 0; x < m_rows; x++)
+            {
+                for (int y = 0; y < m_cols; y++)
+                {
+                    int cellContent = m_cells[_layerToCheck][(x * m_cols) + y];
+                    Vector3 posAir = new Vector3((float)((x * m_cellSize)) + (m_cellSize / 2) + m_xIni, 1000, (float)((y * m_cellSize)) + (m_cellSize / 2) + m_zIni);
+
+                    RaycastHit raycastHit = new RaycastHit();
+                    if (Utilities.GetCollidedInfoByRay(posAir, new Vector3(0, -1, 0), ref raycastHit))
+                    {
+                        if (raycastHit.collider.gameObject.tag != TAG_FLOOR)
+                        {
+                            m_cells[_layerToCheck][(x * m_cols) + y] = CELL_COLLISION;
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Gets the direction to go from two points
 		*/
-		private int GetDirectionByPosition(int _xOrigin, int _yOrigin, int _xDestination, int _yDestination)
+        private int GetDirectionByPosition(int _xOrigin, int _yOrigin, int _xDestination, int _yDestination)
 		{
 			if (_yOrigin > _yDestination) return (DIRECTION_UP);
 			if (_yOrigin < _yDestination) return (DIRECTION_DOWN);
@@ -396,18 +458,44 @@ namespace YourCommonTools
 			return hops;
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		* Gets the path between 2 positions
+		*/
+        public int GetPath(Vector3 _origin,
+                                Vector3 _destination,
+                                List<Vector3> _waypoints,
+                                bool _oneLayer,
+                                bool _raycastFilter)
+        {
+            Vector3 origin = new Vector3();
+            origin.x = (int)((_origin.x - m_xIni) / m_cellSize);
+            origin.y = (int)((_origin.z - m_zIni) / m_cellSize);
+            origin.z = (_oneLayer?0:((int)((_origin.y - m_yIni) / m_cellSize)));
+
+            Vector3 destination = new Vector3();
+            destination.x = (int)((_destination.x - m_xIni) / m_cellSize);
+            destination.y = (int)((_destination.z - m_zIni) / m_cellSize);
+            destination.z = (_oneLayer ? 0 : ((int)((_destination.y - m_yIni) / m_cellSize)));
+
+            // Debug.LogError("GetPath::origin[" + origin.ToString() + "]::destination[" + destination.ToString() + "]");
+
+            return SearchAStar(origin, destination, _waypoints, _oneLayer, _raycastFilter);
+        }
+
+        // ---------------------------------------------------
+        /**
 		* Do the search A* in the matrix to search a type or a position
 		* @param x_ori	Initial position X
 		* @param y_ori	Initial position Y
 		* @param x_des	Final position X
 		* @param y_des	Final position Y
 		*/
-		public int SearchAStar(Vector3 _origin,
+        public int SearchAStar(Vector3 _origin,
 								Vector3 _destination,
 								List<Vector3> _waypoints,
-								bool _oneLayer)
+								bool _oneLayer,
+                                bool _raycastFilter = false)
 		{
 			int i;
 			int j;
@@ -502,6 +590,9 @@ namespace YourCommonTools
 						int curIndexBack = i;
 						Vector3 sGoalNext = new Vector3(-1f, -1f, -1f);
 						Vector3 sGoalCurrent = new Vector3(0f, 0f, 0f);
+                        Vector3 pivotReference = Vector3.zero;
+                        Vector3 currentChecked = Vector3.zero;
+                        Vector3 previousChecked = Vector3.zero;
 						do
 						{
 
@@ -513,24 +604,66 @@ namespace YourCommonTools
 							sGoalNext.y = sGoalCurrent.y;
 							sGoalNext.z = sGoalCurrent.z;
 
-							// INSERT WAYPOINT
-							way.Insert(0, new Vector3((sGoalNext.x * m_cellSize), sGoalNext.z - (m_cellSize / 2), (sGoalNext.y * m_cellSize)));
+                            // INSERT WAYPOINT
+                            if (!_raycastFilter)
+                            {
+                                if (_oneLayer)
+                                {
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni));
+                                }
+                                else
+                                {
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 2) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                }
+                            }
+                            else
+                            {
+                                if (_oneLayer)
+                                {
+                                    if (pivotReference == Vector3.zero)
+                                    {
+                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
+                                        way.Insert(0, currentChecked);
+                                        pivotReference = Utilities.Clone(currentChecked);
+                                    }
+                                    else
+                                    {
+                                        previousChecked = Utilities.Clone(currentChecked);
+                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
+                                        ClearDotPaths();
+                                        CreateDot(currentChecked);
+                                        GameObject collidedDotRay = Utilities.GetCollidedObjectByRayTarget(currentChecked, pivotReference);
+                                        if (collidedDotRay != null)
+                                        {
+                                            if (collidedDotRay.tag != TAG_PATH)
+                                            {
+                                                way.Insert(0, previousChecked);
+                                                pivotReference = Utilities.Clone(previousChecked);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 2) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                }
+                            }
 
-							curIndexBack = m_matrixAI[curIndexBack].PreviousCell;
+                            curIndexBack = m_matrixAI[curIndexBack].PreviousCell;
 
 						} while ((curIndexBack != 0) && (curIndexBack != -1));
 
 						ClearDotPaths();
 
-						// DRAW DEBUG BALLS
-						for (int o = 0; o < way.Count; o++)
-						{
-							Vector3 sway = way[o];
-							_waypoints.Add(new Vector3(sway.x, sway.y, sway.z));
-							CreateDotPath(sway, way.Count);
-						}
+                        // DRAW DEBUG BALLS
+                        for (int o = 0; o < way.Count; o++)
+                        {
+                            Vector3 sway = way[o];
+                            _waypoints.Add(new Vector3(sway.x, sway.y, sway.z));
+                            CreateDotPath(sway, way.Count);
+                        }
 
-						return 1;
+                        return 1;
 					}
 				}
 
