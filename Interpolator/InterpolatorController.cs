@@ -41,10 +41,15 @@ namespace YourCommonTools
 			}
 		}
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private List<InterpolateData> m_inteporlateObjects = new List<InterpolateData>();
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
+        public bool EnableOnUpdate = true;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        private List<InterpolateData> m_inteporlateObjects = new List<InterpolateData>();
         private List<InterpolateData> m_inteporlateQueue = new List<InterpolateData>();
 
         // -------------------------------------------
@@ -97,12 +102,12 @@ namespace YourCommonTools
             m_inteporlateQueue.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
 		}
 
-		// -------------------------------------------
-		/* 
-		 * Run logic of the interpolation
+        // -------------------------------------------
+        /* 
+		 * Logic
 		 */
-		void Update()
-		{
+        public void Logic()
+        {
             try
             {
                 for (int i = 0; i < m_inteporlateObjects.Count; i++)
@@ -141,6 +146,15 @@ namespace YourCommonTools
                 }
             }
             m_inteporlateQueue.Clear();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Run logic of the interpolation
+		 */
+        void Update()
+		{
+            if (EnableOnUpdate) Logic();
         }
 	}
 }
