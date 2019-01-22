@@ -27,7 +27,8 @@ namespace YourCommonTools
         protected float m_life;
 		protected float m_speed;
 		protected float m_yaw;
-		protected float m_directionLeft;
+        protected bool m_enableYawUpdate = true;
+        protected float m_directionLeft;
 		protected bool m_applyGravity;
         protected bool m_ignoreRigidBody = false;
 
@@ -71,19 +72,32 @@ namespace YourCommonTools
 			get { return m_yaw; }
 			set
 			{
-				m_yaw = value;
-				if (!m_ignoreRigidBody && (this.gameObject.GetComponent<Rigidbody>() != null) && (this.gameObject.GetComponent<Rigidbody>().isKinematic))
-				{
-					Quaternion deltaRotation = Quaternion.Euler(new Vector3(0, -m_yaw, 0));
-					this.gameObject.GetComponent<Rigidbody>().MoveRotation(deltaRotation);
-                }
-				else
-				{
-					this.gameObject.transform.eulerAngles = new Vector3(0f, -m_yaw, 0f);
-				}
-			}
+                SetYaw(value);
+            }
 		}
-		public float DirectionLeft
+        public void SetYaw(float _yaw, bool _force = false)
+        {
+            m_yaw = _yaw;
+            if (m_enableYawUpdate || _force)
+            {
+                if (!m_ignoreRigidBody && (this.gameObject.GetComponent<Rigidbody>() != null) && (this.gameObject.GetComponent<Rigidbody>().isKinematic))
+                {
+                    Quaternion deltaRotation = Quaternion.Euler(new Vector3(0, -m_yaw, 0));
+                    this.gameObject.GetComponent<Rigidbody>().MoveRotation(deltaRotation);
+                }
+                else
+                {
+                    this.gameObject.transform.eulerAngles = new Vector3(0f, -m_yaw, 0f);
+                }
+            }
+        }
+        public bool EnableYawUpdate
+        {
+            get { return m_enableYawUpdate; }
+            set { m_enableYawUpdate = value; }
+        }
+
+        public float DirectionLeft
 		{
 			get { return m_directionLeft; }
 			set { m_directionLeft = value; }
