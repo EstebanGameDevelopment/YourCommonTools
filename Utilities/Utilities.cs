@@ -373,11 +373,40 @@ namespace YourCommonTools
 			return null;
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 @brief We get the collided object between 2 points
+		 */
+        public static GameObject GetCollidedObjectByRayTargetIgnore(Vector3 _goalPosition, Vector3 _originPosition, params string[] _masksToIgnore)
+        {
+            Vector3 fwd = new Vector3(_goalPosition.x - _originPosition.x, _goalPosition.y - _originPosition.y, _goalPosition.z - _originPosition.z);
+            float distanceTotal = fwd.sqrMagnitude;
+            fwd.Normalize();
+            Ray ray = new Ray();
+            ray.direction = fwd;
+            RaycastHit hitCollision = new RaycastHit();
+
+            int layerMask = Physics.DefaultRaycastLayers;
+            if (_masksToIgnore != null)
+            {
+                for (int i = 0; i < _masksToIgnore.Length; i++)
+                {
+                    layerMask |= ~(1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+                }
+            }
+            if (Physics.Raycast(_originPosition, fwd, out hitCollision, Mathf.Infinity, layerMask))
+            {
+                return hitCollision.collider.gameObject;
+            }
+
+            return null;
+        }
+
+        // ---------------------------------------------------
+        /**
 		 @brief We get the collided object for a forward vector
 		 */
-		public static GameObject GetCollidedObjectByRayForward(Vector3 _origin, Vector3 _forward, params int[] _masks)
+        public static GameObject GetCollidedObjectByRayForward(Vector3 _origin, Vector3 _forward, params int[] _masks)
 		{
 			Vector3 fwd = ClonePoint(_forward);
 			fwd.Normalize();

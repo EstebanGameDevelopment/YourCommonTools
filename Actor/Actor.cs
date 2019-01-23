@@ -125,6 +125,8 @@ namespace YourCommonTools
             if (m_hasBeenDestroyed) return true;
             m_hasBeenDestroyed = true;
 
+            if (m_planeAreaVisionDetection != null) GameObject.Destroy(m_planeAreaVisionDetection);
+
             return false;
         }
 
