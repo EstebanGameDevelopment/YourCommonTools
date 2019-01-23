@@ -192,12 +192,35 @@ namespace YourCommonTools
         /**
 		 * CreateDot
 		 */
-        private void CreateDot(Vector3 _position)
+        private void CreateDot(Vector3 _position, bool _enableRenderer = true, float _scaleSize = 3)
         {
             GameObject newdot = (GameObject)Instantiate(DotReferenceWay, _position, new Quaternion());
-            float cellSize = (m_cellSize / 3);
+            if (!_enableRenderer)
+            {
+                newdot.GetComponent<Renderer>().enabled = true;
+            }
+            float cellSize = (m_cellSize / _scaleSize);
             newdot.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
             m_dotPaths.Add(newdot);
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * CheckBlockedPath
+		 */
+        public bool CheckBlockedPath(Vector3 _origin, Vector3 _target, params string[] _masksToIgnore)
+        {
+            ClearDotPaths();
+            CreateDot(_target, false, 1);
+            GameObject collidedDotRay = Utilities.GetCollidedObjectByRayTargetIgnore(_target, _origin, _masksToIgnore);
+            if (collidedDotRay != null)
+            {
+                if (collidedDotRay.tag != TAG_PATH)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // ---------------------------------------------------
@@ -466,7 +489,8 @@ namespace YourCommonTools
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
                                 bool _oneLayer,
-                                bool _raycastFilter)
+                                bool _raycastFilter,
+                                params string[] _masksToIgnore)
         {
             Vector3 origin = new Vector3();
             origin.x = (int)((_origin.x - m_xIni) / m_cellSize);
@@ -480,7 +504,7 @@ namespace YourCommonTools
 
             // Debug.LogError("GetPath::origin[" + origin.ToString() + "]::destination[" + destination.ToString() + "]");
 
-            return SearchAStar(origin, destination, _waypoints, _oneLayer, _raycastFilter);
+            return SearchAStar(origin, destination, _waypoints, _oneLayer, _raycastFilter, _masksToIgnore);
         }
 
         // ---------------------------------------------------
@@ -495,7 +519,8 @@ namespace YourCommonTools
 								Vector3 _destination,
 								List<Vector3> _waypoints,
 								bool _oneLayer,
-                                bool _raycastFilter = false)
+                                bool _raycastFilter = false,
+                                params string[] _masksToIgnore)
 		{
 			int i;
 			int j;
@@ -630,16 +655,10 @@ namespace YourCommonTools
                                     {
                                         previousChecked = Utilities.Clone(currentChecked);
                                         currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
-                                        ClearDotPaths();
-                                        CreateDot(currentChecked);
-                                        GameObject collidedDotRay = Utilities.GetCollidedObjectByRayTarget(currentChecked, pivotReference);
-                                        if (collidedDotRay != null)
+                                        if (CheckBlockedPath(currentChecked, pivotReference, _masksToIgnore))
                                         {
-                                            if (collidedDotRay.tag != TAG_PATH)
-                                            {
-                                                way.Insert(0, previousChecked);
-                                                pivotReference = Utilities.Clone(previousChecked);
-                                            }
+                                            way.Insert(0, previousChecked);
+                                            pivotReference = Utilities.Clone(previousChecked);
                                         }
                                     }
                                 }
