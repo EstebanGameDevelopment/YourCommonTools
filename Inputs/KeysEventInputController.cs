@@ -84,10 +84,15 @@ namespace YourCommonTools
 			}
 		}
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------
-		private int m_currentDirection = -1;
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------
+        public bool EnableActionButton = true;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------
+        private int m_currentDirection = -1;
 		private bool m_enableActionOnMouseDown = true;
 		private bool m_isDaydreamActivated = false;
 		private int m_temporalNumberScreensActive = 0;
@@ -268,12 +273,62 @@ namespace YourCommonTools
             return false;
         }
 
+
+        // -------------------------------------------
+        /* 
+		 * GetActionDaydreamController
+		 */
+        public bool GetStateDaydreamController()
+        {
+#if ENABLE_WORLDSENSE
+            if (m_controllerPointers == null)
+            {
+                GvrTrackedController[] gvrTrackedControllers = GameObject.FindObjectsOfType<GvrTrackedController>();
+                if (gvrTrackedControllers.Length > 0)
+                {
+                    m_controllerPointers = new List<GameObject>();
+                    foreach (GvrTrackedController trackControl in gvrTrackedControllers)
+                    {
+                        m_controllerPointers.Add(trackControl.gameObject);
+                    }
+                }
+            }
+
+            if (m_controllerPointers != null)
+            {
+                if (m_controllerPointers.Count > 0 && m_controllerPointers[0] != null)
+                {
+                    GvrTrackedController trackedController1 = m_controllerPointers[0].GetComponent<GvrTrackedController>();
+                    foreach (var hand in AllHands)
+                    {
+                        GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
+                        if (device.GetButton(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                        {
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+#endif
+            return false;
+        }
+
         // -------------------------------------------
         /* 
 		 * KeyInputPressActionButton
 		 */
         private void KeyInputPressActionButton()
 		{
+            if (!EnableActionButton) return;
+
 #if ENABLE_WORLDSENSE
             m_isDaydreamActivated = true;
 
@@ -402,6 +457,8 @@ namespace YourCommonTools
 		 */
         private void KeyInputReleasedActionButton()
         {
+            if (!EnableActionButton) return;
+
             bool hasEntered = false;
             if (m_enableActionOnMouseDown)
             {

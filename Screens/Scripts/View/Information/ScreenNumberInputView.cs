@@ -64,6 +64,12 @@ namespace YourCommonTools
             m_container.transform.Find("Button_OK").gameObject.GetComponent<Button>().onClick.AddListener(OkButton);
 
             m_codeNumber.text = "";
+
+#if ENABLE_GOOGLE_ARCORE && !UNITY_EDITOR
+            UIEventController.Instance.BlockUIEvents(100000, KeysEventInputController.ACTION_BUTTON_DOWN);
+#else
+            KeysEventInputController.Instance.EnableActionButton = false;
+#endif
         }
 
 
@@ -78,6 +84,12 @@ namespace YourCommonTools
             UIEventController.Instance.UIEvent -= OnUIEvent;
 
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+
+#if ENABLE_GOOGLE_ARCORE && !UNITY_EDITOR
+            UIEventController.Instance.BlockUIEvents(0);
+#else
+            KeysEventInputController.Instance.EnableActionButton = true;
+#endif
 
             return false;
         }
