@@ -174,15 +174,19 @@ namespace YourCommonTools
 		{
 			if (_go != null)
 			{
-				if (_go.GetComponent<Button>() != null)
-				{
-					AddButtonToList(_go);
-				}
-				foreach (Transform child in _go.transform)
-				{
-					AddAutomaticallyButtons(child.gameObject);
-				}
-			}
+                try
+                {
+                    if (_go.GetComponent<Button>() != null)
+                    {
+                        AddButtonToList(_go);
+                    }
+                }
+                catch (Exception err) { };
+                foreach (Transform child in _go.transform)
+                {
+                    AddAutomaticallyButtons(child.gameObject);
+                }
+            }
 		}
 
 		// -------------------------------------------

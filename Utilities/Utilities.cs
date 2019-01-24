@@ -925,11 +925,25 @@ namespace YourCommonTools
 			return output;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Clone
 		 */
-		public static Vector3 Clone(Vector3 _vector)
+        public static Rect Clone(Rect _rect)
+        {
+            Rect output = new Rect();
+            output.x = _rect.x;
+            output.y = _rect.y;
+            output.width = _rect.width;
+            output.height = _rect.height;
+            return output;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Clone
+		 */
+        public static Vector3 Clone(Vector3 _vector)
 		{
 			Vector3 output = new Vector3();
 			output.x = _vector.x;

@@ -50,8 +50,16 @@ namespace YourCommonTools
 			{
 				GameObject nodeImage = new GameObject();
 				nodeImage.transform.SetParent(transform, false);
-				Rect rectBase = GetComponent<RectTransform>().rect;
-				Rect mySpriteRect = new Rect(0, 0, _selectorGraphic.rect.width, _selectorGraphic.rect.height);
+				Rect rectBase = Utilities.Clone(GetComponent<RectTransform>().rect);
+                if ((rectBase.width == 0) || (rectBase.height == 0))
+                {
+                    if (GetComponent<LayoutElement>() != null)
+                    {
+                        rectBase.width = GetComponent<LayoutElement>().preferredWidth;
+                        rectBase.height = GetComponent<LayoutElement>().preferredHeight;
+                    }
+                }
+                Rect mySpriteRect = new Rect(0, 0, _selectorGraphic.rect.width, _selectorGraphic.rect.height);
 				Utilities.AddSprite(nodeImage, _selectorGraphic, mySpriteRect, rectBase, new Vector2(0.5f, 0.5f));
 				nodeImage.name = SELECTOR_COMPONENT_NAME;
 				nodeImage.transform.SetAsFirstSibling();
@@ -63,7 +71,18 @@ namespace YourCommonTools
 			if (GetComponent<Collider>() == null)
 			{
 				this.gameObject.AddComponent<BoxCollider>();
-				GetComponent<BoxCollider>().size = new Vector3(GetComponent<RectTransform>().rect.width, GetComponent<RectTransform>().rect.height, 0.1f);
+                if ((GetComponent<RectTransform>().rect.width > 0) && (GetComponent<RectTransform>().rect.height > 0))
+                {
+                    GetComponent<BoxCollider>().size = new Vector3(GetComponent<RectTransform>().rect.width, GetComponent<RectTransform>().rect.height, 0.1f);
+                }
+                else
+                {
+                    if (GetComponent<LayoutElement>()!=null)
+                    {
+                        GetComponent<BoxCollider>().size = new Vector3(GetComponent<LayoutElement>().preferredWidth, GetComponent<LayoutElement>().preferredHeight, 0.1f);
+                    }
+                }
+                
 				GetComponent<BoxCollider>().isTrigger = true;
 			}
 

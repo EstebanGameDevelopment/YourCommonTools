@@ -67,7 +67,7 @@ namespace YourCommonTools
 
 #if ENABLE_GOOGLE_ARCORE && !UNITY_EDITOR
             UIEventController.Instance.BlockUIEvents(100000, KeysEventInputController.ACTION_BUTTON_DOWN);
-#else
+#elif ENABLE_WORLDSENSE
             KeysEventInputController.Instance.EnableActionButton = false;
 #endif
         }
@@ -87,7 +87,7 @@ namespace YourCommonTools
 
 #if ENABLE_GOOGLE_ARCORE && !UNITY_EDITOR
             UIEventController.Instance.BlockUIEvents(0);
-#else
+#elif ENABLE_WORLDSENSE
             KeysEventInputController.Instance.EnableActionButton = true;
 #endif
 

@@ -55,8 +55,10 @@ namespace YourCommonTools
 		private const int AXIS_KEY_DOWN_STILL_PRESSED_CODE = 2;
 
         // Buttons that can trigger pointer switching.
+
 #if ENABLE_WORLDSENSE
         private const GvrControllerButton POINTER_ACTION_DOWN_DAYDREAMCONTROLLER = GvrControllerButton.TouchPadButton | GvrControllerButton.Trigger;
+        private const GvrControllerButton APP_BUTTON_DAYDREAMCONTROLLER = GvrControllerButton.App;
 
         private static readonly GvrControllerHand[] AllHands = { GvrControllerHand.Right, GvrControllerHand.Left };
 #endif
@@ -276,9 +278,9 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * GetActionDaydreamController
+		 * GetAppButtonDowDaydreamController
 		 */
-        public bool GetStateDaydreamController()
+        public bool GetAppButtonDowDaydreamController()
         {
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
@@ -302,16 +304,12 @@ namespace YourCommonTools
                     foreach (var hand in AllHands)
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
-                        if (device.GetButton(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                        if (device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER))
                         {
                             // Match the button to our own controllerPointers list.
                             if (device == trackedController1.ControllerInputDevice)
                             {
                                 return true;
-                            }
-                            else
-                            {
-                                return false;
                             }
                         }
                     }
@@ -466,7 +464,7 @@ namespace YourCommonTools
                 if (m_isDaydreamActivated)
                 {
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_DOWN, ACTION_BUTTON_DOWN);
+                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #endif
                 }
                 if (!hasEntered)
@@ -474,9 +472,10 @@ namespace YourCommonTools
                     bool fire1Released = false;
 
 #if ENABLE_OCULUS && !UNITY_EDITOR
+                    Debug.LogError("KeyInputPressActionButton::OCULUS BASURA");
                     if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
                     {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
+                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
                     }
 #else
                     if (m_temporalNumberScreensActive == 0)
@@ -501,6 +500,10 @@ namespace YourCommonTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * KeyInputCancelManagement
+		 */
         private void KeyInputCancelManagement()
 		{
 			// DAYDREAM CONTROLLER
