@@ -208,19 +208,9 @@ namespace YourCommonTools
         /**
 		 * CheckBlockedPath
 		 */
-        public bool CheckBlockedPath(Vector3 _origin, Vector3 _target, params string[] _masksToIgnore)
+        public bool CheckBlockedPath(Vector3 _origin, Vector3 _target, float _dotSize = 3, params string[] _masksToIgnore)
         {
-            ClearDotPaths();
-            CreateDot(_target, false, 1);
-            GameObject collidedDotRay = Utilities.GetCollidedObjectByRayTargetIgnore(_target, _origin, _masksToIgnore);
-            if (collidedDotRay != null)
-            {
-                if (collidedDotRay.tag != TAG_PATH)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return (Utilities.GetCollidedObjectBySegmentTargetIgnore(_target, _origin, _masksToIgnore));
         }
 
         // ---------------------------------------------------
@@ -504,7 +494,7 @@ namespace YourCommonTools
 
             // Debug.LogError("GetPath::origin[" + origin.ToString() + "]::destination[" + destination.ToString() + "]");
 
-            return SearchAStar(origin, destination, _waypoints, _oneLayer, _raycastFilter, _masksToIgnore);
+            return SearchAStar(origin, destination, _origin, _destination, _waypoints, _oneLayer, _raycastFilter, _masksToIgnore);
         }
 
         // ---------------------------------------------------
@@ -517,7 +507,9 @@ namespace YourCommonTools
 		*/
         public int SearchAStar(Vector3 _origin,
 								Vector3 _destination,
-								List<Vector3> _waypoints,
+                                Vector3 _realOrigin,
+                                Vector3 _realDestination,
+                                List<Vector3> _waypoints,
 								bool _oneLayer,
                                 bool _raycastFilter = false,
                                 params string[] _masksToIgnore)
@@ -629,6 +621,8 @@ namespace YourCommonTools
 							sGoalNext.y = sGoalCurrent.y;
 							sGoalNext.z = sGoalCurrent.z;
 
+                            curIndexBack = m_matrixAI[curIndexBack].PreviousCell;
+
                             // INSERT WAYPOINT
                             if (!_raycastFilter)
                             {
@@ -647,18 +641,27 @@ namespace YourCommonTools
                                 {
                                     if (pivotReference == Vector3.zero)
                                     {
-                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
+                                        // Debug.LogError("INSERT INITIAL POINT[" + sGoalNext.ToString() + "]");
+                                        currentChecked = new Vector3(_realDestination.x, (m_cellSize / 2), _realDestination.z);
                                         way.Insert(0, currentChecked);
                                         pivotReference = Utilities.Clone(currentChecked);
                                     }
                                     else
                                     {
+                                        Vector3 lastValidChecked = Utilities.Clone(previousChecked);
                                         previousChecked = Utilities.Clone(currentChecked);
                                         currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
-                                        if (CheckBlockedPath(currentChecked, pivotReference, _masksToIgnore))
+                                        if ((curIndexBack == 0) || (curIndexBack == -1))
                                         {
-                                            way.Insert(0, previousChecked);
-                                            pivotReference = Utilities.Clone(previousChecked);
+                                            currentChecked = new Vector3(_realOrigin.x, (m_cellSize / 2), _realOrigin.z);
+                                        }
+                                        if (CheckBlockedPath(currentChecked, pivotReference, 3, _masksToIgnore))
+                                        {
+                                            // Debug.LogError("INSERT["+ currentChecked.ToString() + "] BECAUSE BLOCKED PATH");
+                                            // way.Insert(0, previousChecked);
+                                            // pivotReference = Utilities.Clone(previousChecked);
+                                            way.Insert(0, lastValidChecked);
+                                            pivotReference = Utilities.Clone(previousChecked);                                            
                                         }
                                     }
                                 }
@@ -668,7 +671,7 @@ namespace YourCommonTools
                                 }
                             }
 
-                            curIndexBack = m_matrixAI[curIndexBack].PreviousCell;
+                            
 
 						} while ((curIndexBack != 0) && (curIndexBack != -1));
 

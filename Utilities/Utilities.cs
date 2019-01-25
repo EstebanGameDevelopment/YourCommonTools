@@ -303,9 +303,10 @@ namespace YourCommonTools
 			{
 				for (int i = 0; i < _masksToIgnore.Length; i++)
 				{
-					layerMask |= ~(1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+					layerMask |= (1 << LayerMask.NameToLayer(_masksToIgnore[i]));
 				}
-			}
+                layerMask = ~layerMask;
+            }
 			Physics.Raycast(_origin, fwd, out hitCollision, Mathf.Infinity, layerMask);
 			return hitCollision;
 		}
@@ -386,13 +387,14 @@ namespace YourCommonTools
             ray.direction = fwd;
             RaycastHit hitCollision = new RaycastHit();
 
-            int layerMask = Physics.DefaultRaycastLayers;
+            int layerMask = Physics.IgnoreRaycastLayer;
             if (_masksToIgnore != null)
             {
                 for (int i = 0; i < _masksToIgnore.Length; i++)
                 {
-                    layerMask |= ~(1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+                    layerMask |= (1 << LayerMask.NameToLayer(_masksToIgnore[i]));
                 }
+                layerMask = ~layerMask;
             }
             if (Physics.Raycast(_originPosition, fwd, out hitCollision, Mathf.Infinity, layerMask))
             {
@@ -400,6 +402,49 @@ namespace YourCommonTools
             }
 
             return null;
+        }
+
+
+        // ---------------------------------------------------
+        /**
+		 @brief We get the collided object between 2 points
+		 */
+        public static bool GetCollidedObjectBySegmentTargetIgnore(Vector3 _goalPosition, Vector3 _originPosition, params string[] _masksToIgnore)
+        {
+            Vector3 fwd = new Vector3(_goalPosition.x - _originPosition.x, _goalPosition.y - _originPosition.y, _goalPosition.z - _originPosition.z);
+            float distanceTotal = Vector3.Distance(_goalPosition, _originPosition);
+            fwd.Normalize();
+            Ray ray = new Ray();
+            ray.direction = fwd;
+            RaycastHit hitCollision = new RaycastHit();
+
+            int layerMask = Physics.IgnoreRaycastLayer;
+            if (_masksToIgnore != null)
+            {
+                for (int i = 0; i < _masksToIgnore.Length; i++)
+                {
+                    layerMask |= (1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+                }
+                layerMask = ~layerMask;
+            }
+            if (layerMask == 0)
+            {
+                if (Physics.Raycast(_originPosition, fwd, out hitCollision, distanceTotal))
+                {
+                    // Debug.LogError("[--NO FILTER--]::NAME["+ hitCollision.collider.gameObject.name + "]::LAYER["+ LayerMask.LayerToName(hitCollision.collider.gameObject.layer) + "]");
+                    return true;
+                }
+            }
+            else
+            {
+                if (Physics.Raycast(_originPosition, fwd, out hitCollision, distanceTotal, layerMask))
+                {
+                    // Debug.LogError("[++WITH FILTER++]::NAME[" + hitCollision.collider.gameObject.name + "]::LAYER[" + LayerMask.LayerToName(hitCollision.collider.gameObject.layer) + "]::DISTANCE CHECK["+ distanceTotal + "]");
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // ---------------------------------------------------
