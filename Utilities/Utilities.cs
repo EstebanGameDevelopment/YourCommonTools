@@ -956,11 +956,32 @@ namespace YourCommonTools
 			return false;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Clone
 		 */
-		public static Quaternion Clone(Quaternion _quaternion)
+        public static bool Clone(ref string[] _output, string[] _data)
+        {
+            if (_data != null)
+            {
+                if (_data.Length > 0)
+                {
+                    _output = new string[_data.Length];
+                    for (int i = 0; i < _data.Length; i++)
+                    {
+                        _output[i] = _data[i];
+                    }
+                    return true;
+                }
+            };
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Clone
+		 */
+        public static Quaternion Clone(Quaternion _quaternion)
 		{
 			Quaternion output = new Quaternion();
 			output.x = _quaternion.x;
