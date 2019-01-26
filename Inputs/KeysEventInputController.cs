@@ -464,7 +464,7 @@ namespace YourCommonTools
                 if (m_isDaydreamActivated)
                 {
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_UP, ACTION_BUTTON_UP);
 #endif
                 }
                 if (!hasEntered)

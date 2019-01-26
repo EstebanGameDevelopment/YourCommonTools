@@ -18,6 +18,8 @@ namespace YourCommonTools
         public bool ForceActivation = false;
 #if ENABLE_OCULUS
         public string DefaultDeviceName = OCULUS_DEVICE_NAME;
+#elif ENABLE_WORLDSENSE
+        public string DefaultDeviceName = DAYDREAM_DEVICE_NAME;
 #else
         public string DefaultDeviceName = CARDBOARD_DEVICE_NAME;
 #endif
