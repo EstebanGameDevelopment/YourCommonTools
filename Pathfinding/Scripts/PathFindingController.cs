@@ -333,7 +333,7 @@ namespace YourCommonTools
         /**
 		 * Will dynamically calculate the collisions
 		 */
-        public void CalculateCollisions(int _layerToCheck = 0)
+        public void CalculateCollisions(int _layerToCheck = 0, params string[] _layersToIgnore)
         {
             m_cells = new int[m_layers][];
             for (int z = 0; z < m_layers; z++)
@@ -354,9 +354,35 @@ namespace YourCommonTools
                 {
                     int cellContent = m_cells[_layerToCheck][(x * m_cols) + y];
                     Vector3 posAir = new Vector3((float)((x * m_cellSize)) + (m_cellSize / 2) + m_xIni, 1000, (float)((y * m_cellSize)) + (m_cellSize / 2) + m_zIni);
+                    Vector3 posAir1 = new Vector3(posAir.x - (m_cellSize / 3), posAir.y, posAir.z - (m_cellSize / 3));
+                    Vector3 posAir2 = new Vector3(posAir.x + (m_cellSize / 3), posAir.y, posAir.z - (m_cellSize / 3));
+                    Vector3 posAir3 = new Vector3(posAir.x - (m_cellSize / 3), posAir.y, posAir.z + (m_cellSize / 3));
+                    Vector3 posAir4 = new Vector3(posAir.x + (m_cellSize / 3), posAir.y, posAir.z + (m_cellSize / 3));
 
+                    
                     RaycastHit raycastHit = new RaycastHit();
-                    if (Utilities.GetCollidedInfoByRay(posAir, new Vector3(0, -1, 0), ref raycastHit))
+                    if (Utilities.GetRaycastHitInfoByRay(posAir1, new Vector3(0, -1, 0), ref raycastHit, _layersToIgnore))
+                    {
+                        if (raycastHit.collider.gameObject.tag != TAG_FLOOR)
+                        {
+                            m_cells[_layerToCheck][(x * m_cols) + y] = CELL_COLLISION;
+                        }
+                    }
+                    if (Utilities.GetRaycastHitInfoByRay(posAir2, new Vector3(0, -1, 0), ref raycastHit, _layersToIgnore))
+                    {
+                        if (raycastHit.collider.gameObject.tag != TAG_FLOOR)
+                        {
+                            m_cells[_layerToCheck][(x * m_cols) + y] = CELL_COLLISION;
+                        }
+                    }
+                    if (Utilities.GetRaycastHitInfoByRay(posAir3, new Vector3(0, -1, 0), ref raycastHit, _layersToIgnore))
+                    {
+                        if (raycastHit.collider.gameObject.tag != TAG_FLOOR)
+                        {
+                            m_cells[_layerToCheck][(x * m_cols) + y] = CELL_COLLISION;
+                        }
+                    }
+                    if (Utilities.GetRaycastHitInfoByRay(posAir4, new Vector3(0, -1, 0), ref raycastHit, _layersToIgnore))
                     {
                         if (raycastHit.collider.gameObject.tag != TAG_FLOOR)
                         {

@@ -298,8 +298,8 @@ namespace YourCommonTools
 			fwd.Normalize();
 			RaycastHit hitCollision = new RaycastHit();
 
-			int layerMask = Physics.DefaultRaycastLayers;
-			if (_masksToIgnore != null)
+			int layerMask = Physics.IgnoreRaycastLayer;
+            if (_masksToIgnore != null)
 			{
 				for (int i = 0; i < _masksToIgnore.Length; i++)
 				{
@@ -311,11 +311,36 @@ namespace YourCommonTools
 			return hitCollision;
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 @brief We get the whole RaycastHit information of the collision, with the mask to ignore
+		 */
+        public static bool GetRaycastHitInfoByRay(Vector3 _origin, Vector3 _forward, ref RaycastHit _hitCollision, params string[] _masksToIgnore)
+        {
+            Vector3 fwd = ClonePoint(_forward);
+            fwd.Normalize();            
+
+            int layerMask = Physics.IgnoreRaycastLayer;
+            if (_masksToIgnore != null)
+            {
+                for (int i = 0; i < _masksToIgnore.Length; i++)
+                {
+                    layerMask |= (1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+                }
+                layerMask = ~layerMask;
+            }
+            if (Physics.Raycast(_origin, fwd, out _hitCollision, Mathf.Infinity, layerMask))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // ---------------------------------------------------
+        /**
 		 @brief We get the whole RaycastHit information of the collision, with the mask to consider
 		 */
-		public static RaycastHit GetRaycastHitInfoByRayWithMask(Vector3 _origin, Vector3 _forward, params string[] _masksToConsider)
+        public static RaycastHit GetRaycastHitInfoByRayWithMask(Vector3 _origin, Vector3 _forward, params string[] _masksToConsider)
 		{
 			Vector3 fwd = ClonePoint(_forward);
 			fwd.Normalize();
