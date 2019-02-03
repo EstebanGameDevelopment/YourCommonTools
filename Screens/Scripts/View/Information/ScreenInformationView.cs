@@ -154,7 +154,12 @@ namespace YourCommonTools
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 
 			ChangePage(0);
-		}
+
+            if (UIEventController.Instance.ActivateAutoDestruction != -1)
+            {
+                UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP, UIEventController.Instance.ActivateAutoDestruction);
+            }
+        }
 
 		// -------------------------------------------
 		/* 

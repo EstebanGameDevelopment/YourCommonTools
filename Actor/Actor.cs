@@ -40,8 +40,8 @@ namespace YourCommonTools
 		protected Color m_c2 = Color.red;
 		protected LineRenderer m_lineRenderer;
 		protected GameObject m_planeAreaVisionDetection = null;
-		protected float m_rangeDetectionView;
-		protected float m_angleDetectionView;
+		protected float m_rangeDetectionView = -1;
+		protected float m_angleDetectionView = -1;
 
 		protected bool m_initializationCommon = false;
         private bool m_hasBeenDestroyed = false;

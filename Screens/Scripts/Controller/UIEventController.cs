@@ -93,7 +93,7 @@ namespace YourCommonTools
         // ----------------------------------------------    
         public string URLAssetBundle = "";
         public int VersionAssetBundle = -1;
-        
+        public float ActivateAutoDestruction = -1;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
