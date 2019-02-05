@@ -36,11 +36,24 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Constructor
+		 */
+        public ItemMultiObjectEntry(ItemMultiObjectEntry _item)
+        {
+            m_objects = new List<object>();
+            for (int i = 0; i < _item.Objects.Count; i++)
+            {
+                m_objects.Add(_item.Objects[i]);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * AddObject
 		 */
-		public void AddObject(object _item)
+        public void AddObject(object _item)
 		{
 			if (m_objects == null)
 			{

@@ -48,6 +48,30 @@ namespace YourCommonTools
         public const string EVENT_GOOGLEMAP_SELECTED_LOCATION = "EVENT_GOOGLEMAP_SELECTED_LOCATION";
 
         // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static GoogleMap _instance;
+
+        public static GoogleMap Instance
+        {
+            get
+            {
+                if (!_instance)
+                {
+                    _instance = GameObject.FindObjectOfType(typeof(GoogleMap)) as GoogleMap;
+                    if (!_instance)
+                    {
+                        GameObject container = new GameObject();
+                        DontDestroyOnLoad(container);
+                        container.name = "GoogleMap";
+                        _instance = container.AddComponent(typeof(GoogleMap)) as GoogleMap;
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
         public GameObject Signal;
@@ -67,24 +91,37 @@ namespace YourCommonTools
         // ----------------------------------------------	
         private bool m_calculateLocationWithGPS = true;
 		private bool m_firstTimeLoad = true;
+        private bool m_renderMap = true;
+        private bool m_isInitialized = false;
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Initialization
 		 */
-		public void Initialization(string _coordinateData)
+        public void Initialization(string _coordinateData, bool _renderMap = true)
 		{
-			BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
+            if (m_isInitialized) return;
+            m_isInitialized = true;
+
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 
             // SET INITIAL POSITION
-            if (_coordinateData.IndexOf(",") > 0)
-			{
-				string[] coordinates = _coordinateData.Split(',');
-				CenterLocation.latitude = float.Parse(coordinates[0]);
-				CenterLocation.longitude = float.Parse(coordinates[1]);
-				m_calculateLocationWithGPS = false;
-			}
+            if (_coordinateData.Length > 0)
+            {
+                if (_coordinateData.IndexOf(',') > 0)
+                {
+                    string[] coordinates = _coordinateData.Split(',');
+                    if (coordinates.Length == 2)
+                    {
+                        CenterLocation.latitude = float.Parse(coordinates[0]);
+                        CenterLocation.longitude = float.Parse(coordinates[1]);
+                        m_calculateLocationWithGPS = false;
+                    }
+                }
+            }
+
+            m_renderMap = _renderMap;
 
 #if UNITY_EDITOR
             CenterLocation.latitude = 41.4771073f;
@@ -92,6 +129,7 @@ namespace YourCommonTools
             AutoLocateCenter = false;
             Zoom = 11;
 
+            m_firstTimeLoad = false;
             BasicSystemEventController.Instance.DelayBasicSystemEvent(GoogleMap.EVENT_GOOGLEMAP_INIT_POSITION, 1f, CenterLocation.latitude, CenterLocation.longitude);
 #else
             StartCoroutine(GetPositionDevice());
@@ -211,11 +249,11 @@ namespace YourCommonTools
 			{
 				CenterLocation.latitude = (float)_list[0];
 				CenterLocation.longitude = (float)_list[1];
-				Refresh();
-				if (m_firstTimeLoad)
+                Refresh();
+                if (m_firstTimeLoad)
 				{
-					m_firstTimeLoad = false;
-					BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_GOOGLEMAP_INIT_POSITION, 0.1f, CenterLocation.latitude, CenterLocation.longitude);
+                    m_firstTimeLoad = false;
+                    BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_GOOGLEMAP_INIT_POSITION, 0.1f, CenterLocation.latitude, CenterLocation.longitude);
 				}
 			}
         }
@@ -282,19 +320,38 @@ namespace YourCommonTools
 		 */
         public void Refresh()
 		{
-			if (AutoLocateCenter && (Markers.Length == 0 && Paths.Length == 0))
-			{
-				Debug.Log("Auto Center will only work if paths or markers are used.");
-			}
-			GetComponent<Image>().color = new Color(1, 1, 1, 0);
-			StartCoroutine(RefreshingInformationWithGoogleMaps());
-		}
+            if (m_renderMap)
+            {
+                if (AutoLocateCenter && (Markers.Length == 0 && Paths.Length == 0))
+                {
+                    Debug.Log("Auto Center will only work if paths or markers are used.");
+                }
+                GetComponent<Image>().color = new Color(1, 1, 1, 0);
+                StartCoroutine(RefreshingInformationWithGoogleMaps());
+            }
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GPSToMeters
+		 */
+        public static double GPSToMeters(float _lat1, float _lon1, float _lat2, float _lon2)
+        {  
+            // generally used geo measurement function
+            double R = 6378.137f; // Radius of earth in KM
+            double dLat = _lat2 * Math.PI / 180 - _lat1 * Math.PI / 180;
+            double dLon = _lon2 * Math.PI / 180 - _lon1 * Math.PI / 180;
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) + Math.Cos(_lat1 * Math.PI / 180) * Math.Cos(_lat2 * Math.PI / 180) * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double d = R * c;
+            return d * 1000; // meters
+        }
+
+        // -------------------------------------------
+        /* 
 		 * RefreshingInformationWithGoogleMaps
 		 */
-		IEnumerator RefreshingInformationWithGoogleMaps()
+        IEnumerator RefreshingInformationWithGoogleMaps()
 		{
 			var url = "https://maps.googleapis.com/maps/api/staticmap";
 			var qs = "";
