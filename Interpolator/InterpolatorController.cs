@@ -104,6 +104,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		* Instantiate a new shoot
+		*/
+        public void Interpolate(GameObject _actor, Vector3 _goal, float _time, float _delay, bool _setTargetWhenFinished = false)
+        {
+            m_inteporlateQueue.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished, _delay));
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Logic
 		 */
         public void Logic()

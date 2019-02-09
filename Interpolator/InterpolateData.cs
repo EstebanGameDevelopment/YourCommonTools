@@ -35,6 +35,7 @@ namespace YourCommonTools
         private bool m_activated;
         private bool m_setTargetWhenFinished;
         private bool m_firstRun = true;
+        private float m_delay = 0;
 
         // -----------------------------------------
         // GETTERS/SETTERS
@@ -68,11 +69,12 @@ namespace YourCommonTools
         /* 
 		 * Constructor
 		 */
-        public InterpolateData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
+        public InterpolateData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished, float _delay = 0)
 		{
 			m_gameActor = _actor;
             m_activated = true;
             m_setTargetWhenFinished = _setTargetWhenFinished;
+            m_delay = _delay;
 
             ResetData(_origin, _goal, _totalTime, _timeDone);
 
@@ -115,6 +117,12 @@ namespace YourCommonTools
             {
                 m_firstRun = false;
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_STARTED, m_gameActor);
+            }
+
+            if (m_delay > 0)
+            {
+                m_delay -= Time.deltaTime;
+                return false;
             }
 
             m_timeDone += Time.deltaTime;
