@@ -43,8 +43,15 @@ namespace YourCommonTools
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType<IAPController>();
-				}
-				return _instance;
+                    if (!_instance)
+                    {
+                        GameObject container = new GameObject();
+                        DontDestroyOnLoad(container);
+                        container.name = "IAPController";
+                        _instance = container.AddComponent(typeof(IAPController)) as IAPController;
+                    }
+                }
+                return _instance;
 			}
 		}
 
