@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine.UI;
 using System.Security.Cryptography;
+using System.Net.NetworkInformation;
 
 namespace YourCommonTools
 {
@@ -1093,12 +1094,76 @@ namespace YourCommonTools
 			return (minutes + ":" + seconds);
 		}
 
-		
-		// -------------------------------------------
-		/* 
+
+        // -------------------------------------------
+        /* 
+		 * GetFormattedTimeSeconds
+		 */
+        public static string GetFormattedTimeDays(long _timestamp)
+        {
+            int totalSeconds = (int)_timestamp;
+            int totalMinutes = (int)Math.Floor((double)(totalSeconds / 60));
+            int totalHours = (int)Math.Floor((double)(totalMinutes / 60));
+            int totalDays = (int)Math.Floor((double)(totalHours / 24));
+            int restSeconds = (int)(totalSeconds - (totalMinutes * 60));
+            int restMinutes = (int)(totalMinutes - (totalHours * 60));
+            int restHours = (int)(totalHours - (totalDays * 24));
+
+            // SECONDS
+            String seconds;
+            if (restSeconds < 10)
+            {
+                seconds = "0" + restSeconds;
+            }
+            else
+            {
+                seconds = "" + restSeconds;
+            }
+
+            // MINUTES
+            String minutes;
+            if (restMinutes < 10)
+            {
+                minutes = "0" + restMinutes;
+            }
+            else
+            {
+                minutes = "" + restMinutes;
+            }
+
+            // HOURS
+            String hours;
+            if (restHours < 10)
+            {
+                hours = "0" + restHours;
+            }
+            else
+            {
+                hours = "" + restHours;
+            }
+
+            if (totalDays > 0)
+            {
+                return (totalDays + " DAYS AND " + hours + " HOURS");
+            }
+            else
+            {
+                if (totalHours > 0)
+                {
+                    return (hours + ":" + minutes + ":" + seconds);
+                }
+                else
+                {
+                    return (minutes + ":" + seconds);
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * LoadPNG
 		 */
-		public static Texture2D LoadPNG(string _filePath)
+        public static Texture2D LoadPNG(string _filePath)
 		{
 			Texture2D tex = null;
 			byte[] fileData;
@@ -1860,5 +1925,25 @@ namespace YourCommonTools
         }
 
 
+        // ---------------------------------------------------
+        /**
+		* GetMacAddress
+		*/
+        public static string GetMacAddress()
+        {
+            var macAdress = "";
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            var i = 0;
+            foreach (NetworkInterface adapter in nics)
+            {
+                PhysicalAddress address = adapter.GetPhysicalAddress();
+                if (address.ToString() != "")
+                {
+                    macAdress = address.ToString();
+                    return macAdress;
+                }
+            }
+            return null;
+        }
     }
 }
