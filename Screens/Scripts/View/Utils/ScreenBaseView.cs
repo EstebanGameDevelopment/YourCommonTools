@@ -49,7 +49,7 @@ namespace YourCommonTools
         private GameObject m_screen;
         protected CanvasGroup m_canvasGroup;
         protected Vector3 m_initialPosition;
-		private bool m_hasFocus = true;
+		protected bool m_hasFocus = true;
 
 		private int m_selectionButton;
 		private List<GameObject> m_selectors;
