@@ -9,14 +9,14 @@ using System.Net.NetworkInformation;
 
 namespace YourCommonTools
 {
-	/******************************************
+    /******************************************
 	 * 
 	 * Class with a collection of generic functionalities
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class Utilities
-	{
+    public static class Utilities
+    {
 		private static readonly DateTime Jan1St1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		// CONSTANTS DIRECTIONS
@@ -1654,7 +1654,7 @@ namespace YourCommonTools
 		/* 
 		 * We check the sibling visibility
 		 */
-		private bool CheckSiblingVisibility(ScrollRectVR _container, Transform _parent, int _indexSibling)
+		private static bool CheckSiblingVisibility(ScrollRectVR _container, Transform _parent, int _indexSibling)
 		{
 			if ((_indexSibling < 0) || (_indexSibling >= _parent.transform.childCount)) return false;
 
@@ -1944,6 +1944,30 @@ namespace YourCommonTools
                 }
             }
             return null;
+        }
+
+        // ---------------------------------------------------
+        /**
+        * GetRandom
+        */
+        public static T GetRandom<T>(this List<T> list)
+        {
+            if (list == null || list.Count == 0)
+                return default(T);
+
+            return list[UnityEngine.Random.Range(0, list.Count)];
+        }
+
+        // ---------------------------------------------------
+        /**
+        * GetRandom
+        */
+        public static T GetRandom<T>(this T[] list)
+        {
+            if (list == null || list.Length == 0)
+                return default(T);
+
+            return list[UnityEngine.Random.Range(0, list.Length)];
         }
     }
 }
