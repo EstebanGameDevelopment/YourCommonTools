@@ -118,7 +118,7 @@ namespace YourCommonTools
         /* 
 		 * Drone set up call
 		 */
-        public void Initialitzation(bool _autoStart = false, int _portNumberDrone = 14550, int _heightTakeOff = 10)
+        public void Initialitzation(bool _autoStart = false, int _portNumberDrone = 14550, float _heightTakeOff = 5)
         {
 #if ENABLE_DRONEANDROIDCONTROLLER
             if (m_dronekitAndroid == null)
