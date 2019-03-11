@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace YourCommonTools
 {
@@ -38,7 +40,7 @@ namespace YourCommonTools
 		private List<NodePathMatrix> m_matrixAI;
 		private List<GameObject> m_dotPaths = new List<GameObject>();
 
-        private Vector3[][] m_vectorPaths;
+        private PrecalculatedData m_vectorPaths;
 
         // ----------------------------------------------
         // SETTERS/GETTERS
@@ -139,6 +141,17 @@ namespace YourCommonTools
 				m_dotPaths.Add(newdot);
 			}
 		}
+
+        // ---------------------------------------------------
+        /**
+		 * CreateSingleDot
+		 */
+        public GameObject CreateSingleDot(Vector3 _position, float _size)
+        {
+            GameObject newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReferenceWay, _position, new Quaternion());
+            newdot.transform.localScale = new Vector3(_size, _size, _size);
+            return newdot;
+        }
 
         // ---------------------------------------------------
         /**
@@ -566,7 +579,7 @@ namespace YourCommonTools
         /**
 		* Gets the path between 2 positions
 		*/
-        public int GetPath(Vector3 _origin,
+        public Vector3 GetPath(Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
                                 bool _oneLayer,
@@ -588,14 +601,17 @@ namespace YourCommonTools
 
             int limitSearch = ((_limitSearch == -1) ? m_totalCells - 5 : _limitSearch);
 
-            Vector3 directionVector = SearchAStar(origin, destination, _origin, _destination, _waypoints, _oneLayer, limitSearch, _raycastFilter, _masksToIgnore);
-            if (directionVector == Vector3.zero)
+            if (!m_hasBeenFileLoaded)
             {
-                return -1;
+                return SearchAStar(origin, destination, _origin, _destination, _waypoints, _oneLayer, limitSearch, _raycastFilter, _masksToIgnore);
             }
             else
             {
-                return 1;
+                int cellOrigin = (int)((origin.x * m_cols) + origin.y);
+                int cellDestination = (int)((destination.x * m_cols) + destination.y);
+                if (m_vectorPaths.Data[cellOrigin] == null) return Vector3.zero;
+                if (m_vectorPaths.Data[cellOrigin][cellDestination] == null) return Vector3.zero;
+                return m_vectorPaths.Data[cellOrigin][cellDestination].GetVector3();
             }
         }
 
@@ -793,7 +809,7 @@ namespace YourCommonTools
 
                         if (way.Count > 0)
                         {
-                            return (way[0] - _origin).normalized;
+                            return way[0];
                         }
                         else
                         {
@@ -914,17 +930,64 @@ namespace YourCommonTools
         private int m_jIterator = 0;
         private bool m_iterationCompleted = true;
 
+        private string m_filenamePath = "Assets/pathfinding.dat";
+        private bool m_hasBeenFileLoaded = false;
+
+        // ---------------------------------------------------
+        /**
+		 * Save data of pathfinding
+		*/
+        private void SavePathfindingData()
+        {
+            FileStream file;
+
+            if (File.Exists(m_filenamePath)) file = File.OpenWrite(m_filenamePath);
+            else file = File.Create(m_filenamePath);
+
+            BinaryFormatter bf = new BinaryFormatter();
+            bf.Serialize(file, m_vectorPaths);
+            file.Close();
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Load data of pathfinding
+		*/
+        public void LoadFile(string _filenamePath)
+        {
+            if (m_hasBeenFileLoaded) return;
+            m_hasBeenFileLoaded = true;
+
+            FileStream file;
+
+            m_filenamePath = _filenamePath;
+
+            if (File.Exists(m_filenamePath)) file = File.OpenRead(m_filenamePath);
+            else
+            {
+                Debug.LogError("File not found");
+                return;
+            }
+
+            BinaryFormatter bf = new BinaryFormatter();
+            m_vectorPaths = (PrecalculatedData)bf.Deserialize(file);
+            // m_vectorPaths.DebugLog();
+            file.Close();
+        }
+
         // ---------------------------------------------------
         /**
 		 * Generation of a new child
 		*/
-        public void CalculateAll(bool _raycastFilter = false, params string[] _masksToIgnore)
+        public void CalculateAll(string _filenamePath, bool _raycastFilter = false, params string[] _masksToIgnore)
         {
             if (m_calculationCompleted) return;
 
+            m_filenamePath = _filenamePath;
+
             if (m_xIterator == -1)
             {
-                m_vectorPaths = new Vector3[m_rows * m_cols][];
+                m_vectorPaths = new PrecalculatedData(new CustomVector3[m_rows * m_cols][]);
             }
 
             PathFindingController.Instance.DebugPathPoints = false;
@@ -939,18 +1002,20 @@ namespace YourCommonTools
                     if (m_yIterator >= m_cols)
                     {
                         m_calculationCompleted = true;
+                        Debug.LogError("*********************** CALCULATION COMPLETED ***************************");
+                        SavePathfindingData();
                         return;
                     }
                 }
                 int originatorCell = (m_xIterator * m_cols) + m_yIterator;
-                m_vectorPaths[originatorCell] = new Vector3[m_rows * m_cols];
+                m_vectorPaths.Data[originatorCell] = new CustomVector3[m_rows * m_cols];
                 Debug.LogError("++++++++++++ NEW CALCULATION[" + originatorCell + "/" + (m_rows * m_cols) + "]");
             }
 
             int originCell = (m_xIterator * m_cols) + m_yIterator;
             if (m_cells[0][originCell] != PathFindingController.CELL_EMPTY)
             {
-                m_iterationCompleted = true;
+                m_iterationCompleted = true;             
             }
             else
             {
@@ -968,6 +1033,7 @@ namespace YourCommonTools
                     }
                 }
                 int targetCell = (m_iIterator * m_cols) + m_jIterator;
+                m_vectorPaths.Data[originCell][targetCell] = new CustomVector3();
                 // Debug.LogError("PROGRESS [" + targetCell + "/" + (m_rows * m_cols) + "]");
                 if (!((m_xIterator == m_iIterator) && (m_yIterator == m_jIterator)))
                 {
@@ -975,9 +1041,9 @@ namespace YourCommonTools
                     {
                         Vector3 origin = new Vector3(m_xIterator, m_yIterator, 0);
                         Vector3 destination = new Vector3(m_iIterator, m_jIterator, 0);
-                        int limitSearch = m_totalCells - 1;
-                        m_vectorPaths[originCell][targetCell] = SearchAStar(origin, destination, Vector3.zero, Vector3.one, null, true, limitSearch, _raycastFilter, _masksToIgnore);
-                        Debug.LogError("VALUE[" + m_vectorPaths[originCell][targetCell].ToString() + "]");
+                        int limitSearch = m_totalCells - 1;                        
+                        m_vectorPaths.Data[originCell][targetCell].SetVector3( SearchAStar(origin, destination, Vector3.zero, Vector3.one, null, true, limitSearch, _raycastFilter, _masksToIgnore));
+                        Debug.LogError("VALUE[" + m_vectorPaths.Data[originCell][targetCell].ToString() + "]");
                         // Debug.LogError("...");
                     }
                 }

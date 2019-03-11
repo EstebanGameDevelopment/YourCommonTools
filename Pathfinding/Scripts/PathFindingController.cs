@@ -68,6 +68,15 @@ namespace YourCommonTools
         // PRIVATE MEMBERS
         // ----------------------------------------------	
         private List<PathFindingInstance> m_pathfindingInstances = new List<PathFindingInstance>();
+        private bool m_isPrecalculated = false;
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
+        public bool IsPrecalculated
+        {
+            get { return m_isPrecalculated; }
+        }
 
         // ---------------------------------------------------
         /**
@@ -133,6 +142,23 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
+		 * CreateSingleDot
+		 */
+        public GameObject CreateSingleDot(Vector3 _position, float _size, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CreateSingleDot(_position, _size);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].CreateSingleDot(_position, _size);
+            }
+        }
+
+
+        // ---------------------------------------------------
+        /**
 		 * RenderDebugMatrixConstruction
 		 */
         public void RenderDebugMatrixConstruction(int _layer = -1)
@@ -164,7 +190,7 @@ namespace YourCommonTools
         /**
 		* Gets the path between 2 positions
 		*/
-        public int GetPath(Vector3 _origin,
+        public Vector3 GetPath(Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
                                 bool _oneLayer,
@@ -180,7 +206,7 @@ namespace YourCommonTools
         /**
 		* Gets the path between 2 positions
 		*/
-        public int GetPathLayer(int _layer,
+        public Vector3 GetPathLayer(int _layer,
                                 Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
@@ -214,15 +240,32 @@ namespace YourCommonTools
         /**
 		* Precalculate all the paths
 		*/
-        public void CalculateAll(int _layer = -1)
+        public void CalculateAll(string _filenamePath, int _layer = -1, bool _raycastFilter = false, params string[] _masksToIgnore)
         {
             if (_layer == -1)
             {
-                m_pathfindingInstances[m_pathfindingInstances.Count - 1].CalculateAll();
+                m_pathfindingInstances[m_pathfindingInstances.Count - 1].CalculateAll(_filenamePath, _raycastFilter, _masksToIgnore);
             }
             else
             {
-                m_pathfindingInstances[_layer].CalculateAll();
+                m_pathfindingInstances[_layer].CalculateAll(_filenamePath, _raycastFilter, _masksToIgnore);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Load data of pathfinding
+		*/
+        public void LoadFile(string _filenamePath, int _layer = -1)
+        {
+            m_isPrecalculated = true;
+            if (_layer == -1)
+            {
+                m_pathfindingInstances[m_pathfindingInstances.Count - 1].LoadFile(_filenamePath);
+            }
+            else
+            {
+                m_pathfindingInstances[_layer].LoadFile(_filenamePath);
             }
         }
     }
