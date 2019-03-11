@@ -134,7 +134,7 @@ namespace YourCommonTools
 			{
 				GameObject newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReferenceWay, _position, new Quaternion());
                 // float cellSize = (m_cellSize / 3) + (1.2f * (float)(m_dotPaths.Count + 1) / (float)_totalDots);
-                float cellSize = (m_cellSize / 3);
+                float cellSize = (m_cellSize / 2);
                 newdot.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
 				m_dotPaths.Add(newdot);
 			}
@@ -279,7 +279,8 @@ namespace YourCommonTools
                     {
                         newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReference);
                     }
-                    newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
+                    // newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
+                    newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
                     newdot.transform.position = pos;
                     m_dotPaths.Add(newdot);
                 }
@@ -379,14 +380,25 @@ namespace YourCommonTools
 			return false;
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 * Get the cell of the current position
+		 */
+        public Vector3 GetCellPositionInMatrix(float _x, float _y, float _z)
+        {
+            int x = (int)((_x - m_xIni) / m_cellSize);
+            int z = (int)((_z - m_zIni) / m_cellSize);
+            return new Vector3(x, z, 0);
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Get the content of the cell in the asked position
 		 */
-		public int GetCellContentByRealPosition(float _x, float _y, float _z)
+        public int GetCellContentByRealPosition(float _x, float _y, float _z)
 		{
-			int x = (int)(_x / m_cellSize);
-			int z = (int)(_z / m_cellSize);
+			int x = (int)((_x - m_xIni) / m_cellSize);
+			int z = (int)((_z - m_zIni) / m_cellSize);
 			return GetCellContent(x, z, 0);
 		}
 
@@ -453,6 +465,102 @@ namespace YourCommonTools
 			} while ((curIndexBack != 0) && (curIndexBack != -1));
 			return hops;
 		}
+
+        // ---------------------------------------------------
+        /**
+		* Get the closest free node to a position
+		*/
+        public Vector3 GetClosestFreeNode(Vector3 _position)
+        {
+            Vector3 basePosition = GetCellPositionInMatrix(_position.x, _position.y, _position.z);
+            if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
+            {
+                Debug.LogError("-----------THE CURRENT POSITION IS ALREADY FREE");
+                return _position;
+            }
+            else
+            {
+                m_visitedClosestFreeCells.Clear();
+                return SearchClosestFreeCell(basePosition);
+            }
+        }
+
+        private List<Vector3> m_visitedClosestFreeCells = new List<Vector3>();
+
+        // ---------------------------------------------------
+        /**
+		* Check if the cell has been already visited
+		*/
+        private bool IsInsideVisitedClosestCells(Vector3 _cellToCheck)
+        {
+            for (int i = 0; i < m_visitedClosestFreeCells.Count; i++ )
+            {
+                if (m_visitedClosestFreeCells[i].Equals(_cellToCheck))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ---------------------------------------------------
+        /**
+		* Get the closest free cell to a cell
+		*/
+        private Vector3 SearchClosestFreeCell(Vector3 _cell)
+        {
+            if (OutOfBoundaries((int)_cell.x, (int)_cell.y, 0))
+            {
+                return Vector3.zero;
+            }
+            else
+            {
+                if (GetCellContent((int)_cell.x, (int)_cell.y, 0) == PathFindingController.CELL_EMPTY)
+                {
+                    Debug.LogError("+++++++++++CLOSEST CELL TO THE CURRENT POSITION OF THE PLAYER");
+                    return new Vector3((_cell.x * m_cellSize) + m_xIni, (m_cellSize / 2), (_cell.y * m_cellSize) + m_zIni);
+                }
+                else
+                {
+                    Vector3 currentCell = new Vector3((int)_cell.x, (int)_cell.y, 0);
+                    if (IsInsideVisitedClosestCells(currentCell))
+                    {
+                        Debug.LogError("***************DUPLICATED FOUND");
+                        return Vector3.zero;
+                    }
+                    else
+                    {
+                        m_visitedClosestFreeCells.Add(currentCell);
+
+                        Vector3 cellResult1 = SearchClosestFreeCell(new Vector3(_cell.x + 1, _cell.y, 0));
+                        if (cellResult1 != Vector3.zero)
+                        {
+                            return cellResult1;
+                        }
+
+                        Vector3 cellResult2 = SearchClosestFreeCell(new Vector3(_cell.x, _cell.y + 1, 0));
+                        if (cellResult2 != Vector3.zero)
+                        {
+                            return cellResult2;
+                        }
+
+                        Vector3 cellResult3 = SearchClosestFreeCell(new Vector3(_cell.x - 1, _cell.y, 0));
+                        if (cellResult3 != Vector3.zero)
+                        {
+                            return cellResult3;
+                        }
+
+                        Vector3 cellResult4 = SearchClosestFreeCell(new Vector3(_cell.x - 1, _cell.y - 1, 0));
+                        if (cellResult4 != Vector3.zero)
+                        {
+                            return cellResult4;
+                        }
+
+                        return Vector3.zero;
+                    }
+                }
+            }
+        }
 
         // ---------------------------------------------------
         /**

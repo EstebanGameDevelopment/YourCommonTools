@@ -192,5 +192,38 @@ namespace YourCommonTools
             return m_pathfindingInstances[_layer].GetPath(_origin, _destination, _waypoints, _oneLayer, _raycastFilter, _limitSearch, _masksToIgnore);
         }
 
+
+
+        // ---------------------------------------------------
+        /**
+		* Gets the path between 2 positions
+		*/
+        public Vector3 GetClosestFreeNode(Vector3 _position, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].GetClosestFreeNode(_position);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].GetClosestFreeNode(_position);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		* Precalculate all the paths
+		*/
+        public void CalculateAll(int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                m_pathfindingInstances[m_pathfindingInstances.Count - 1].CalculateAll();
+            }
+            else
+            {
+                m_pathfindingInstances[_layer].CalculateAll();
+            }
+        }
     }
 }
