@@ -100,6 +100,54 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
+		 * Get the content of the cell in the asked position
+		 */
+        public bool CheckOutsideBoard(float _x, float _y, float _z, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CheckOutsideBoard(_x, _y, _z);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].CheckOutsideBoard(_x, _y, _z);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Get the cell of the current position
+		 */
+        public Vector3 GetCellPositionInMatrix(float _x, float _y, float _z, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].GetCellPositionInMatrix(_x, _y, _z);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].GetCellPositionInMatrix(_x, _y, _z);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Get the content of the cell in the asked position
+		 */
+        public int GetCellContentByRealPosition(float _x, float _y, float _z, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].GetCellContentByRealPosition(_x, _y, _z);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].GetCellContentByRealPosition(_x, _y, _z);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Will initialize the structure to be able to use it
 		 */
         public void AllocateMemoryMatrix(int _cols,
@@ -144,15 +192,15 @@ namespace YourCommonTools
         /**
 		 * CreateSingleDot
 		 */
-        public GameObject CreateSingleDot(Vector3 _position, float _size, int _layer = -1)
+        public GameObject CreateSingleDot(Vector3 _position, float _size, int _type, int _layer = -1)
         {
             if (_layer == -1)
             {
-                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CreateSingleDot(_position, _size);
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CreateSingleDot(_position, _size, _type);
             }
             else
             {
-                return m_pathfindingInstances[_layer].CreateSingleDot(_position, _size);
+                return m_pathfindingInstances[_layer].CreateSingleDot(_position, _size, _type);
             }
         }
 
@@ -218,7 +266,21 @@ namespace YourCommonTools
             return m_pathfindingInstances[_layer].GetPath(_origin, _destination, _waypoints, _oneLayer, _raycastFilter, _limitSearch, _masksToIgnore);
         }
 
-
+        // ---------------------------------------------------
+        /**
+		* Check if the position is a free one
+		*/
+        public Vector3 IsPositionInFreeNode(Vector3 _position, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].IsPositionInFreeNode(_position);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].IsPositionInFreeNode(_position);
+            }
+        }
 
         // ---------------------------------------------------
         /**
@@ -233,6 +295,22 @@ namespace YourCommonTools
             else
             {
                 return m_pathfindingInstances[_layer].GetClosestFreeNode(_position);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		* Gets the size of the cell
+		*/
+        public float GetCellSize(int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CellSize;
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].CellSize;
             }
         }
 

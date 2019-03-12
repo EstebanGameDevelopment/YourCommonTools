@@ -146,9 +146,25 @@ namespace YourCommonTools
         /**
 		 * CreateSingleDot
 		 */
-        public GameObject CreateSingleDot(Vector3 _position, float _size)
+        public GameObject CreateSingleDot(Vector3 _position, float _size, int _type)
         {
-            GameObject newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReferenceWay, _position, new Quaternion());
+            GameObject prefabDot = PathFindingController.Instance.DotReferenceWay;
+            switch (_type)
+            {
+                case 1:
+                    prefabDot = PathFindingController.Instance.DotReference;
+                    break;
+
+                case 2:
+                    prefabDot = PathFindingController.Instance.DotReferenceEmtpy;
+                    break;
+
+                default:
+                    prefabDot = PathFindingController.Instance.DotReferenceWay;
+                    break;
+            }
+
+            GameObject newdot = (GameObject)Instantiate(prefabDot, _position, new Quaternion());
             newdot.transform.localScale = new Vector3(_size, _size, _size);
             return newdot;
         }
@@ -481,97 +497,56 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
-		* Get the closest free node to a position
+		* Check if the position is in a free postion
 		*/
+        public Vector3 IsPositionInFreeNode(Vector3 _position)
+        {
+            Vector3 basePosition = GetCellPositionInMatrix(_position.x, _position.y, _position.z);
+            if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
+            {
+                return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + m_zIni);
+            }
+            else
+            {
+                return Vector3.down;
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+        * Get the closest free node to a position
+        */
         public Vector3 GetClosestFreeNode(Vector3 _position)
         {
             Vector3 basePosition = GetCellPositionInMatrix(_position.x, _position.y, _position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
-                Debug.LogError("-----------THE CURRENT POSITION IS ALREADY FREE");
-                return _position;
+                return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + m_zIni);
             }
             else
             {
-                m_visitedClosestFreeCells.Clear();
-                return SearchClosestFreeCell(basePosition);
-            }
-        }
-
-        private List<Vector3> m_visitedClosestFreeCells = new List<Vector3>();
-
-        // ---------------------------------------------------
-        /**
-		* Check if the cell has been already visited
-		*/
-        private bool IsInsideVisitedClosestCells(Vector3 _cellToCheck)
-        {
-            for (int i = 0; i < m_visitedClosestFreeCells.Count; i++ )
-            {
-                if (m_visitedClosestFreeCells[i].Equals(_cellToCheck))
+                Vector3 closestFreeCell = Utilities.Clone(Vector3.down);
+                float minimumDistance = 1000000f;
+                for (int i = (int)basePosition.x - 5; i < (int)basePosition.x + 5; i++)
                 {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // ---------------------------------------------------
-        /**
-		* Get the closest free cell to a cell
-		*/
-        private Vector3 SearchClosestFreeCell(Vector3 _cell)
-        {
-            if (OutOfBoundaries((int)_cell.x, (int)_cell.y, 0))
-            {
-                return Vector3.zero;
-            }
-            else
-            {
-                if (GetCellContent((int)_cell.x, (int)_cell.y, 0) == PathFindingController.CELL_EMPTY)
-                {
-                    Debug.LogError("+++++++++++CLOSEST CELL TO THE CURRENT POSITION OF THE PLAYER");
-                    return new Vector3((_cell.x * m_cellSize) + m_xIni, (m_cellSize / 2), (_cell.y * m_cellSize) + m_zIni);
-                }
-                else
-                {
-                    Vector3 currentCell = new Vector3((int)_cell.x, (int)_cell.y, 0);
-                    if (IsInsideVisitedClosestCells(currentCell))
+                    for (int j = (int)basePosition.y - 5; j < (int)basePosition.y + 5; j++)
                     {
-                        Debug.LogError("***************DUPLICATED FOUND");
-                        return Vector3.zero;
-                    }
-                    else
-                    {
-                        m_visitedClosestFreeCells.Add(currentCell);
-
-                        Vector3 cellResult1 = SearchClosestFreeCell(new Vector3(_cell.x + 1, _cell.y, 0));
-                        if (cellResult1 != Vector3.zero)
+                        if (!OutOfBoundaries(i,j,0))
                         {
-                            return cellResult1;
+                            if (GetCellContent(i, j, 0) == PathFindingController.CELL_EMPTY)
+                            {
+                                Vector3 currentPosition = new Vector3((i * m_cellSize) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + m_zIni);
+                                float currentDistance = Vector3.Distance(_position, currentPosition);
+                                if (currentDistance < minimumDistance)
+                                {
+                                    minimumDistance = currentDistance;
+                                    closestFreeCell = Utilities.Clone(currentPosition);
+                                }
+                            }
                         }
-
-                        Vector3 cellResult2 = SearchClosestFreeCell(new Vector3(_cell.x, _cell.y + 1, 0));
-                        if (cellResult2 != Vector3.zero)
-                        {
-                            return cellResult2;
-                        }
-
-                        Vector3 cellResult3 = SearchClosestFreeCell(new Vector3(_cell.x - 1, _cell.y, 0));
-                        if (cellResult3 != Vector3.zero)
-                        {
-                            return cellResult3;
-                        }
-
-                        Vector3 cellResult4 = SearchClosestFreeCell(new Vector3(_cell.x - 1, _cell.y - 1, 0));
-                        if (cellResult4 != Vector3.zero)
-                        {
-                            return cellResult4;
-                        }
-
-                        return Vector3.zero;
                     }
                 }
+                return closestFreeCell;
             }
         }
 
@@ -697,7 +672,7 @@ namespace YourCommonTools
 				{
 					if (m_matrixAI[j].HasBeenVisited == NodePathMatrix.NODE_VISITED) // CHECKED
 					{
-						if (m_matrixAI[j].ValueSearch <= minimalValue)
+						if (m_matrixAI[j].ValueSearch < minimalValue)
 						{
 							i = j;
 							minimalValue = m_matrixAI[j].ValueSearch;
@@ -747,11 +722,11 @@ namespace YourCommonTools
                             {
                                 if (_oneLayer)
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 10), (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                                 else
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 2) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 10) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                             }
                             else
@@ -761,7 +736,7 @@ namespace YourCommonTools
                                     if (pivotReference == Vector3.zero)
                                     {
                                         // Debug.LogError("INSERT INITIAL POINT[" + sGoalNext.ToString() + "]");
-                                        currentChecked = new Vector3(_realDestination.x, (m_cellSize / 2), _realDestination.z);
+                                        currentChecked = new Vector3(_realDestination.x, (m_cellSize / 10), _realDestination.z);
                                         way.Insert(0, currentChecked);
                                         pivotReference = Utilities.Clone(currentChecked);
                                     }
@@ -769,10 +744,10 @@ namespace YourCommonTools
                                     {
                                         Vector3 lastValidChecked = Utilities.Clone(previousChecked);
                                         previousChecked = Utilities.Clone(currentChecked);
-                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 2), (sGoalNext.y * m_cellSize) + m_zIni);
+                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 10), (sGoalNext.y * m_cellSize) + m_zIni);
                                         if ((curIndexBack == 0) || (curIndexBack == -1))
                                         {
-                                            currentChecked = new Vector3(_realOrigin.x, (m_cellSize / 2), _realOrigin.z);
+                                            currentChecked = new Vector3(_realOrigin.x, (m_cellSize / 10), _realOrigin.z);
                                         }
                                         if (CheckBlockedPath(currentChecked, pivotReference, 3, _masksToIgnore))
                                         {
@@ -786,7 +761,7 @@ namespace YourCommonTools
                                 }
                                 else
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 2) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 10) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                             }
 
@@ -914,9 +889,9 @@ namespace YourCommonTools
 				}
 				else
 				{
-					// m_matrixAI[m_sizeMatrix].m_value = GetDistance(posx, posy, posz, x_des, y_des, z_des);
-					m_matrixAI[m_sizeMatrix].ValueSearch = (float)GetHops(_index); // hops
-				}
+                    // m_matrixAI[m_sizeMatrix].ValueSearch = GetDistance(posx, posy, posz, _xDestination, _yDestination, _zDestination);
+                    m_matrixAI[m_sizeMatrix].ValueSearch = (float)GetHops(_index); // hops
+                }
 				m_matrixAI[m_sizeMatrix].PreviousCell = _index;
 				m_numCellsGenerated++;
 			}
@@ -1043,7 +1018,7 @@ namespace YourCommonTools
                         Vector3 destination = new Vector3(m_iIterator, m_jIterator, 0);
                         int limitSearch = m_totalCells - 1;                        
                         m_vectorPaths.Data[originCell][targetCell].SetVector3( SearchAStar(origin, destination, Vector3.zero, Vector3.one, null, true, limitSearch, _raycastFilter, _masksToIgnore));
-                        Debug.LogError("VALUE[" + m_vectorPaths.Data[originCell][targetCell].ToString() + "]");
+                        // Debug.LogError("VALUE[" + m_vectorPaths.Data[originCell][targetCell].ToString() + "]");
                         // Debug.LogError("...");
                     }
                 }
