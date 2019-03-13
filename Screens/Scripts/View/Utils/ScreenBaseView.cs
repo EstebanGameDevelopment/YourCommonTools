@@ -103,7 +103,10 @@ namespace YourCommonTools
             get { return m_blocksInteraction; }
             set { m_blocksInteraction = value; }
         }
-        
+        public virtual bool MustBeDestroyed
+        {
+            get { return true; }
+        }
 
         // -------------------------------------------
         /* 

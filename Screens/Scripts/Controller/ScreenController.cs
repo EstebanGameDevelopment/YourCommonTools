@@ -458,6 +458,7 @@ namespace YourCommonTools
 		{
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
+                List<GameObject> listNotToDestroy = new List<GameObject>();
                 while (screenPool.Value.Count > 0)
                 {
                     GameObject screen = screenPool.Value[0];
@@ -465,7 +466,14 @@ namespace YourCommonTools
                     {
                         if (screen.GetComponent<IBasicView>() != null)
                         {
-                            screen.GetComponent<IBasicView>().Destroy();
+                            if (screen.GetComponent<IBasicView>().MustBeDestroyed)
+                            {
+                                screen.GetComponent<IBasicView>().Destroy();
+                            }
+                            else
+                            {
+                                listNotToDestroy.Add(screen);
+                            }                            
                         }
                         if (screen != null)
                         {
@@ -475,6 +483,14 @@ namespace YourCommonTools
                     }
                 }
                 screenPool.Value.Clear();
+                if (listNotToDestroy.Count > 0)
+                {
+                    for (int i = 0; i < listNotToDestroy.Count; i++)
+                    {
+                        screenPool.Value.Add(listNotToDestroy[i]);
+                    }
+                    listNotToDestroy.Clear();
+                }
             }
             if (DebugMode)
             {

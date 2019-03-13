@@ -16,6 +16,7 @@
 		string NameOfScreen { get; set; }
         int Layer { get; set; }
         bool IsMarkedToBeDestroyed { get; set; }
+        bool MustBeDestroyed { get; }
 
         // FUNCTIONS
         void Initialize(params object[] _list);

@@ -99,6 +99,14 @@ namespace YourCommonTools
             }
         }
 
+        public bool MustBeDestroyed
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         // -------------------------------------------
         /* 
 		 * Initialitzation of all the references to the graphic resources
