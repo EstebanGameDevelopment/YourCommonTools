@@ -501,7 +501,8 @@ namespace YourCommonTools
 		*/
         public Vector3 IsPositionInFreeNode(Vector3 _position)
         {
-            Vector3 basePosition = GetCellPositionInMatrix(_position.x, _position.y, _position.z);
+            Vector3 position = new Vector3(_position.x, (m_cellSize / 10), _position.z);
+            Vector3 basePosition = GetCellPositionInMatrix(position.x, position.y, position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
                 return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + m_zIni);
@@ -518,10 +519,11 @@ namespace YourCommonTools
         */
         public Vector3 GetClosestFreeNode(Vector3 _position)
         {
-            Vector3 basePosition = GetCellPositionInMatrix(_position.x, _position.y, _position.z);
+            Vector3 position = new Vector3(_position.x, (m_cellSize / 10), _position.z);
+            Vector3 basePosition = GetCellPositionInMatrix(position.x, position.y, position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
-                return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + m_zIni);
+                return new Vector3((basePosition.x * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + (m_cellSize / 2) + m_zIni);
             }
             else
             {
@@ -535,8 +537,8 @@ namespace YourCommonTools
                         {
                             if (GetCellContent(i, j, 0) == PathFindingController.CELL_EMPTY)
                             {
-                                Vector3 currentPosition = new Vector3((i * m_cellSize) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + m_zIni);
-                                float currentDistance = Vector3.Distance(_position, currentPosition);
+                                Vector3 currentPosition = new Vector3((i * m_cellSize) + (m_cellSize/2) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + (m_cellSize / 2) + m_zIni);
+                                float currentDistance = Vector3.Distance(position, currentPosition);
                                 if (currentDistance < minimumDistance)
                                 {
                                     minimumDistance = currentDistance;
