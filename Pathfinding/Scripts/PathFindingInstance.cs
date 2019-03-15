@@ -308,8 +308,8 @@ namespace YourCommonTools
                     {
                         newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReference);
                     }
-                    // newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
-                    newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
+                    newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
+                    // newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
                     newdot.transform.position = pos;
                     m_dotPaths.Add(newdot);
                 }
@@ -523,7 +523,7 @@ namespace YourCommonTools
             Vector3 basePosition = GetCellPositionInMatrix(position.x, position.y, position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
-                return new Vector3((basePosition.x * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + (m_cellSize / 2) + m_zIni);
+                return new Vector3((basePosition.x * m_cellSize) + (m_cellSize/2) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + (m_cellSize / 2) + m_zIni);
             }
             else
             {
@@ -537,7 +537,7 @@ namespace YourCommonTools
                         {
                             if (GetCellContent(i, j, 0) == PathFindingController.CELL_EMPTY)
                             {
-                                Vector3 currentPosition = new Vector3((i * m_cellSize) + (m_cellSize/2) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + (m_cellSize / 2) + m_zIni);
+                                Vector3 currentPosition = new Vector3((i * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + (m_cellSize / 2) + m_zIni);
                                 float currentDistance = Vector3.Distance(position, currentPosition);
                                 if (currentDistance < minimumDistance)
                                 {
@@ -950,6 +950,20 @@ namespace YourCommonTools
             m_vectorPaths = (PrecalculatedData)bf.Deserialize(file);
             // m_vectorPaths.DebugLog();
             file.Close();
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Load data of pathfinding
+		*/
+        public void LoadAsset(TextAsset _fileAsset)
+        {
+            if (m_hasBeenFileLoaded) return;
+            m_hasBeenFileLoaded = true;
+
+            Stream stream = new MemoryStream(_fileAsset.bytes);
+            BinaryFormatter formatter = new BinaryFormatter();
+            m_vectorPaths = formatter.Deserialize(stream) as PrecalculatedData;
         }
 
         // ---------------------------------------------------

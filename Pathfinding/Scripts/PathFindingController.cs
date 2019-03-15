@@ -346,5 +346,22 @@ namespace YourCommonTools
                 m_pathfindingInstances[_layer].LoadFile(_filenamePath);
             }
         }
+
+        // ---------------------------------------------------
+        /**
+		 * Load data of pathfinding
+		*/
+        public void LoadAsset(TextAsset _textAsset, int _layer = -1)
+        {
+            m_isPrecalculated = true;
+            if (_layer == -1)
+            {
+                m_pathfindingInstances[m_pathfindingInstances.Count - 1].LoadAsset(_textAsset);
+            }
+            else
+            {
+                m_pathfindingInstances[_layer].LoadAsset(_textAsset);
+            }
+        }
     }
 }

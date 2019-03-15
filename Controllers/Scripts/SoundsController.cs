@@ -341,6 +341,9 @@ namespace YourCommonTools
 		 */
         public void Play3DSound(AudioClip _audioClip, Vector3 _position, float _volume, GameObject _objectSound = null, bool _loop = false)
         {
+            if (!m_enableFX) return;
+            if (!m_enabled) return;
+
             AudioSource audioSource;
             GameObject soundGameObject = null;
             if (_objectSound == null)
