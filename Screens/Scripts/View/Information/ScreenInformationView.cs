@@ -34,6 +34,9 @@ namespace YourCommonTools
         public const string EVENT_SCREEN_FADE_BACKGROUND            = "EVENT_SCREEN_FADE_BACKGROUND";
         public const string EVENT_SCREEN_RESET_ANIMATION_PARAMS     = "EVENT_SCREEN_RESET_ANIMATION_PARAMS";
 
+        public const string EVENT_SCREEN_INFORMATION_DISPLAYED = "EVENT_SCREEN_INFORMATION_DISPLAYED";
+        public const string EVENT_SCREEN_INFORMATION_CLOSED = "EVENT_SCREEN_INFORMATION_CLOSED";
+
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
@@ -159,6 +162,7 @@ namespace YourCommonTools
             {
                 UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP, UIEventController.Instance.ActivateAutoDestruction);
             }
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_DISPLAYED);
         }
 
 		// -------------------------------------------
@@ -193,6 +197,7 @@ namespace YourCommonTools
             UIEventController.Instance.UIEvent -= OnUIEvent;
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
 
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_CLOSED);
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 
             return false;
