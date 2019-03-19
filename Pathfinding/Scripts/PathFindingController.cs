@@ -77,12 +77,6 @@ namespace YourCommonTools
         {
             get { return m_isPrecalculated; }
         }
-        public float WaypointHeight
-        {
-            get { return m_waypointHeight; }
-            set { m_waypointHeight = value; }
-        }
-
 
         // ---------------------------------------------------
         /**
