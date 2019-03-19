@@ -77,6 +77,12 @@ namespace YourCommonTools
         {
             get { return m_isPrecalculated; }
         }
+        public float WaypointHeight
+        {
+            get { return m_waypointHeight; }
+            set { m_waypointHeight = value; }
+        }
+
 
         // ---------------------------------------------------
         /**
@@ -100,6 +106,22 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
+		 * Set the height of the waypoints
+		 */
+        public void SetWaypointHeight(float _waypointHeight, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                m_pathfindingInstances[m_pathfindingInstances.Count - 1].WaypointHeight = _waypointHeight;
+            }
+            else
+            {
+                m_pathfindingInstances[_layer].WaypointHeight = _waypointHeight;
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Get the content of the cell in the asked position
 		 */
         public bool CheckOutsideBoard(float _x, float _y, float _z, int _layer = -1)
@@ -112,7 +134,7 @@ namespace YourCommonTools
             {
                 return m_pathfindingInstances[_layer].CheckOutsideBoard(_x, _y, _z);
             }
-        }
+        }        
 
         // ---------------------------------------------------
         /**
