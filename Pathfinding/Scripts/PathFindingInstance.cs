@@ -29,8 +29,9 @@ namespace YourCommonTools
 		private float m_xIni;                   //! Initial shift X
 		private float m_yIni;                   //! Initial shift Y
 		private float m_zIni;                   //! Initial shift Z
+        private float m_waypointHeight = 2;
 
-		private int m_sizeMatrix;
+        private int m_sizeMatrix;
 		private int m_numCellsGenerated;
 
 		private int[] m_floor;
@@ -85,13 +86,18 @@ namespace YourCommonTools
 			get { return m_zIni; }
 			set { m_zIni = value; }
 		}
+        public float WaypointHeight
+        {
+            get { return m_waypointHeight; }
+            set { m_waypointHeight = value; }
+        }
 
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
 		 * Constructor of cPathFinding
 		 */
-		public void Initialize()
+        public void Initialize()
 		{
 		}
 
@@ -501,11 +507,11 @@ namespace YourCommonTools
 		*/
         public Vector3 IsPositionInFreeNode(Vector3 _position)
         {
-            Vector3 position = new Vector3(_position.x, (m_cellSize / 10), _position.z);
+            Vector3 position = new Vector3(_position.x, (m_cellSize / m_waypointHeight), _position.z);
             Vector3 basePosition = GetCellPositionInMatrix(position.x, position.y, position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
-                return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + m_zIni);
+                return new Vector3((basePosition.x * m_cellSize) + m_xIni, (m_cellSize / m_waypointHeight), (basePosition.y * m_cellSize) + m_zIni);
             }
             else
             {
@@ -519,11 +525,11 @@ namespace YourCommonTools
         */
         public Vector3 GetClosestFreeNode(Vector3 _position)
         {
-            Vector3 position = new Vector3(_position.x, (m_cellSize / 10), _position.z);
+            Vector3 position = new Vector3(_position.x, (m_cellSize / m_waypointHeight), _position.z);
             Vector3 basePosition = GetCellPositionInMatrix(position.x, position.y, position.z);
             if (GetCellContent((int)basePosition.x, (int)basePosition.y, 0) == PathFindingController.CELL_EMPTY)
             {
-                return new Vector3((basePosition.x * m_cellSize) + (m_cellSize/2) + m_xIni, (m_cellSize / 10), (basePosition.y * m_cellSize) + (m_cellSize / 2) + m_zIni);
+                return new Vector3((basePosition.x * m_cellSize) + (m_cellSize/2) + m_xIni, (m_cellSize / m_waypointHeight), (basePosition.y * m_cellSize) + (m_cellSize / 2) + m_zIni);
             }
             else
             {
@@ -537,7 +543,7 @@ namespace YourCommonTools
                         {
                             if (GetCellContent(i, j, 0) == PathFindingController.CELL_EMPTY)
                             {
-                                Vector3 currentPosition = new Vector3((i * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / 10), (j * m_cellSize) + (m_cellSize / 2) + m_zIni);
+                                Vector3 currentPosition = new Vector3((i * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / m_waypointHeight), (j * m_cellSize) + (m_cellSize / 2) + m_zIni);
                                 float currentDistance = Vector3.Distance(position, currentPosition);
                                 if (currentDistance < minimumDistance)
                                 {
@@ -724,11 +730,11 @@ namespace YourCommonTools
                             {
                                 if (_oneLayer)
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 10), (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / m_waypointHeight), (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                                 else
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 10) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / m_waypointHeight) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                             }
                             else
@@ -738,7 +744,7 @@ namespace YourCommonTools
                                     if (pivotReference == Vector3.zero)
                                     {
                                         // Debug.LogError("INSERT INITIAL POINT[" + sGoalNext.ToString() + "]");
-                                        currentChecked = new Vector3(_realDestination.x, (m_cellSize / 10), _realDestination.z);
+                                        currentChecked = new Vector3(_realDestination.x, (m_cellSize / m_waypointHeight), _realDestination.z);
                                         way.Insert(0, currentChecked);
                                         pivotReference = Utilities.Clone(currentChecked);
                                     }
@@ -746,10 +752,10 @@ namespace YourCommonTools
                                     {
                                         Vector3 lastValidChecked = Utilities.Clone(previousChecked);
                                         previousChecked = Utilities.Clone(currentChecked);
-                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / 10), (sGoalNext.y * m_cellSize) + m_zIni);
+                                        currentChecked = new Vector3((sGoalNext.x * m_cellSize) + m_xIni, (m_cellSize / m_waypointHeight), (sGoalNext.y * m_cellSize) + m_zIni);
                                         if ((curIndexBack == 0) || (curIndexBack == -1))
                                         {
-                                            currentChecked = new Vector3(_realOrigin.x, (m_cellSize / 10), _realOrigin.z);
+                                            currentChecked = new Vector3(_realOrigin.x, (m_cellSize / m_waypointHeight), _realOrigin.z);
                                         }
                                         if (CheckBlockedPath(currentChecked, pivotReference, 3, _masksToIgnore))
                                         {
@@ -763,7 +769,7 @@ namespace YourCommonTools
                                 }
                                 else
                                 {
-                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / 10) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
+                                    way.Insert(0, new Vector3((sGoalNext.x * m_cellSize) + m_xIni, sGoalNext.z - (m_cellSize / m_waypointHeight) + m_yIni, (sGoalNext.y * m_cellSize) + m_zIni));
                                 }
                             }
 
