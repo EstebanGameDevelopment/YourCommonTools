@@ -41,10 +41,15 @@ namespace YourCommonTools
 		 */
         void Start()
         {
+#if UNITY_EDITOR
             if (CameraLocal == null)
             {
-                CameraLocal = GameObject.FindObjectOfType<Camera>().transform;
+                if (GameObject.FindObjectOfType<Camera>() != null)
+                {
+                    CameraLocal = GameObject.FindObjectOfType<Camera>().transform;
+                }                
             }
+#endif
         }
 
         // -------------------------------------------
