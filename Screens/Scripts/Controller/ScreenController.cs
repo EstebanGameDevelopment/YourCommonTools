@@ -825,10 +825,13 @@ namespace YourCommonTools
                 m_enableScreens = true;
                 GameObject screen = (GameObject)_list[0];
                 DestroyGameObjectSingleScreen(screen, true);
-                if (((screen.GetComponent<ScreenBaseView>().Layer == 0) || (screen.GetComponent<ScreenBaseView>().Layer == -1)) 
-                    && (screen.GetComponent<ScreenInformationView>() == null))
+                if (screen.GetComponent<ScreenBaseView>() != null)
                 {
-                    EnableScreens(0, true);
+                    if (((screen.GetComponent<ScreenBaseView>().Layer == 0) || (screen.GetComponent<ScreenBaseView>().Layer == -1))
+                        && (screen.GetComponent<ScreenInformationView>() == null))
+                    {
+                        EnableScreens(0, true);
+                    }
                 }
                 if (DebugMode)
                 {
