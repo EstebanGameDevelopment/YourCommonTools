@@ -145,6 +145,9 @@ namespace YourCommonTools
 		 */
         public GameObject CreateGameObject(string _name)
         {
+#if UNITY_EDITOR
+            Debug.LogError("AssetbundleController::CreateGameObject::_name=" + _name);
+#endif
             if (!m_loadedObjects.ContainsKey(_name))
             {
                 m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
