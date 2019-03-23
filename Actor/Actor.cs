@@ -46,6 +46,12 @@ namespace YourCommonTools
 		protected bool m_initializationCommon = false;
         private bool m_hasBeenDestroyed = false;
 
+        protected Vector3 m_positionPlayer;
+        protected Vector3 m_forwardPlayer;
+        protected GameObject m_emptyReferencePosition;
+        protected GameObject m_emptyReferenceForward;
+        protected float m_timeForward = 0;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------
@@ -107,6 +113,23 @@ namespace YourCommonTools
 			get { return m_applyGravity; }
 			set { m_applyGravity = value; }
 		}
+        public Vector3 RealPosition
+        {
+            get { return m_emptyReferencePosition.transform.position; }
+        }
+        public Vector3 RealForward
+        {
+            get { return m_emptyReferenceForward.transform.position; }
+        }
+        public Vector3 ForwardPlayer
+        {
+            set { m_forwardPlayer = value; }
+        }
+        public Vector3 PositionPlayer
+        {
+            set { m_positionPlayer = value; }
+        }
+        
 
         // -------------------------------------------
         /* 
