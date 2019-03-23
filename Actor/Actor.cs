@@ -52,6 +52,12 @@ namespace YourCommonTools
         protected GameObject m_emptyReferenceForward;
         protected float m_timeForward = 0;
 
+        protected GameObject m_shotgunPlayer;
+        protected GameObject m_emptyShotgunPosition;
+        protected GameObject m_emptyShotgunForward;
+        protected Vector3 m_positionShotgun;
+        protected Vector3 m_forwardShotgun;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------
@@ -499,5 +505,58 @@ namespace YourCommonTools
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Init(areaDetection.ToArray(), _material);
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
+
+        // -------------------------------------------
+        /* 
+		 * AnimationCameraPlayerForDirector		
+		 */
+        protected void AnimationCameraPlayerForDirector(Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
+        {
+            if (m_emptyReferencePosition == null)
+            {
+                m_emptyReferencePosition = new GameObject();
+            }
+            m_emptyReferencePosition.transform.position = Utilities.Clone(m_positionPlayer);
+            InterpolatorController.Instance.Interpolate(m_emptyReferencePosition, _nextPosition, _timeToUpdateAnimation);
+            m_positionPlayer = Utilities.Clone(_nextPosition);
+
+            if (m_emptyReferenceForward == null)
+            {
+                m_emptyReferenceForward = new GameObject();
+            }
+            m_emptyReferenceForward.transform.position = Utilities.Clone(m_forwardPlayer);
+            InterpolatorController.Instance.Interpolate(m_emptyReferenceForward, _nextForward, _timeToUpdateAnimation);
+            m_forwardPlayer = Utilities.Clone(_nextForward);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AnimationCameraPlayerForDirector		
+		 */
+        protected void AnimationShotgunForEveryone(GameObject _prefabShotgun, Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
+        {
+            if (m_shotgunPlayer == null)
+            {
+                m_shotgunPlayer = Instantiate(_prefabShotgun);
+                m_positionShotgun = Utilities.Clone(_nextPosition);
+                m_forwardShotgun = Utilities.Clone(_nextForward);
+                m_shotgunPlayer.transform.position = m_positionShotgun;
+                m_shotgunPlayer.transform.forward = m_forwardShotgun;
+            }
+            if (m_emptyShotgunPosition == null)
+            {
+                m_emptyShotgunPosition = new GameObject();
+            }
+            m_emptyShotgunPosition.transform.position = Utilities.Clone(m_positionShotgun);
+            InterpolatorController.Instance.Interpolate(m_emptyShotgunPosition, _nextPosition, _timeToUpdateAnimation);
+            m_positionShotgun = Utilities.Clone(_nextPosition);
+            if (m_emptyShotgunForward == null)
+            {
+                m_emptyShotgunForward = new GameObject();
+            }
+            m_emptyShotgunForward.transform.position = Utilities.Clone(m_forwardShotgun);
+            InterpolatorController.Instance.Interpolate(m_emptyShotgunForward, _nextForward, _timeToUpdateAnimation);
+            m_forwardShotgun = Utilities.Clone(_nextForward);
+        }
     }
 }
