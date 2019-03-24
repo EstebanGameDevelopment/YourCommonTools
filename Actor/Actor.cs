@@ -121,11 +121,31 @@ namespace YourCommonTools
 		}
         public Vector3 RealPosition
         {
-            get { return m_emptyReferencePosition.transform.position; }
+            get
+            {
+                if (m_emptyReferencePosition != null)
+                {
+                    return m_emptyReferencePosition.transform.position;
+                }
+                else
+                {
+                    return Vector3.zero;
+                }
+            }
         }
         public Vector3 RealForward
         {
-            get { return m_emptyReferenceForward.transform.position; }
+            get
+            {
+                if (m_emptyReferenceForward != null)
+                {
+                    return m_emptyReferenceForward.transform.position;
+                }
+                else
+                {
+                    return Vector3.zero;
+                }
+            }
         }
         public Vector3 ForwardPlayer
         {
