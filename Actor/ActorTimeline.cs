@@ -181,15 +181,36 @@ namespace YourCommonTools
         }
         public NetworkID NetworkID
         {
-            get { return this.gameObject.GetComponent<ActorNetwork>().NetworkID; }
+            get {
+                if (this.gameObject.GetComponent<ActorNetwork>() != null)
+                {
+                    return this.gameObject.GetComponent<ActorNetwork>().NetworkID;
+                }
+                else
+                {
+                    return null;
+                }                    
+            }
         }
         public string EventNameObjectCreated
         {
-            set { this.gameObject.GetComponent<ActorNetwork>().EventNameObjectCreated = value; }
+            set {
+                if (this.gameObject.GetComponent<ActorNetwork>() != null)
+                {
+                    this.gameObject.GetComponent<ActorNetwork>().EventNameObjectCreated = value;
+                }                
+            }
         }
         public bool IsMine()
         {
-            return this.gameObject.GetComponent<ActorNetwork>().IsMine();
+            if (this.gameObject.GetComponent<ActorNetwork>() == null)
+            {
+                return true;
+            }
+            else
+            {
+                return this.gameObject.GetComponent<ActorNetwork>().IsMine();
+            }            
         }
         public virtual bool EnableBackgroundVR
         {
@@ -450,14 +471,14 @@ namespace YourCommonTools
                 GameObject newPlayer = ((GameObject)_list[0]);
                 if (newPlayer != this.gameObject)
                 {
-                    NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                    if (NetworkID!=null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
                 }
             }
             if ((_nameEvent == EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME) || (_nameEvent == EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME))
             {
                 if (!DirectorMode)
                 {
-                    NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
+                    if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(NetworkEventController.EVENT_WORLDOBJECTCONTROLLER_INITIAL_DATA, NetworkID.GetID(), m_initialData);
                 }
             }
             if (_nameEvent == EVENT_GAMECHARACTER_NEW_ANIMATION)
@@ -466,9 +487,12 @@ namespace YourCommonTools
                 {
                     if (GetModel() == null) return;
 
-                    if ((NetworkID.NetID == int.Parse((string)_list[0])) && (NetworkID.UID == int.Parse((string)_list[1])))
+                    if (NetworkID != null)
                     {
-                        base.ChangeAnimation(int.Parse((string)_list[2]), bool.Parse((string)_list[3]));
+                        if ((NetworkID.NetID == int.Parse((string)_list[0])) && (NetworkID.UID == int.Parse((string)_list[1])))
+                        {
+                            base.ChangeAnimation(int.Parse((string)_list[2]), bool.Parse((string)_list[3]));
+                        }
                     }
                 }
             }
@@ -619,7 +643,7 @@ namespace YourCommonTools
             {
                 if (m_animation != _animation)
                 {
-                    NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GAMECHARACTER_NEW_ANIMATION, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), _animation.ToString(), _isLoop.ToString());
+                    if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GAMECHARACTER_NEW_ANIMATION, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), _animation.ToString(), _isLoop.ToString());
                 }
                 base.ChangeAnimation(_animation, _isLoop);
             }
