@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Experimental.UIElements;
+using UnityEngine.UI;
 
 namespace YourCommonTools
 {
@@ -19,6 +19,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------	
+        public const string EVENT_SCREENBASE_OPENED = "EVENT_SCREENBASE_OPENED";
         public const string EVENT_SCREENBASE_ANIMATION_SHOW = "EVENT_SCREENBASE_ANIMATION_SHOW";
         public const string EVENT_SCREENBASE_ANIMATION_HIDE = "EVENT_SCREENBASE_ANIMATION_HIDE";
         public const string EVENT_SCREENBASE_FORCE_HIDE     = "EVENT_SCREENBASE_FORCE_HIDE";
@@ -47,6 +48,7 @@ namespace YourCommonTools
 		protected string m_nameOfScreen;
         protected int m_layer = -1;
         private GameObject m_screen;
+        protected Transform m_containerBase;
         protected CanvasGroup m_canvasGroup;
         protected Vector3 m_initialPosition;
 		protected bool m_hasFocus = true;
@@ -119,6 +121,7 @@ namespace YourCommonTools
 			m_screen = this.gameObject;
 			if (m_screen.transform.Find(CONTENT_COMPONENT_NAME) != null)
 			{
+                m_containerBase = m_screen.transform.Find(CONTENT_COMPONENT_NAME);
                 m_canvasGroup = m_screen.transform.Find(CONTENT_COMPONENT_NAME).GetComponent<CanvasGroup>();
                 if (m_canvasGroup != null)
 				{
@@ -127,15 +130,17 @@ namespace YourCommonTools
                 }
 			}
 
-			// AddAutomaticallyButtons(m_screen);
-		}
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_OPENED, this.gameObject);
 
-		// -------------------------------------------
-		/* 
+            // AddAutomaticallyButtons(m_screen);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * This functions needs to be overridden in certain classes in order 
 		 * to discard/listen events or reload data
 		 */
-		public virtual void SetActivation(bool _activation)
+        public virtual void SetActivation(bool _activation)
 		{
 			m_hasFocus = _activation;
 			this.gameObject.SetActive(_activation);
@@ -533,7 +538,19 @@ namespace YourCommonTools
             if (_nameEvent == EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS)
             {
                 m_paramsAnimation = null;
-            }            
+            }
+
+            if (_nameEvent == ScreenController.EVENT_SCREENCONTROLLER_REPLACE_LOGO)
+            {
+                if (m_containerBase != null)
+                {
+                    Transform logo = m_containerBase.Find("Logo");
+                    if (logo != null)
+                    {
+                        logo.GetComponent<Image>().sprite = (Sprite)_list[0];
+                    }
+                }
+            }
 
             if (!this.gameObject.activeSelf) return;
 			if (m_selectors == null) return;

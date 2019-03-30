@@ -39,6 +39,8 @@ namespace YourCommonTools
         public const string EVENT_APP_LOST_FOCUS = "EVENT_APP_LOST_FOCUS";
         public const string EVENT_APP_PAUSED = "EVENT_APP_PAUSED";
 
+        public const string EVENT_SCREENCONTROLLER_REPLACE_LOGO = "EVENT_SCREENCONTROLLER_REPLACE_LOGO";
+
         public const int TOTAL_LAYERS_SCREENS = 10;
 
         public const int ANIMATION_MOVEMENT = 0;

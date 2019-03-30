@@ -45,7 +45,7 @@ namespace YourCommonTools
                 if (m_container.Find("Text") != null) m_container.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading");
                 if (m_container.Find("Info") != null) m_container.Find("Info").GetComponent<Text>().text = "";
 
-                UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+                UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
                 if ((UIEventController.Instance.URLAssetBundle.Length > 0) && (UIEventController.Instance.VersionAssetBundle != -1))
                 {
                     m_enabledAssetBundle = true;
@@ -69,7 +69,7 @@ namespace YourCommonTools
 		{
 			if (base.Destroy()) return true;
 
-			UIEventController.Instance.UIEvent -= OnUIEvent;
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
             if (m_enabledAssetBundle) AssetbundleController.Instance.AssetBundleEvent -= OnAssetBundleEvent;
             if ((this != null) && (this.gameObject != null))
 			{
@@ -116,9 +116,11 @@ namespace YourCommonTools
         /* 
 		 * OnUIEvent
 		 */
-        private void OnUIEvent(string _nameEvent, params object[] _list)
-		{
-			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
+        protected override void OnMenuEvent(string _nameEvent, params object[] _list)
+        {
+            base.OnMenuEvent(_nameEvent, _list);
+
+            if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
 			{
 				Destroy();
 			}
