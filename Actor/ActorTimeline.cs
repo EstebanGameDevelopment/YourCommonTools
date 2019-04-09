@@ -45,6 +45,9 @@ namespace YourCommonTools
         public const string EVENT_GAMEPLAYER_REAL_FORWARD           = "EVENT_GAMEPLAYER_REAL_FORWARD";
 
         public const string LAYER_PLAYERS = "PLAYERS";
+        public const string LAYER_ENEMIES = "ENEMIES";
+        public const string LAYER_NPCS    = "NPCS";
+        public const string LAYER_ITEMS   = "ITEMS";
 
         // ----------------------------------------------
         // CONSTANTS
@@ -498,6 +501,16 @@ namespace YourCommonTools
             }
         }
 
+
+        // -------------------------------------------
+        /* 
+		* Manager of global events
+		*/
+        protected virtual void OnBasicSystemEvent(string _nameEvent, object[] _list)
+        {
+
+        }
+
         // -------------------------------------------
         /* 
         * GetClosestFreeNodeToCurrentPosition
@@ -541,7 +554,6 @@ namespace YourCommonTools
         */
         protected virtual void CalculateInternalPathWaypoints(Vector3 _origin, Vector3 _target, int _limitSearch, bool _oneLayer = true, bool _raycastFilter = true)
         {
-#if ENABLE_MULTIPLAYER_TIMELINE
             m_pathWaypoints = new List<Vector3>();
             m_targetPath = Utilities.Clone(_target);
             if (PathFindingController.Instance.IsPrecalculated)
@@ -572,17 +584,15 @@ namespace YourCommonTools
                     }
                 }
             }
-#endif
         }
 
         // -------------------------------------------
         /* 
          * GoToTargetPosition
          */
-        protected void GoToTargetPosition()
+        protected void GoToTargetPosition(bool _isMaster)
         {
-#if ENABLE_MULTIPLAYER_TIMELINE
-            if (m_goToPosition && GameLevelData.Instance.IsMaster)
+            if (m_goToPosition && _isMaster)
             {
                 if (PathFindingController.Instance.IsPrecalculated)
                 {
@@ -622,7 +632,6 @@ namespace YourCommonTools
                     }
                 }
             }
-#endif
         }
 
         // -------------------------------------------
