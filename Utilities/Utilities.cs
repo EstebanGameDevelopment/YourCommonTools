@@ -6,6 +6,10 @@ using System.IO;
 using UnityEngine.UI;
 using System.Security.Cryptography;
 using System.Net.NetworkInformation;
+#if UNITY_EDITOR
+using UnityEditor;
+using System.Reflection;
+#endif
 
 namespace YourCommonTools
 {
@@ -698,11 +702,25 @@ namespace YourCommonTools
 			return bounds;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Disaable all the mesh renderers
+		 */
+        public static void EnableMeshRenderers(GameObject _gameObject, bool _value)
+        {
+            Renderer[] meshRenderers = _gameObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer bc in meshRenderers)
+            {
+                bc.enabled = _value;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Check if there is a collider
 		 */
-		public static bool IsThereABoxCollider(GameObject _gameObject)
+        public static bool IsThereABoxCollider(GameObject _gameObject)
 		{
 			Collider[] colliders = _gameObject.GetComponentsInChildren<BoxCollider>();
 
@@ -1969,5 +1987,28 @@ namespace YourCommonTools
 
             return list[UnityEngine.Random.Range(0, list.Length)];
         }
+
+#if UNITY_EDITOR
+        static MethodInfo _clearConsoleMethod;
+        static MethodInfo clearConsoleMethod
+        {
+            get
+            {
+                if (_clearConsoleMethod == null)
+                {
+                    Assembly assembly = Assembly.GetAssembly(typeof(SceneView));
+                    Type logEntries = assembly.GetType("UnityEditor.LogEntries");
+                    _clearConsoleMethod = logEntries.GetMethod("Clear");
+                }
+                return _clearConsoleMethod;
+            }
+        }
+
+        [MenuItem("Tools/Clear Console %#c")] // CMD + SHIFT + C
+        public static void ClearLogConsole()
+        {
+            clearConsoleMethod.Invoke(new object(), null);
+        }
+#endif
     }
 }
