@@ -66,7 +66,7 @@ namespace YourCommonTools
 			m_index = (int)((ItemMultiObjectEntry)_list[0]).Objects[1];
 			m_text = transform.Find("Text").GetComponent<Text>();
 			m_data = (string)((ItemMultiObjectEntry)_list[0]).Objects[2];
-			m_text.text = m_data;
+			m_text.text = LanguageController.Instance.GetText(m_data);
 			m_image = transform.Find("Image").GetComponent<Image>();
 			m_image.overrideSprite = (Sprite)((ItemMultiObjectEntry)_list[0]).Objects[3];
 			m_background = transform.GetComponent<Image>();
