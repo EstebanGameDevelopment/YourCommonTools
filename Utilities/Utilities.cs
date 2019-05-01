@@ -6,6 +6,7 @@ using System.IO;
 using UnityEngine.UI;
 using System.Security.Cryptography;
 using System.Net.NetworkInformation;
+using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 using System.Reflection;
@@ -2010,5 +2011,56 @@ namespace YourCommonTools
             clearConsoleMethod.Invoke(new object(), null);
         }
 #endif
+
+        // -------------------------------------------
+        /* 
+		 * CreateBinaryFile
+		 */
+        public static string CreatePathForFile(string _name, string _folder)
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, _folder);
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            return Path.Combine(folderPath, _name);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SaveBinaryData
+		 */
+        public static void SaveBinaryData(byte[] _data, string _path)
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (FileStream fileStream = File.Open(_path, FileMode.OpenOrCreate))
+            {
+                binaryFormatter.Serialize(fileStream, _data);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * LoadBinaryData
+		 */
+        public static byte[] LoadBinaryData(string _path)
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            using (FileStream fileStream = File.Open(_path, FileMode.Open))
+            {
+                return (byte[])binaryFormatter.Deserialize(fileStream);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetFilePaths
+		 */
+        public static string[] GetFilePath(string _folderName, string _name)
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, _folderName);
+
+            return Directory.GetFiles(folderPath, _name);
+        }
     }
 }

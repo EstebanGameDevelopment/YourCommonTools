@@ -11,11 +11,16 @@ namespace YourCommonTools
 {
 	public class ImageURLLoader: MonoBehaviour
 	{
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_IMAGEURLLOADER_COMPLETED_LOADED = "EVENT_IMAGEURLLOADER_COMPLETED_LOADED";
 
-		private static ImageURLLoader _instance;
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+
+        private static ImageURLLoader _instance;
 
 		public static ImageURLLoader Instance
 		{
@@ -58,6 +63,8 @@ namespace YourCommonTools
 			yield return www;
 
 			ImageUtils.TransformTexture(www.texture, m_image, m_height, m_URL, m_maximumHeightAllowed);
+
+            UIEventController.Instance.DispatchUIEvent(EVENT_IMAGEURLLOADER_COMPLETED_LOADED, m_URL, www.texture);
 		}
 	}
 	

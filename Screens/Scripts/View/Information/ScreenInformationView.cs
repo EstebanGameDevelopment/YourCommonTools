@@ -18,7 +18,8 @@ namespace YourCommonTools
 		public const string SCREEN_INFORMATION			= "SCREEN_INFORMATION";
 		public const string SCREEN_CONFIRMATION			= "SCREEN_CONFIRMATION";
 		public const string SCREEN_INFORMATION_IMAGE	= "SCREEN_INFORMATION_IMAGE";
-		public const string SCREEN_WAIT					= "SCREEN_WAIT";
+        public const string SCREEN_INFORMATION_ICON     = "SCREEN_INFORMATION_ICON";
+        public const string SCREEN_WAIT					= "SCREEN_WAIT";
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
         public const string SCREEN_UNLOCK_CURRENCY      = "SCREEN_UNLOCK_CURRENCY";
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
