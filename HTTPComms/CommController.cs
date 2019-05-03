@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
+using UnityEngine.Networking;
 
 namespace YourCommonTools
 {
@@ -240,19 +240,16 @@ namespace YourCommonTools
 			}
 			else
 			{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            WWW www = new WWW(m_commRequest.UrlRequest, m_commRequest.FormPost.data, m_commRequest.GetHeaders());
-#else
-				WWW www = new WWW(m_commRequest.UrlRequest, m_commRequest.FormPost.data, m_commRequest.FormPost.headers);
-#endif
-				if (_isBinaryResponse)
+                UnityWebRequest www = UnityWebRequest.Post(m_commRequest.UrlRequest, m_commRequest.FormPost);
+
+                if (_isBinaryResponse)
 				{
-					StartCoroutine(WaitForRequest(www));
-				}
+                    StartCoroutine(WaitForUnityWebRequest(www));
+                }
 				else
 				{
-					StartCoroutine(WaitForStringRequest(www));
-				}
+                    StartCoroutine(WaitForUnityWebStringRequest(www));
+                }
 			}
 		}
 
@@ -308,11 +305,35 @@ namespace YourCommonTools
 			ProcesQueuedComms();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* WaitForUnityWebRequest
+		*/
+        IEnumerator WaitForUnityWebRequest(UnityWebRequest www)
+        {
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+                m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+            }
+            else
+            {
+                if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.downloadHandler.text);
+                m_commRequest.Response(www.downloadHandler.data);
+            }
+
+            ChangeState(STATE_IDLE);
+            ProcesQueuedComms();
+        }
+        
+
+        // -------------------------------------------
+        /* 
 		* WaitForRequest
 		*/
-		IEnumerator WaitForStringRequest(WWW www)
+        IEnumerator WaitForStringRequest(WWW www)
 		{
 			yield return www;
 
@@ -333,11 +354,34 @@ namespace YourCommonTools
 			ProcesQueuedComms();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* WaitForUnityWebStringRequest
+		*/
+        IEnumerator WaitForUnityWebStringRequest(UnityWebRequest www)
+        {
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+                m_commRequest.Response(www.error);
+            }
+            else
+            {
+                if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.downloadHandler.text);
+                m_commRequest.Response(www.downloadHandler.text);
+            }
+
+            ChangeState(STATE_IDLE);
+            ProcesQueuedComms();
+        }
+
+        // -------------------------------------------
+        /* 
 		 * DisplayLog
 		 */
-		public void DisplayLog(string _data)
+        public void DisplayLog(string _data)
 		{
 			m_inGameLog = _data + "\n";
 			if (DEBUG_LOG)
