@@ -976,11 +976,20 @@ namespace YourCommonTools
 			return (long)(((DateTime.UtcNow - Jan1St1970).TotalMilliseconds) / 1000);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetTimestampDays
+		 */
+        public static long GetTimestampDays()
+        {
+            return (long)((((((DateTime.UtcNow - Jan1St1970).TotalMilliseconds) / 1000) / 60) / 60) / 24);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * GetDaysFromSeconds
 		 */
-		public static int GetDaysFromSeconds(long _seconds)
+        public static int GetDaysFromSeconds(long _seconds)
 		{
 			return (int)(((_seconds / 60) / 60) / 24);
 		}

@@ -38,7 +38,6 @@ namespace YourCommonTools
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType<SoundsController>();
-					_instance.Initialize();
 				}
 				return _instance;
 			}

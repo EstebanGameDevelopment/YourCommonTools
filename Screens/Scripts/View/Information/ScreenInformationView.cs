@@ -26,6 +26,46 @@ namespace YourCommonTools
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
         public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
 
+        // -------------------------------------------
+        /* 
+		 * CheckNameInformationScreen
+		 */
+        public static bool CheckNameGenericScreen(string _screenName)
+        {
+            return (_screenName.IndexOf(SCREEN_INFORMATION)!=-1) ||
+                (_screenName.IndexOf(SCREEN_CONFIRMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_IMAGE) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1) ||
+                (_screenName.IndexOf(SCREEN_WAIT) != -1) ||
+                (_screenName.IndexOf(SCREEN_INITIAL_CONNECTION) != -1) ||
+                (_screenName.IndexOf(SCREEN_UNLOCK_CURRENCY) != -1) ||
+                (_screenName.IndexOf(SCREEN_CHANGE_NETWORK) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_FIT_SCAN) != -1) ||
+                (_screenName.IndexOf(SCREEN_DIALOG) != -1);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckNameInformationScreen
+		 */
+        public static bool CheckNameInformationScreen(string _screenName)
+        {
+            return (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_CONFIRMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_IMAGE) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckNameConfirmationScreen
+		 */
+        public static bool CheckNameConfirmationScreen(string _screenName)
+        {
+            return  (_screenName.IndexOf(SCREEN_CONFIRMATION)!=-1);
+        }
+
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------	
