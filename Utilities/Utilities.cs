@@ -1998,29 +1998,6 @@ namespace YourCommonTools
             return list[UnityEngine.Random.Range(0, list.Length)];
         }
 
-#if UNITY_EDITOR
-        static MethodInfo _clearConsoleMethod;
-        static MethodInfo clearConsoleMethod
-        {
-            get
-            {
-                if (_clearConsoleMethod == null)
-                {
-                    Assembly assembly = Assembly.GetAssembly(typeof(SceneView));
-                    Type logEntries = assembly.GetType("UnityEditor.LogEntries");
-                    _clearConsoleMethod = logEntries.GetMethod("Clear");
-                }
-                return _clearConsoleMethod;
-            }
-        }
-
-        [MenuItem("Tools/Clear Console %#c")] // CMD + SHIFT + C
-        public static void ClearLogConsole()
-        {
-            clearConsoleMethod.Invoke(new object(), null);
-        }
-#endif
-
         // -------------------------------------------
         /* 
 		 * CreateBinaryFile

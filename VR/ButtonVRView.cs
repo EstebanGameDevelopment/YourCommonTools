@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace YourCommonTools
@@ -105,15 +106,16 @@ namespace YourCommonTools
 		 */
 		public void Destroy()
 		{
-			this.gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
-			m_selector = null;
-		}
+            if (this.gameObject.GetComponent<Button>() != null) this.gameObject.GetComponent<Button>().onClick.RemoveListener(OnClickedButton);
+            if (this.gameObject.GetComponent<Toggle>() != null) this.gameObject.GetComponent<Toggle>().onValueChanged.RemoveListener(OnValueChangedToggle);
+            m_selector = null;
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Triggered when there is collision
 		 */
-		public void OnTriggerEnter(Collider _collision)
+        public void OnTriggerEnter(Collider _collision)
 		{
 			if (_collision != null)
 			{
