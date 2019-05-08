@@ -544,11 +544,28 @@ namespace YourCommonTools
 			return Vector3.zero;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
-		public static void ApplyMaterialOnImages(GameObject _go, Material _material)
+        public static void SetAllChildCollidersTrigger(GameObject _go, bool _trigger)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetAllChildCollidersTrigger(child.gameObject, _trigger);
+            }
+            if (_go.GetComponent<Collider>() != null)
+            {
+                if (_go.GetComponent<MeshCollider>()!=null) _go.GetComponent<MeshCollider>().convex = _trigger;
+                _go.GetComponent<Collider>().isTrigger = _trigger;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void ApplyMaterialOnImages(GameObject _go, Material _material)
 		{
 			foreach (Transform child in _go.transform)
 			{
@@ -761,11 +778,29 @@ namespace YourCommonTools
 			return output;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will look fot the gameobject in the parent
+		 */
+        public static bool FindGameObjectInParent(GameObject _go, GameObject _target)
+        {
+            if (_go == _target)
+            {
+                return true;
+            }
+            bool output = false;
+            if (_go.transform.parent != null)
+            {
+                output = output || FindGameObjectInParent(_go.transform.parent.gameObject, _target);
+            }
+            return output;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Copy to the clipboard
 		 */
-		public static string Clipboard
+        public static string Clipboard
 		{
 			get { return GUIUtility.systemCopyBuffer; }
 			set { GUIUtility.systemCopyBuffer = value; }
