@@ -158,6 +158,40 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * CreateSprite
+		 */
+        public Sprite CreateSprite(string _name)
+        {
+#if UNITY_EDITOR
+            Debug.LogError("AssetbundleController::CreateSprite::_name=" + _name);
+#endif
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as Sprite;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CreateTexture
+		 */
+        public Texture2D CreateTexture(string _name)
+        {
+#if UNITY_EDITOR
+            Debug.LogError("AssetbundleController::CreateTexture::_name=" + _name);
+#endif
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as Texture2D;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Create a game audioclip
 		 */
         public AudioClip CreateAudioclip(string _name)
