@@ -109,7 +109,9 @@ namespace YourCommonTools
         public bool EnableActionOnMouseDown
 		{
 			get { return m_enableActionOnMouseDown; }
-			set { m_enableActionOnMouseDown = value; }
+			set { m_enableActionOnMouseDown = value;
+                Debug.LogError("m_enableActionOnMouseDown=" + m_enableActionOnMouseDown);
+            }
 		}
 
 		public bool IsDaydreamActivated
@@ -212,7 +214,7 @@ namespace YourCommonTools
         /* 
 		 * GetActionDaydreamController
 		 */
-        public bool GetActionDaydreamController(bool _down, string _eventDown = null, string _eventUp = null)
+        public bool GetActionDaydreamController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
@@ -236,41 +238,36 @@ namespace YourCommonTools
                     foreach (var hand in AllHands)
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
-                        if (_down)
+                        if (device.GetButtonDown(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
                         {
-                            if (device.GetButtonDown(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
                             {
-                                // Match the button to our own controllerPointers list.
-                                if (device == trackedController1.ControllerInputDevice)
-                                {
-                                    if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                                    return true;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                if (_isDown) return true;
+                            }
+                            else
+                            {
+                                if (_isDown) return false;
                             }
                         }
-                        else
+                        if (device.GetButtonUp(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
                         {
-                            if (device.GetButtonUp(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
                             {
-                                // Match the button to our own controllerPointers list.
-                                if (device == trackedController1.ControllerInputDevice)
-                                {
-                                    if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                                    return true;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                if (!_isDown) return true;
+                            }
+                            else
+                            {
+                                if (!_isDown) return false;
                             }
                         }
                     }
                 }
             }
+            return false;
 #endif
             return false;
         }
@@ -392,16 +389,15 @@ namespace YourCommonTools
 
 				if (!hasEntered)
 				{
-
 #if ENABLE_OCULUS && !UNITY_EDITOR
                     if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
                     {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
+                        UIEventController.Instance.DelayUIEvent(ACTION_SET_ANCHOR_POSITION, 0.01f);
                     }
 
                     if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
                     {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
+                        UIEventController.Instance.DelayUIEvent(ACTION_BUTTON_DOWN, 0.01f);
                     }
 #else
 
@@ -464,7 +460,7 @@ namespace YourCommonTools
                 if (m_isDaydreamActivated)
                 {
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_UP, ACTION_BUTTON_UP);
+                    hasEntered = GetActionDaydreamController(false, null, ACTION_BUTTON_UP);
 #endif
                 }
                 if (!hasEntered)
@@ -472,10 +468,9 @@ namespace YourCommonTools
                     bool fire1Released = false;
 
 #if ENABLE_OCULUS && !UNITY_EDITOR
-                    Debug.LogError("KeyInputPressActionButton::OCULUS BASURA");
                     if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
                     {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
+                        UIEventController.Instance.DelayUIEvent(ACTION_BUTTON_UP, 0.01f);
                     }
 #else
                     if (m_temporalNumberScreensActive == 0)
@@ -627,8 +622,8 @@ namespace YourCommonTools
 		 */
 		void Update()
 		{
-			KeyInputManagment();
+            KeyInputManagment();
 		}
-	}
+    }
 
 }
