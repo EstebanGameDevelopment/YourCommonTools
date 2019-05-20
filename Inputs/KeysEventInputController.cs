@@ -87,11 +87,6 @@ namespace YourCommonTools
 		}
 
         // ----------------------------------------------
-        // PUBLIC MEMBERS
-        // ----------------------------------------------
-        public bool EnableActionButton = true;
-
-        // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
         private int m_currentDirection = -1;
@@ -103,15 +98,15 @@ namespace YourCommonTools
         // DAYDREAM
         private List<GameObject> m_controllerPointers;
 
+        private bool m_enableActionButton = true;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
         public bool EnableActionOnMouseDown
 		{
 			get { return m_enableActionOnMouseDown; }
-			set { m_enableActionOnMouseDown = value;
-                Debug.LogError("m_enableActionOnMouseDown=" + m_enableActionOnMouseDown);
-            }
+			set { m_enableActionOnMouseDown = value; }
 		}
 
 		public bool IsDaydreamActivated
@@ -125,12 +120,18 @@ namespace YourCommonTools
 			get { return m_temporalNumberScreensActive; }
 			set { m_temporalNumberScreensActive = value; }			
 		}
+        public bool EnableActionButton
+        {
+            get { return m_enableActionButton; }
+            set { m_enableActionButton = value; }
+        }
+        
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Initialization
 		 */
-		public void Initialization()
+        public void Initialization()
 		{
 		}
 

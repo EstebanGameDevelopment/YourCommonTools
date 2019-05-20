@@ -146,7 +146,7 @@ namespace YourCommonTools
         public GameObject CreateGameObject(string _name)
         {
 #if UNITY_EDITOR
-            Debug.LogError("AssetbundleController::CreateGameObject::_name=" + _name);
+            Utilities.DebugLogError("AssetbundleController::CreateGameObject::_name=" + _name);
 #endif
             if (!m_loadedObjects.ContainsKey(_name))
             {
@@ -163,7 +163,7 @@ namespace YourCommonTools
         public Sprite CreateSprite(string _name)
         {
 #if UNITY_EDITOR
-            Debug.LogError("AssetbundleController::CreateSprite::_name=" + _name);
+            Utilities.DebugLogError("AssetbundleController::CreateSprite::_name=" + _name);
 #endif
             if (!m_loadedObjects.ContainsKey(_name))
             {
@@ -180,7 +180,7 @@ namespace YourCommonTools
         public Texture2D CreateTexture(string _name)
         {
 #if UNITY_EDITOR
-            Debug.LogError("AssetbundleController::CreateTexture::_name=" + _name);
+            Utilities.DebugLogError("AssetbundleController::CreateTexture::_name=" + _name);
 #endif
             if (!m_loadedObjects.ContainsKey(_name))
             {

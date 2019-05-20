@@ -55,8 +55,9 @@ namespace YourCommonTools
 
 		private int m_selectionButton;
 		private List<GameObject> m_selectors;
+        protected bool m_allowAddingSelectors = true;
 
-		private bool m_enabledSelector = true;
+        private bool m_enabledSelector = true;
 
 		protected bool m_hasBeenDestroyed = false;
         protected List<object> m_paramsAnimation;
@@ -180,6 +181,8 @@ namespace YourCommonTools
 		*/
 		private void AddAutomaticallyButtons(GameObject _go)
 		{
+            if (!m_allowAddingSelectors) return;
+
 			if (_go != null)
 			{
                 try
@@ -203,7 +206,9 @@ namespace YourCommonTools
 		 */
 		private GameObject AddButtonToList(GameObject _button)
 		{
-			m_selectors.Add(_button);
+            if (!m_allowAddingSelectors) return null;
+
+            m_selectors.Add(_button);
 			if (m_enabledSelector)
 			{
 				if (_button != null)
@@ -220,7 +225,7 @@ namespace YourCommonTools
 		/* 
 		 * It will remove and clean the interactable element and all his references
 		 */
-		private void ClearListSelectors()
+		protected void ClearListSelectors()
 		{
 			try
 			{
