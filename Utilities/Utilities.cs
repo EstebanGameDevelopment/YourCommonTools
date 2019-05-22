@@ -607,7 +607,7 @@ namespace YourCommonTools
 		{
 			foreach (Transform child in _go.transform)
 			{
-				ApplyMaterialOnImages(child.gameObject, _material);
+                ApplyMaterialOnObjects(child.gameObject, _material);
 			}
 			if (_go.GetComponent<Renderer>() != null)
 			{
@@ -615,11 +615,28 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void ApplyMaterialOnMeshes(GameObject _go, Material _material)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                ApplyMaterialOnMeshes(child.gameObject, _material);
+            }
+            if (_go.GetComponent<SkinnedMeshRenderer>() != null)
+            {
+                _go.GetComponent<SkinnedMeshRenderer>().materials = new Material[0];
+                _go.GetComponent<SkinnedMeshRenderer>().material = _material;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Check if the objects is visible in the camera's frustum
 		 */
-		public static bool IsVisibleFrom(Bounds _bounds, Camera _camera)
+        public static bool IsVisibleFrom(Bounds _bounds, Camera _camera)
 		{
 			Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
 			return GeometryUtility.TestPlanesAABB(planes, _bounds);

@@ -39,6 +39,7 @@ namespace YourCommonTools
         public const string EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME      = "EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME";
         public const string EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME    = "EVENT_GAMEPLAYER_HUMAN_DIRECTOR_NAME";
         public const string EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME   = "EVENT_GAMEPLAYER_HUMAN_SPECTATOR_NAME";
+        public const string EVENT_GAMECHARACTER_POSITION_LOCAL_PLAYER="EVENT_GAMECHARACTER_POSITION_LOCAL_PLAYER";
 
         public const string EVENT_GAMEPLAYER_DATA_POSITION_PLAYER = "EVENT_GAMEPLAYER_DATA_POSITION_PLAYER";
 
@@ -82,6 +83,10 @@ namespace YourCommonTools
 
         protected string m_initialData = null;
         protected Text m_txtLife;
+
+        protected GameObject m_ghostPlayer;
+        protected Vector3 m_positionLocalPlayer = Vector3.zero;
+        protected float m_timeForGhost = 0;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -223,7 +228,11 @@ namespace YourCommonTools
         {
             get { return false; }
         }
-        
+        public virtual float DISTANCE_TO_ACTIVATE_GHOST
+        {
+            get { return 3f; }
+        }
+
         // -------------------------------------------
         /* 
 		 * Initialization of the element
@@ -251,6 +260,13 @@ namespace YourCommonTools
 #if ENABLE_MULTIPLAYER_TIMELINE
             TimelineEventController.Instance.TimelineEvent -= OnTimelineEvent;
 #endif
+
+            if (m_ghostPlayer != null)
+            {
+                BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+                GameObject.Destroy(m_ghostPlayer);
+                m_ghostPlayer = null;
+            }            
 
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTOR_DESTROYED, ClassName, Name);
             return false;
@@ -494,7 +510,13 @@ namespace YourCommonTools
                     {
                         if ((NetworkID.NetID == int.Parse((string)_list[0])) && (NetworkID.UID == int.Parse((string)_list[1])))
                         {
-                            base.ChangeAnimation(int.Parse((string)_list[2]), bool.Parse((string)_list[3]));
+                            int newAnimation = int.Parse((string)_list[2]);
+                            bool isLoopAnimation = bool.Parse((string)_list[3]);
+                            base.ChangeAnimation(newAnimation, isLoopAnimation);
+                            if (m_ghostPlayer != null)
+                            {
+                                ChangeAnimation(m_ghostPlayer.transform, newAnimation, isLoopAnimation, true);
+                            }
                         }
                     }
                 }
@@ -508,7 +530,10 @@ namespace YourCommonTools
 		*/
         protected virtual void OnBasicSystemEvent(string _nameEvent, object[] _list)
         {
-
+            if (_nameEvent == EVENT_GAMECHARACTER_POSITION_LOCAL_PLAYER)
+            {
+                m_positionLocalPlayer = (Vector3)_list[0];
+            }
         }
 
         // -------------------------------------------
@@ -655,6 +680,59 @@ namespace YourCommonTools
                     if (NetworkID != null) NetworkEventController.Instance.DispatchNetworkEvent(EVENT_GAMECHARACTER_NEW_ANIMATION, NetworkID.NetID.ToString(), NetworkID.UID.ToString(), _animation.ToString(), _isLoop.ToString());
                 }
                 base.ChangeAnimation(_animation, _isLoop);
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * InitGhostPlayer
+		 */
+        protected void InitGhostPlayer(string _classNamePrefab, Transform _root, Transform _model, Material _materialOnTop)
+        {
+#if !DISABLE_GHOST
+            m_ghostPlayer = Utilities.AttachChild(_root, AssetbundleController.Instance.CreateGameObject(_classNamePrefab));
+            Utilities.ApplyMaterialOnMeshes(m_ghostPlayer, _materialOnTop);
+            m_ghostPlayer.transform.localScale = Utilities.Clone(_model.localScale);
+            m_ghostPlayer.transform.localPosition = Utilities.Clone(_model.localPosition);
+            m_ghostPlayer.SetActive(false);
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
+#endif
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * GhostLogic
+		 */
+        protected void GhostLogic()
+        {
+            if (m_ghostPlayer != null)
+            {
+                Transform modelOtherPlayer = GetModel();
+                float finalY =  + modelOtherPlayer.transform.localPosition.y;
+                if (Mathf.Abs(this.gameObject.transform.position.y - m_positionLocalPlayer.y) > DISTANCE_TO_ACTIVATE_GHOST)
+                {
+                    if (!m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(true);
+                    float finalPosition = m_positionLocalPlayer.y - (m_ghostPlayer.transform.localScale.y / 2);
+                    m_ghostPlayer.transform.position = new Vector3(m_ghostPlayer.transform.position.x, finalPosition, m_ghostPlayer.transform.position.z);
+                }
+                else
+                {
+                    if (m_ghostPlayer.activeSelf) m_ghostPlayer.SetActive(false);
+                }
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * DispatchLocalEventPositionForGhost
+		 */
+        protected void DispatchLocalEventPositionForGhost()
+        {
+            m_timeForGhost += Time.deltaTime;
+            if (m_timeForGhost > 0.2f)
+            {
+                m_timeForGhost = 0;
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMECHARACTER_POSITION_LOCAL_PLAYER, this.gameObject.transform.position);
             }
         }
 

@@ -428,11 +428,51 @@ namespace YourCommonTools
 			}
 		}
 
-		// ---------------------------------------------------
-		/**
+        // -------------------------------------------
+        /* 
+		 * Change the animation
+		 */
+        public virtual void ChangeAnimation(Transform _target, int _animation, bool _isLoop, bool _force)
+        {
+            if ((m_animation != _animation) || (!_isLoop) || _force) 
+            {
+                m_previousAnimation = m_animation;
+                m_animation = _animation;
+                if (m_animationStates != null)
+                {
+                    if (m_animationStates.Count > 0)
+                    {
+                        if (_animation < m_animationStates.Count)
+                        {
+                            if (_target != null)
+                            {
+                                Animator sAnimatorModel = _target.GetComponent<Animator>();
+                                if (sAnimatorModel != null)
+                                {
+                                    string buf = m_animationStates[m_animation];
+                                    string[] animationState = buf.Split(',');
+                                    sAnimatorModel.SetInteger(animationState[0], int.Parse(animationState[1]));
+                                }
+                                else
+                                {
+                                    if (_target.GetComponent<Animation>() != null)
+                                    {
+                                        _target.GetComponent<Animation>()[m_animationStates[m_animation]].wrapMode = (_isLoop ? WrapMode.Loop : WrapMode.Once);
+                                        _target.GetComponent<Animation>().Play(m_animationStates[m_animation], PlayMode.StopAll);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Will move the actor by the forward vector in the desired speed
 		 */
-		public void MoveForward()
+        public void MoveForward()
 		{
 			CharacterController controller = this.GetComponent<CharacterController>();
 			if (controller == null)
