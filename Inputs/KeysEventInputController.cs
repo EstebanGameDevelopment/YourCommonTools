@@ -47,6 +47,8 @@ namespace YourCommonTools
 		private int DIRECTION_DOWN = 3;
 		private int DIRECTION_UP = 4;
 
+        private float OCULUS_TRIGGER_SENSIBILITY = 0.7f;
+
 		// ----------------------------------------------
 		// CONSTANTS
 		// ----------------------------------------------	
@@ -270,24 +272,80 @@ namespace YourCommonTools
             }
         }
 
+        private bool m_oculusActionPressed = false;
+
         // -------------------------------------------
         /* 
         * GetActionOculusController
         */
         public bool GetActionOculusController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
+            try
+            {
 #if ENABLE_OCULUS
-            if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger) || OVRInput.GetDown(OVRInput.Touch.PrimaryIndexTrigger))
+            if (_isDown)
             {
-                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                if (_isDown) return true;
+                // +++++ BUTTON CONTROLLERS (DOWN)
+                try
+                {
+                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        m_oculusActionPressed = true;
+                        if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                // +++++ TOUCH CONTROLLERS (DOWN)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if (!m_oculusActionPressed)
+                        {
+                            float pressionOnButton = OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger, OVRInput.Controller.RTouch);
+                            if (pressionOnButton > OCULUS_TRIGGER_SENSIBILITY)
+                            {
+                                m_oculusActionPressed = true;
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                catch (Exception err) { }
             }
-            if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger) || OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger))
+            else
             {
-                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                if (!_isDown) return true;
+                // +++++ BUTTON CONTROLLERS (UP)
+                try
+                {
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        m_oculusActionPressed = false;
+                        if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                if (m_oculusActionPressed)
+                {
+                    // +++++ TOUCH CONTROLLERS (UP)
+                    try
+                    {
+                        if (OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                        {
+                            m_oculusActionPressed = false;
+                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                            return true;
+                        }
+                    }
+                    catch (Exception err) { }
+                }
             }
 #endif
+            }
+            catch (Exception err) { }
             return false;
         }
 
@@ -297,13 +355,37 @@ namespace YourCommonTools
         */
         public bool GetActionCurrentStateOculusController(string _event = null)
         {
-#if ENABLE_OCULUS
-            if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger) || OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger))
+            try
             {
-                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
-                return true;
-            }
+#if ENABLE_OCULUS
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+
+                        float pressionOnButton = OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger, OVRInput.Controller.RTouch);
+                        if (pressionOnButton > OCULUS_TRIGGER_SENSIBILITY)
+                        {
+                            return true;
+                        }                
+                    }
+                }
+                catch (Exception err) { }
 #endif
+            }
+            catch (Exception err) { }
             return false;
         }
 
@@ -313,27 +395,23 @@ namespace YourCommonTools
         */
         public bool GetAppButtonDownOculusController(string _event = null)
         {
+            try
+            {
 #if ENABLE_OCULUS
-            bool buttonAWasPressed = false, buttonBWasPressed = false, buttonCWasPressed = false, buttonDWasPressed = false;
-            bool buttonAWasTouched = false, buttonBWasTouched = false, buttonCWasTouched = false, buttonDWasTouched = false;
 
-            try { buttonAWasPressed = OVRInput.GetDown(OVRInput.Button.One); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Button.One"); }
-            try { buttonBWasPressed = OVRInput.GetDown(OVRInput.Button.Two); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Button.Two"); }
-            try { buttonCWasPressed = OVRInput.GetDown(OVRInput.Button.Three); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Button.Three"); }
-            try { buttonDWasPressed = OVRInput.GetDown(OVRInput.Button.Four); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Button.Four"); }
+            bool buttonAWasTouched = false, buttonBWasTouched = false;
 
-            try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Touch.One); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.One"); }
-            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Touch.Two); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Two"); }
-            try { buttonCWasTouched = OVRInput.GetDown(OVRInput.Touch.Three); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Three"); }
-            try { buttonDWasTouched = OVRInput.GetDown(OVRInput.Touch.Four); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Four"); }
+            try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.One"); }
+            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Two"); }
 
-            if (buttonAWasPressed || buttonBWasPressed || buttonCWasPressed || buttonDWasPressed ||
-                buttonAWasTouched || buttonBWasTouched || buttonCWasTouched || buttonDWasTouched)
+            if (buttonAWasTouched || buttonBWasTouched)
             {
                 if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
                 return true;
             }
 #endif
+            }
+            catch (Exception err) { }
             return false;
         }
 
@@ -507,7 +585,7 @@ namespace YourCommonTools
             }
 #endif
 
-#if ENABLE_OCULUS && !UNITY_EDITOR
+#if ENABLE_OCULUS
             if (OVRInput.GetControllerWasRecentered())
             {
                 UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
@@ -518,7 +596,7 @@ namespace YourCommonTools
 			{
 #if ENABLE_WORLDSENSE && !UNITY_EDITOR
                 GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-#elif ENABLE_OCULUS && !UNITY_EDITOR
+#elif ENABLE_OCULUS
                 GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #else
                 GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
@@ -528,7 +606,7 @@ namespace YourCommonTools
 			{
 #if ENABLE_WORLDSENSE && !UNITY_EDITOR
                 GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-#elif ENABLE_OCULUS && !UNITY_EDITOR
+#elif ENABLE_OCULUS
                 GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #else
                 GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
@@ -558,7 +636,7 @@ namespace YourCommonTools
 			}
 			// BACK BUTTON
 			if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
-#if ENABLE_OCULUS
+#if ENABLE_OCULUS && !ENABLE_QUEST
                 || OVRInput.GetDown(OVRInput.Button.Back)
 #endif
                 )
