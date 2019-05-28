@@ -320,9 +320,9 @@ namespace YourCommonTools
 
 			if ((m_currentPage >= 0) && (m_currentPage < m_pagesInfo.Count))
 			{
-				if (m_title != null) m_title.text = m_pagesInfo[m_currentPage].MyTitle;
-				if (m_textDescription != null) m_textDescription.text = m_pagesInfo[m_currentPage].MyText;
-				if (m_imageContent != null)
+                if (m_title != null) m_title.text = LanguageController.Instance.GetText(m_pagesInfo[m_currentPage].MyTitle);
+                if (m_textDescription != null) m_textDescription.text = LanguageController.Instance.GetText(m_pagesInfo[m_currentPage].MyText);
+                if (m_imageContent != null)
 				{
 					if (m_pagesInfo[m_currentPage].MySprite != null)
 					{
