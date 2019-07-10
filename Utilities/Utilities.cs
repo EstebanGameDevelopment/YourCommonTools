@@ -563,6 +563,22 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * We apply a box collider trigger on all the hirarquy of objects
+		 */
+        public static void SetAllChildBoxCollidersTrigger(GameObject _go, bool _trigger)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetAllChildBoxCollidersTrigger(child.gameObject, _trigger);
+            }
+            if (_go.GetComponent<BoxCollider>() != null)
+            {
+                _go.GetComponent<BoxCollider>().isTrigger = _trigger;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
         public static void ApplyMaterialOnImages(GameObject _go, Material _material)
