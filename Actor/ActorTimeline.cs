@@ -308,7 +308,7 @@ namespace YourCommonTools
             transform.position = initialPosition;
             Name = initialData[0];
             ClassName = initialData[1];
-            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME, Name);
+            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME, Name, ClassName);
             this.gameObject.layer = LayerMask.NameToLayer(LAYER_PLAYERS);
             if (IsMine())
             {
