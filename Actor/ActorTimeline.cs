@@ -377,6 +377,20 @@ namespace YourCommonTools
                 if (transform.Find("Model") != null)
                 {
                     m_model = transform.Find("Model").gameObject;
+                }
+                if (m_model != null)
+                {
+                    if (transform.childCount > 0)
+                    {
+                        if (transform.GetChild(0).Find("Model") != null)
+                        {
+                            m_model = transform.GetChild(0).Find("Model").gameObject;
+                        }
+                    }
+                }
+
+                if (m_model != null)
+                {
                     if (m_model.transform.childCount == 1)
                     {
                         m_modelState = "";
