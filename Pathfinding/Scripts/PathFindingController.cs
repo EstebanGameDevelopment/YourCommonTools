@@ -227,17 +227,20 @@ namespace YourCommonTools
 		 */
         public void RenderDebugMatrixConstruction(int _layer = -1)
         {
-            if (_layer == -1)
+            if (DEBUG_MATRIX_CONSTRUCTION)
             {
-                // RENDER ALL LAYERS
-                for (int i = 0; i < m_pathfindingInstances.Count; i++)
+                if (_layer == -1)
                 {
-                    m_pathfindingInstances[i].RenderDebugMatrixConstruction(0, m_pathfindingInstances.Count - 1 - i);
+                    // RENDER ALL LAYERS
+                    for (int i = 0; i < m_pathfindingInstances.Count; i++)
+                    {
+                        m_pathfindingInstances[i].RenderDebugMatrixConstruction(0, m_pathfindingInstances.Count - 1 - i);
+                    }
                 }
-            }
-            else
-            {
-                m_pathfindingInstances[_layer].RenderDebugMatrixConstruction(_layer);
+                else
+                {
+                    m_pathfindingInstances[_layer].RenderDebugMatrixConstruction(_layer);
+                }
             }
         }
 

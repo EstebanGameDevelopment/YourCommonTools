@@ -72,6 +72,7 @@ namespace YourCommonTools
         protected string m_modelState;
         protected int m_modelIndex;
         protected int m_modelAnimation;
+        protected Vector3 m_initialPosition;
 
         protected GameObject m_playerToFace = null;
 
@@ -304,8 +305,8 @@ namespace YourCommonTools
         {
             m_initialData = _initialData;
             string[] initialData = m_initialData.Split(',');
-            Vector3 initialPosition = new Vector3(float.Parse(initialData[2]), float.Parse(initialData[3]), float.Parse(initialData[4]));
-            transform.position = initialPosition;
+            m_initialPosition = new Vector3(float.Parse(initialData[2]), float.Parse(initialData[3]), float.Parse(initialData[4]));
+            transform.position = m_initialPosition;
             Name = initialData[0];
             ClassName = initialData[1];
             BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_GAMEPLAYER_HUMAN_PLAYER_NAME, Name, ClassName);
