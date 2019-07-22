@@ -342,6 +342,7 @@ namespace YourCommonTools
         {
             if (!m_enableFX) return;
             if (!m_enabled) return;
+            if (_audioClip == null) return;
 
             AudioSource audioSource;
             GameObject soundGameObject = null;
