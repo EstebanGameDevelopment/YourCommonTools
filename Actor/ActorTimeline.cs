@@ -32,6 +32,7 @@ namespace YourCommonTools
 
         public const string EVENT_ACTORTIMELINE_STATE_FACE_PLAYER   = "EVENT_ACTORTIMELINE_STATE_FACE_PLAYER";
         public const string EVENT_ACTORTIMELINE_GO_ACTION_ENDED     = "EVENT_ACTORTIMELINE_STATE_FACE_PLAYER";
+        public const string EVENT_ACTORTIMELINE_WAYPOINT_UPDATED    = "EVENT_ACTORTIMELINE_WAYPOINT_UPDATED";
 
         public const string EVENT_GAMEPLAYER_SETUP_AVATAR           = "EVENT_GAMEPLAYER_SETUP_AVATAR";
         public const string EVENT_GAMEPLAYER_CREATED_NEW            = "EVENT_GAMEPLAYER_CREATED_NEW";
@@ -55,6 +56,8 @@ namespace YourCommonTools
         // ----------------------------------------------	
         public const int ANIMATION_IDLE = 0;
         public const int ANIMATION_WALK = 1;
+
+        public const float DISTANCE_TO_UPDATE_TO_NEXT_WAYPOINT = 1f;
 
         // ----------------------------------------------
         // PUBLIC MEMBERS
@@ -618,9 +621,9 @@ namespace YourCommonTools
                 {
                     m_currentPathWaypoint = -1;
                     m_goToPosition = true;
-                    if (Vector3.Distance(this.transform.position, _target) < 1)
+                    if (Vector3.Distance(this.transform.position, _target) < DISTANCE_TO_UPDATE_TO_NEXT_WAYPOINT)
                     {
-                        BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, 0.5f, NameActor);
+                        BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, 0.5f, NameActor, Name);
                     }
                 }
             }
@@ -638,7 +641,7 @@ namespace YourCommonTools
                 {
                     LogicAlineation(m_targetPath, m_speed, 0.1f);
 
-                    if (Utilities.DistanceXZ(this.transform.position, m_targetPath) < 1f)
+                    if (Utilities.DistanceXZ(this.transform.position, m_targetPath) < DISTANCE_TO_UPDATE_TO_NEXT_WAYPOINT)
                     {
                         m_goToPosition = false;
                         BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, NameActor, m_targetPath);
@@ -655,20 +658,21 @@ namespace YourCommonTools
                     {
                         Vector3 subTarget = m_pathWaypoints[m_currentPathWaypoint];
                         LogicAlineation(subTarget, m_speed, 0.1f);
-                        if (Utilities.DistanceXZ(this.transform.position, subTarget) < 1)
+                        if (Utilities.DistanceXZ(this.transform.position, subTarget) < DISTANCE_TO_UPDATE_TO_NEXT_WAYPOINT)
                         {
                             m_currentPathWaypoint++;
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_WAYPOINT_UPDATED, NameActor, Name);
                             if (m_currentPathWaypoint >= m_pathWaypoints.Count)
                             {
                                 m_currentPathWaypoint = -1;
-                                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, NameActor);
+                                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, NameActor, Name);
                             }
                         }
                     }
 
-                    if ((Utilities.DistanceXZ(this.transform.position, m_targetPath) < 1) && (m_goToPosition))
+                    if ((Utilities.DistanceXZ(this.transform.position, m_targetPath) < DISTANCE_TO_UPDATE_TO_NEXT_WAYPOINT) && (m_goToPosition))
                     {
-                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, NameActor);
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_ACTORTIMELINE_GO_ACTION_ENDED, NameActor, Name);
                     }
                 }
             }
