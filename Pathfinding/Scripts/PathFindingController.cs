@@ -333,6 +333,39 @@ namespace YourCommonTools
             }
         }
 
+
+        // ---------------------------------------------------
+        /**
+		* GetRandomFreeCellBorder
+		*/
+        public Vector3 GetRandomFreeCellBorder(int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].GetRandomFreeCellBorder();
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].GetRandomFreeCellBorder();
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
+		* CheckOutsideBoard
+		*/
+        public bool CheckOutsideBoard(Vector3 _position, int _layer = -1)
+        {
+            if (_layer == -1)
+            {
+                return m_pathfindingInstances[m_pathfindingInstances.Count - 1].CheckOutsideBoard(_position.x, _position.y, _position.z);
+            }
+            else
+            {
+                return m_pathfindingInstances[_layer].CheckOutsideBoard(_position.x, _position.y, _position.z);
+            }
+        }
+
         // ---------------------------------------------------
         /**
 		* Precalculate all the paths

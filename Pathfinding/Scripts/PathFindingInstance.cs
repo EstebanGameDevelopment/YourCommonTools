@@ -406,8 +406,8 @@ namespace YourCommonTools
 		 */
 		public bool CheckOutsideBoard(float _x, float _y, float _z)
 		{
-			int x = (int)((_x + (0.0f * m_cellSize)) / m_cellSize);
-			int z = (int)((_z + (0.0f * m_cellSize)) / m_cellSize);
+			int x = (int)(_x / m_cellSize);
+			int z = (int)(_z / m_cellSize);
 			if (z < 0) return true;
 			if (x < 0) return true;
 			if (x >= m_rows) return true;
@@ -485,11 +485,55 @@ namespace YourCommonTools
 			return (_content != PathFindingController.CELL_EMPTY);
 		}
 
-		// ---------------------------------------------------
-		/*
+        // ---------------------------------------------------
+        /*
+		* GetRandomFreeCellBorder
+		*/
+        public Vector3 GetRandomFreeCellBorder(int _layer = 0)
+        {
+            int finalX = -1;
+            int finalY = -1;
+            do
+            {
+                if (UnityEngine.Random.Range(0, 100) > 50)
+                {
+                    // ROWS
+                    if (UnityEngine.Random.Range(0, 100) > 50)
+                    {
+                        finalX = 0;
+                    }
+                    else
+                    {
+                        finalX = m_rows - 1;
+                    }
+
+                    finalY = UnityEngine.Random.Range((int)0, (int)m_cols);
+                }
+                else
+                {
+                    // COLS
+                    if (UnityEngine.Random.Range(0, 100) > 50)
+                    {
+                        finalY = 0;
+                    }
+                    else
+                    {
+                        finalY = m_cols - 1;
+                    }
+
+                    finalX = UnityEngine.Random.Range((int)0, (int)m_rows);
+                }
+            }
+            while (GetCellContent(finalX, finalY, _layer) != PathFindingController.CELL_EMPTY);
+
+            return new Vector3((finalX * m_cellSize) + (m_cellSize / 2) + m_xIni, (m_cellSize / m_waypointHeight), (finalY * m_cellSize) + (m_cellSize / 2) + m_zIni);
+        }
+
+        // ---------------------------------------------------
+        /*
 		 * GetHops
 		*/
-		private int GetHops(int _current)
+        private int GetHops(int _current)
 		{
 			int curIndexBack = _current;
 			int hops = 0;
