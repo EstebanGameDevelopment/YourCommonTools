@@ -2116,5 +2116,18 @@ namespace YourCommonTools
 
             return Directory.GetFiles(folderPath, _name);
         }
+
+        // -------------------------------------------
+        /* 
+		 * GetFullPathNameGO
+		 */
+        public static string GetFullPathNameGO(GameObject _go)
+        {
+            if (_go == null) return "";
+            if (_go.transform == null) return "";
+            if (_go.transform.parent == null) return "";
+
+            return GetFullPathNameGO(_go.transform.parent.gameObject) + "," + _go.name;
+        }
     }
 }
