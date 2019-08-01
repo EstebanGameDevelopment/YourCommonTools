@@ -225,21 +225,21 @@ namespace YourCommonTools
         /**
 		 * RenderDebugMatrixConstruction
 		 */
-        public void RenderDebugMatrixConstruction(int _layer = -1)
+        public void RenderDebugMatrixConstruction(int _layer = -1, float _timeToDisplayCollisions = 0)
         {
-            if (DEBUG_MATRIX_CONSTRUCTION)
+            if (_timeToDisplayCollisions > 0)
             {
                 if (_layer == -1)
                 {
                     // RENDER ALL LAYERS
                     for (int i = 0; i < m_pathfindingInstances.Count; i++)
                     {
-                        m_pathfindingInstances[i].RenderDebugMatrixConstruction(0, m_pathfindingInstances.Count - 1 - i);
+                        m_pathfindingInstances[i].RenderDebugMatrixConstruction(0, m_pathfindingInstances.Count - 1 - i, _timeToDisplayCollisions);
                     }
                 }
                 else
                 {
-                    m_pathfindingInstances[_layer].RenderDebugMatrixConstruction(_layer);
+                    m_pathfindingInstances[_layer].RenderDebugMatrixConstruction(_layer, -1, _timeToDisplayCollisions);
                 }
             }
         }

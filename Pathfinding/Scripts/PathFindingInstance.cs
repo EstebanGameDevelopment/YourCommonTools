@@ -286,15 +286,29 @@ namespace YourCommonTools
 			m_floor[(int)((_posMatrix.x * m_cols) + _posMatrix.y)] = _content;
         }
 
-		// ---------------------------------------------------
-		/**
+        private List<GameObject> m_temporalDots = new List<GameObject>();
+
+        // ---------------------------------------------------
+        /**
 		 * Render an sphere int the empty cells to check if the matrix was build right
 		 */
-		public void RenderDebugMatrixConstruction(int _layerToCheck = 0, int _heightLayer = -1)
+        public void RenderDebugMatrixConstruction(int _layerToCheck = 0, int _heightLayer = -1, float _timeToDisplayCollisions = 0)
 		{
 			if (m_dotPaths.Count > 0) return;
 
-			for (int x = 0; x < m_rows; x++)
+            if (_timeToDisplayCollisions > 0)
+            {
+                if (m_temporalDots.Count > 0)
+                {
+                    for (int i = 0; i < m_temporalDots.Count; i++)
+                    {
+                        GameObject.DestroyImmediate(m_temporalDots[i]);
+                    }
+                }
+                m_temporalDots.Clear();
+            }
+
+            for (int x = 0; x < m_rows; x++)
 			{
 				for (int y = 0; y < m_cols; y++)
 				{
@@ -314,10 +328,18 @@ namespace YourCommonTools
                     {
                         newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReference);
                     }
-                    newdot.transform.localScale = new Vector3(m_cellSize / 4, m_cellSize / 4, m_cellSize / 4);
+                    newdot.transform.localScale = new Vector3(m_cellSize / 3, m_cellSize / 3, m_cellSize / 3);
                     // newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
                     newdot.transform.position = pos;
-                    m_dotPaths.Add(newdot);
+                    if (_timeToDisplayCollisions > 0)
+                    {
+                        m_temporalDots.Add(newdot);
+                        GameObject.Destroy(newdot, _timeToDisplayCollisions);
+                    }
+                    else
+                    {
+                        m_dotPaths.Add(newdot);
+                    }                    
                 }
 			}
 		}
