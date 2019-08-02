@@ -417,6 +417,32 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+        * GetAppButtonUpOculusController
+        */
+        public bool GetAppButtonUpOculusController(string _event = null)
+        {
+            try
+            {
+#if ENABLE_OCULUS
+
+            bool buttonAWasTouched = false, buttonBWasTouched = false;
+
+            try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.One"); }
+            try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Two"); }
+
+            if (buttonAWasTouched || buttonBWasTouched)
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
         * GetActionDaydreamController
         */
         public bool GetActionDaydreamController(bool _isDown, string _eventDown = null, string _eventUp = null)
@@ -529,7 +555,7 @@ namespace YourCommonTools
         /* 
 		 * GetAppButtonDowDaydreamController
 		 */
-        public bool GetAppButtonDowDaydreamController()
+        public bool GetAppButtonDowDaydreamController(bool _isDown = true)
         {
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
@@ -553,7 +579,16 @@ namespace YourCommonTools
                     foreach (var hand in AllHands)
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
-                        if (device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER))
+                        bool isPressedApp = false;
+                        if (_isDown)
+                        {
+                            isPressedApp = device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER);
+                        }
+                        else
+                        {
+                            isPressedApp = device.GetButtonUp(APP_BUTTON_DAYDREAMCONTROLLER);
+                        }
+                        if (isPressedApp)
                         {
                             // Match the button to our own controllerPointers list.
                             if (device == trackedController1.ControllerInputDevice)
