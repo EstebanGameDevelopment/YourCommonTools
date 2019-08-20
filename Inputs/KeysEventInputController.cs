@@ -102,6 +102,7 @@ namespace YourCommonTools
         private List<GameObject> m_controllerPointers;
 
         private bool m_enableActionButton = true;
+        private bool m_enableInteractions = true;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -128,8 +129,12 @@ namespace YourCommonTools
             get { return m_enableActionButton; }
             set { m_enableActionButton = value; }
         }
+        public bool EnableInteractions
+        {
+            get { return m_enableInteractions; }
+            set { m_enableInteractions = value; }
+        }
         
-
         // -------------------------------------------
         /* 
 		 * Initialization
@@ -220,6 +225,11 @@ namespace YourCommonTools
         */
         public bool GetActionDefaultController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             // KEY PRESSED
             if (Input.GetKeyDown(KeyCode.LeftControl)
                 || Input.GetKeyDown(KeyCode.JoystickButton0)
@@ -254,6 +264,11 @@ namespace YourCommonTools
         */
         public bool GetActionCurrentStateDefaultController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             // KEY PRESSED
             if (Input.GetKey(KeyCode.LeftControl)
                 || Input.GetKey(KeyCode.JoystickButton0)
@@ -280,6 +295,11 @@ namespace YourCommonTools
         */
         public bool GetActionOculusController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             try
             {
 #if ENABLE_OCULUS
@@ -355,6 +375,11 @@ namespace YourCommonTools
         */
         public bool GetActionCurrentStateOculusController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             try
             {
 #if ENABLE_OCULUS
@@ -395,6 +420,11 @@ namespace YourCommonTools
         */
         public bool GetAppButtonDownOculusController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             try
             {
 #if ENABLE_OCULUS
@@ -421,6 +451,11 @@ namespace YourCommonTools
         */
         public bool GetAppButtonUpOculusController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
             try
             {
 #if ENABLE_OCULUS
@@ -447,6 +482,11 @@ namespace YourCommonTools
         */
         public bool GetActionDaydreamController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
             {
@@ -509,6 +549,11 @@ namespace YourCommonTools
         */
         public bool GetActionCurrentStateDaydreamController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
             {
@@ -557,6 +602,11 @@ namespace YourCommonTools
 		 */
         public bool GetAppButtonDowDaydreamController(bool _isDown = true)
         {
+            if (!EnableInteractions) 
+            {
+                return false;
+            }
+
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
             {
