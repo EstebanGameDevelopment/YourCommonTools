@@ -476,6 +476,80 @@ namespace YourCommonTools
             return false;
         }
 
+        private bool m_rightPrimaryThumbstickWasTouched = false;
+        private bool m_rightPrimaryThumbstickWasUntouched = false;
+        private bool m_stickRightPressed = false;
+
+        // -------------------------------------------
+        /* 
+        * GetThumbstickDownOculusController
+        */
+        public bool GetThumbstickDownOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+                // RIGHT STICK
+                m_rightPrimaryThumbstickWasTouched = OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (m_rightPrimaryThumbstickWasTouched)
+                {
+                    if (!m_stickRightPressed)
+                    {
+                        if (axisValueRight.sqrMagnitude > 0.2f)
+                        {
+                            m_stickRightPressed = true;
+                        }
+                        if (m_stickRightPressed)
+                        {
+                            if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                            return true;
+                        }
+                    }
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetThumbstickUpOculusController
+        */
+        public bool GetThumbstickUpOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+                Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                if (axisValueRight.sqrMagnitude < 0.1f)
+                {
+                    if (m_stickRightPressed)
+                    {
+                        m_stickRightPressed = false;
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
         // -------------------------------------------
         /* 
         * GetActionDaydreamController
