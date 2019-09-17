@@ -2129,5 +2129,16 @@ namespace YourCommonTools
 
             return GetFullPathNameGO(_go.transform.parent.gameObject) + "," + _go.name;
         }
+
+        // -------------------------------------------
+        /* 
+		 * FaceTargetOnYAxis
+		 */
+        public static void FaceTargetOnYAxis(Transform _go, Vector3 _target)
+        {
+            Vector3 relative = _go.InverseTransformPoint(_target);
+            float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
+            _go.Rotate(0, angle, 0);
+        }
     }
 }
