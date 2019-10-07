@@ -118,7 +118,7 @@ namespace YourCommonTools
         /* 
 		 * Drone set up call
 		 */
-        public void Initialitzation(bool _autoStart = false, int _portNumberDrone = 14550, float _heightTakeOff = 5)
+        public void Initialitzation(bool _autoStart = false, string _ipAddressDrone = "localhost", int _portNumberDrone = 14550, float _heightTakeOff = 5)
         {
 #if ENABLE_DRONEANDROIDCONTROLLER
             if (m_dronekitAndroid == null)
@@ -129,7 +129,7 @@ namespace YourCommonTools
                 m_state = STATE_DISCONNECTED;
 
                 m_dronekitAndroid = new AndroidJavaObject("com.yourvrexperience.controldrone.ControlDroneDronekit");
-                m_dronekitAndroid.Call("initControlDrone", _portNumberDrone, _heightTakeOff);
+                m_dronekitAndroid.Call("initControlDrone", _ipAddressDrone, _portNumberDrone, _heightTakeOff);
 
                 Invoke("ConnectDrone", 3);
             }
