@@ -38,7 +38,6 @@ namespace YourCommonTools
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType<SoundsController>();
-					_instance.Initialize();
 				}
 				return _instance;
 			}
@@ -291,7 +290,7 @@ namespace YourCommonTools
 		/* 
 		 * PlaySingleSound
 		 */
-		public void PlaySingleSound(AudioClip _audio, bool _force = false)
+		public void PlaySingleSound(AudioClip _audio, bool _force = false, float _volume = 1)
 		{
 			if (!_force)
 			{
@@ -306,6 +305,7 @@ namespace YourCommonTools
                     m_audio2Playing = _audio;
                     m_audio2.clip = null;
                     m_audio2.loop = false;
+                    m_audio2.volume = _volume;
                     m_audio2.PlayOneShot(_audio);
 				}					
 			}
@@ -341,6 +341,10 @@ namespace YourCommonTools
 		 */
         public void Play3DSound(AudioClip _audioClip, Vector3 _position, float _volume, GameObject _objectSound = null, bool _loop = false)
         {
+            if (!m_enableFX) return;
+            if (!m_enabled) return;
+            if (_audioClip == null) return;
+
             AudioSource audioSource;
             GameObject soundGameObject = null;
             if (_objectSound == null)

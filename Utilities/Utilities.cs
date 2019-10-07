@@ -6,6 +6,11 @@ using System.IO;
 using UnityEngine.UI;
 using System.Security.Cryptography;
 using System.Net.NetworkInformation;
+using System.Runtime.Serialization.Formatters.Binary;
+#if UNITY_EDITOR
+using UnityEditor;
+using System.Reflection;
+#endif
 
 namespace YourCommonTools
 {
@@ -539,11 +544,44 @@ namespace YourCommonTools
 			return Vector3.zero;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
-		public static void ApplyMaterialOnImages(GameObject _go, Material _material)
+        public static void SetAllChildCollidersTrigger(GameObject _go, bool _trigger)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetAllChildCollidersTrigger(child.gameObject, _trigger);
+            }
+            if (_go.GetComponent<Collider>() != null)
+            {
+                if (_go.GetComponent<MeshCollider>()!=null) _go.GetComponent<MeshCollider>().convex = _trigger;
+                _go.GetComponent<Collider>().isTrigger = _trigger;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * We apply a box collider trigger on all the hirarquy of objects
+		 */
+        public static void SetAllChildBoxCollidersTrigger(GameObject _go, bool _trigger)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetAllChildBoxCollidersTrigger(child.gameObject, _trigger);
+            }
+            if (_go.GetComponent<BoxCollider>() != null)
+            {
+                _go.GetComponent<BoxCollider>().isTrigger = _trigger;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void ApplyMaterialOnImages(GameObject _go, Material _material)
 		{
 			foreach (Transform child in _go.transform)
 			{
@@ -585,7 +623,7 @@ namespace YourCommonTools
 		{
 			foreach (Transform child in _go.transform)
 			{
-				ApplyMaterialOnImages(child.gameObject, _material);
+                ApplyMaterialOnObjects(child.gameObject, _material);
 			}
 			if (_go.GetComponent<Renderer>() != null)
 			{
@@ -593,11 +631,28 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void ApplyMaterialOnMeshes(GameObject _go, Material _material)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                ApplyMaterialOnMeshes(child.gameObject, _material);
+            }
+            if (_go.GetComponent<SkinnedMeshRenderer>() != null)
+            {
+                _go.GetComponent<SkinnedMeshRenderer>().materials = new Material[0];
+                _go.GetComponent<SkinnedMeshRenderer>().material = _material;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Check if the objects is visible in the camera's frustum
 		 */
-		public static bool IsVisibleFrom(Bounds _bounds, Camera _camera)
+        public static bool IsVisibleFrom(Bounds _bounds, Camera _camera)
 		{
 			Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
 			return GeometryUtility.TestPlanesAABB(planes, _bounds);
@@ -698,11 +753,25 @@ namespace YourCommonTools
 			return bounds;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Disaable all the mesh renderers
+		 */
+        public static void EnableMeshRenderers(GameObject _gameObject, bool _value)
+        {
+            Renderer[] meshRenderers = _gameObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer bc in meshRenderers)
+            {
+                bc.enabled = _value;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Check if there is a collider
 		 */
-		public static bool IsThereABoxCollider(GameObject _gameObject)
+        public static bool IsThereABoxCollider(GameObject _gameObject)
 		{
 			Collider[] colliders = _gameObject.GetComponentsInChildren<BoxCollider>();
 
@@ -742,11 +811,29 @@ namespace YourCommonTools
 			return output;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * Will look fot the gameobject in the parent
+		 */
+        public static bool FindGameObjectInParent(GameObject _go, GameObject _target)
+        {
+            if (_go == _target)
+            {
+                return true;
+            }
+            bool output = false;
+            if (_go.transform.parent != null)
+            {
+                output = output || FindGameObjectInParent(_go.transform.parent.gameObject, _target);
+            }
+            return output;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Copy to the clipboard
 		 */
-		public static string Clipboard
+        public static string Clipboard
 		{
 			get { return GUIUtility.systemCopyBuffer; }
 			set { GUIUtility.systemCopyBuffer = value; }
@@ -957,11 +1044,20 @@ namespace YourCommonTools
 			return (long)(((DateTime.UtcNow - Jan1St1970).TotalMilliseconds) / 1000);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetTimestampDays
+		 */
+        public static long GetTimestampDays()
+        {
+            return (long)((((((DateTime.UtcNow - Jan1St1970).TotalMilliseconds) / 1000) / 60) / 60) / 24);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * GetDaysFromSeconds
 		 */
-		public static int GetDaysFromSeconds(long _seconds)
+        public static int GetDaysFromSeconds(long _seconds)
 		{
 			return (int)(((_seconds / 60) / 60) / 24);
 		}
@@ -1968,6 +2064,81 @@ namespace YourCommonTools
                 return default(T);
 
             return list[UnityEngine.Random.Range(0, list.Length)];
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CreateBinaryFile
+		 */
+        public static string CreatePathForFile(string _name, string _folder)
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, _folder);
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            return Path.Combine(folderPath, _name);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SaveBinaryData
+		 */
+        public static void SaveBinaryData(byte[] _data, string _path)
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            using (FileStream fileStream = File.Open(_path, FileMode.OpenOrCreate))
+            {
+                binaryFormatter.Serialize(fileStream, _data);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * LoadBinaryData
+		 */
+        public static byte[] LoadBinaryData(string _path)
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+
+            using (FileStream fileStream = File.Open(_path, FileMode.Open))
+            {
+                return (byte[])binaryFormatter.Deserialize(fileStream);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetFilePaths
+		 */
+        public static string[] GetFilePath(string _folderName, string _name)
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, _folderName);
+
+            return Directory.GetFiles(folderPath, _name);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetFullPathNameGO
+		 */
+        public static string GetFullPathNameGO(GameObject _go)
+        {
+            if (_go == null) return "";
+            if (_go.transform == null) return "";
+            if (_go.transform.parent == null) return "";
+
+            return GetFullPathNameGO(_go.transform.parent.gameObject) + "," + _go.name;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FaceTargetOnYAxis
+		 */
+        public static void FaceTargetOnYAxis(Transform _go, Vector3 _target)
+        {
+            Vector3 relative = _go.InverseTransformPoint(_target);
+            float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
+            _go.Rotate(0, angle, 0);
         }
     }
 }

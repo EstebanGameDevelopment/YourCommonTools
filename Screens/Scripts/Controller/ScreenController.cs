@@ -39,6 +39,8 @@ namespace YourCommonTools
         public const string EVENT_APP_LOST_FOCUS = "EVENT_APP_LOST_FOCUS";
         public const string EVENT_APP_PAUSED = "EVENT_APP_PAUSED";
 
+        public const string EVENT_SCREENCONTROLLER_REPLACE_LOGO = "EVENT_SCREENCONTROLLER_REPLACE_LOGO";
+
         public const int TOTAL_LAYERS_SCREENS = 10;
 
         public const int ANIMATION_MOVEMENT = 0;
@@ -458,6 +460,7 @@ namespace YourCommonTools
 		{
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
+                List<GameObject> listNotToDestroy = new List<GameObject>();
                 while (screenPool.Value.Count > 0)
                 {
                     GameObject screen = screenPool.Value[0];
@@ -465,7 +468,14 @@ namespace YourCommonTools
                     {
                         if (screen.GetComponent<IBasicView>() != null)
                         {
-                            screen.GetComponent<IBasicView>().Destroy();
+                            if (screen.GetComponent<IBasicView>().MustBeDestroyed)
+                            {
+                                screen.GetComponent<IBasicView>().Destroy();
+                            }
+                            else
+                            {
+                                listNotToDestroy.Add(screen);
+                            }                            
                         }
                         if (screen != null)
                         {
@@ -475,6 +485,14 @@ namespace YourCommonTools
                     }
                 }
                 screenPool.Value.Clear();
+                if (listNotToDestroy.Count > 0)
+                {
+                    for (int i = 0; i < listNotToDestroy.Count; i++)
+                    {
+                        screenPool.Value.Add(listNotToDestroy[i]);
+                    }
+                    listNotToDestroy.Clear();
+                }
             }
             if (DebugMode)
             {
@@ -809,10 +827,13 @@ namespace YourCommonTools
                 m_enableScreens = true;
                 GameObject screen = (GameObject)_list[0];
                 DestroyGameObjectSingleScreen(screen, true);
-                if (((screen.GetComponent<ScreenBaseView>().Layer == 0) || (screen.GetComponent<ScreenBaseView>().Layer == -1)) 
-                    && (screen.GetComponent<ScreenInformationView>() == null))
+                if (screen.GetComponent<ScreenBaseView>() != null)
                 {
-                    EnableScreens(0, true);
+                    if (((screen.GetComponent<ScreenBaseView>().Layer == 0) || (screen.GetComponent<ScreenBaseView>().Layer == -1))
+                        && (screen.GetComponent<ScreenInformationView>() == null))
+                    {
+                        EnableScreens(0, true);
+                    }
                 }
                 if (DebugMode)
                 {

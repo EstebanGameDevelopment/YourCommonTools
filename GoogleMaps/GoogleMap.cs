@@ -48,6 +48,10 @@ namespace YourCommonTools
         public const string EVENT_GOOGLEMAP_SELECTED_LOCATION = "EVENT_GOOGLEMAP_SELECTED_LOCATION";
 
         // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+
+        // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
         private static GoogleMap _instance;
@@ -78,7 +82,7 @@ namespace YourCommonTools
         public bool LoadOnStart = true;
 		public bool AutoLocateCenter = true;
 		public GoogleMapLocation CenterLocation;
-		public int Zoom = 13;
+		public int Zoom = 11;
 		public MapType mapType;
 		public int Size = 512;
 		public bool DoubleResolution = false;
@@ -94,12 +98,18 @@ namespace YourCommonTools
         private bool m_renderMap = true;
         private bool m_isInitialized = false;
 
+        private int m_accessNumberToGoogleMaps = -1;
+        private int m_totalAccessAllowed = -1;
+
+        private string m_accessToGoogleMap;
+        private string m_accessTimestamp;
+
         // -------------------------------------------
         /* 
 		 * Initialization
 		 */
-        public void Initialization(string _coordinateData, bool _renderMap = true)
-		{
+        public void Initialization(string _coordinateData, bool _renderMap = true, int _zoom = 12, bool _autoLocateCenter = false, int _totalAccessAllowed = -1, string _accessToGoogleMap = "ACCESS", string _accessTimestamp = "TIMESTAMP")
+        {
             if (m_isInitialized) return;
             m_isInitialized = true;
 
@@ -122,11 +132,16 @@ namespace YourCommonTools
             }
 
             m_renderMap = _renderMap;
+            Zoom = _zoom;
+            AutoLocateCenter = _autoLocateCenter;
+            m_totalAccessAllowed = _totalAccessAllowed;
+            m_accessToGoogleMap = _accessToGoogleMap;
+            m_accessTimestamp = _accessTimestamp;
 
 #if UNITY_EDITOR
             CenterLocation.latitude = 41.4771073f;
             CenterLocation.longitude = 2.082185f;
-            AutoLocateCenter = false;
+            // AutoLocateCenter = false;
             Zoom = 11;
 
             m_firstTimeLoad = false;
@@ -134,6 +149,48 @@ namespace YourCommonTools
 #else
             StartCoroutine(GetPositionDevice());
 #endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckNumberAccessToAllowMaps
+		 */
+        private bool CheckNumberAccessToAllowMaps()
+        {
+            if (m_totalAccessAllowed == -1)
+            {
+                return true;
+            }
+            else
+            {
+                if (m_accessNumberToGoogleMaps == -1)
+                {
+                    m_accessNumberToGoogleMaps = PlayerPrefs.GetInt(m_accessToGoogleMap, 0);
+                    int currentNumberDaysSince1970 = (int)Utilities.GetTimestampDays();
+                    int previousDaysRecorded = PlayerPrefs.GetInt(m_accessTimestamp, -1);
+                    if (currentNumberDaysSince1970 != previousDaysRecorded)
+                    {
+                        PlayerPrefs.SetInt(m_accessTimestamp, currentNumberDaysSince1970);
+                        PlayerPrefs.SetInt(m_accessToGoogleMap, 0);
+                        m_accessNumberToGoogleMaps = 0;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                m_accessNumberToGoogleMaps++;
+                if (m_accessNumberToGoogleMaps > m_totalAccessAllowed)
+                {
+                    return false;
+                }
+                else
+                {
+                    PlayerPrefs.SetInt(m_accessToGoogleMap, m_accessNumberToGoogleMaps);
+                    return true;
+                }
+            }
         }
 
         // -------------------------------------------
@@ -247,7 +304,7 @@ namespace YourCommonTools
 		{
 			if (_nameEvent == EVENT_GOOGLEMAP_INIT_POSITION)
 			{
-				CenterLocation.latitude = (float)_list[0];
+                CenterLocation.latitude = (float)_list[0];
 				CenterLocation.longitude = (float)_list[1];
                 Refresh();
                 if (m_firstTimeLoad)
@@ -266,11 +323,14 @@ namespace YourCommonTools
         {
             if (_nameEvent == EVENT_GOOGLEMAP_SHIFT_POSITION)
             {
-                Vector2 shift = (Vector2)_list[0];
-                float zoomFactor = GetZoomFactor(Zoom);
-                CenterLocation.longitude -= shift.x * zoomFactor;
-                CenterLocation.latitude -= shift.y * zoomFactor;
-                Refresh();
+                if (CheckNumberAccessToAllowMaps())
+                {
+                    Vector2 shift = (Vector2)_list[0];
+                    float zoomFactor = GetZoomFactor(Zoom);
+                    CenterLocation.longitude -= shift.x * zoomFactor;
+                    CenterLocation.latitude -= shift.y * zoomFactor;
+                    Refresh();
+                }
             }
             if (_nameEvent == EVENT_GOOGLEMAP_ZOOM)
             {
@@ -320,14 +380,21 @@ namespace YourCommonTools
 		 */
         public void Refresh()
 		{
-            if (m_renderMap)
+            if (CheckNumberAccessToAllowMaps())
             {
-                if (AutoLocateCenter && (Markers.Length == 0 && Paths.Length == 0))
+                if (m_renderMap)
                 {
-                    Debug.Log("Auto Center will only work if paths or markers are used.");
+                    if (AutoLocateCenter && (Markers.Length == 0 && Paths.Length == 0))
+                    {
+                        Debug.Log("Auto Center will only work if paths or markers are used.");
+                    }
+                    GetComponent<Image>().color = new Color(1, 1, 1, 0);
+                    StartCoroutine(RefreshingInformationWithGoogleMaps());
                 }
-                GetComponent<Image>().color = new Color(1, 1, 1, 0);
-                StartCoroutine(RefreshingInformationWithGoogleMaps());
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.total.access.google.maps.reached"), null, "");
             }
         }
 

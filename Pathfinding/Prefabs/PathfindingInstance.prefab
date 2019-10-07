@@ -19,9 +19,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4032151845377550}
-  - component: {fileID: 114554994030171888}
+  - component: {fileID: 114467254135963880}
   m_Layer: 0
-  m_Name: PathfindingController
+  m_Name: PathfindingInstance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,7 +40,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114554994030171888
+--- !u!114 &114467254135963880
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -48,8 +48,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1566666292694774}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2a128c91e714af4c9e37be7287db067, type: 3}
+  m_Script: {fileID: 11500000, guid: 6849283b9bc8a724eb006b421701e372, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DotReference: {fileID: 1361470650162984, guid: 7d7c2d2008f65d048ac975e0cc0281e4,
-    type: 2}

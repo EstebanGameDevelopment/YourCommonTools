@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
+using UnityEngine.Networking;
 
 namespace YourCommonTools
 {
@@ -27,8 +27,7 @@ namespace YourCommonTools
 		public const string TOKEN_SEPARATOR_LINES = "<line>";
         public const string TOKEN_SEPARATOR_USER_DATA = "<udata>";
 
-        public const bool DEBUG_LOG = true;
-
+        public const bool DEBUG_LOG = false;
 
 		public const int STATE_IDLE = 0;
 		public const int STATE_COMMUNICATION = 1;
@@ -166,13 +165,13 @@ namespace YourCommonTools
 		 */
 		public void Request(string _event, bool _isBinaryResponse, params object[] _list)
 		{
-			if (m_state != STATE_IDLE)
+            if (m_state != STATE_IDLE)
 			{
 				QueuedRequest(_event, _isBinaryResponse, _list);
 				return;
 			}
 
-			RequestReal(_event, _isBinaryResponse, _list);
+            RequestReal(_event, _isBinaryResponse, _list);
 		}
 
 		// -------------------------------------------
@@ -210,17 +209,15 @@ namespace YourCommonTools
 		 */
 		private void RequestReal(string _event, bool _isBinaryResponse, params object[] _list)
 		{
-			m_event = _event;
-			
+            m_event = _event;
 			m_commRequest = (IHTTPComms)Activator.CreateInstance(Type.GetType(m_event));
-
 
 			ChangeState(STATE_COMMUNICATION);
 			string data = m_commRequest.Build(_list);
 			if (DEBUG_LOG)
 			{
-				Debug.Log("CommController::RequestReal:URL=" + m_commRequest.UrlRequest);
-				Debug.Log("CommController::RequestReal:data=" + data);
+                Utilities.DebugLogWarning("CommController::RequestReal:URL=" + m_commRequest.UrlRequest);
+                Utilities.DebugLogWarning("CommController::RequestReal:data=" + data);
 			}
 			if (m_commRequest.Method == BaseDataHTTP.METHOD_GET)
 			{
@@ -240,19 +237,16 @@ namespace YourCommonTools
 			}
 			else
 			{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            WWW www = new WWW(m_commRequest.UrlRequest, m_commRequest.FormPost.data, m_commRequest.GetHeaders());
-#else
-				WWW www = new WWW(m_commRequest.UrlRequest, m_commRequest.FormPost.data, m_commRequest.FormPost.headers);
-#endif
-				if (_isBinaryResponse)
+                UnityWebRequest www = UnityWebRequest.Post(m_commRequest.UrlRequest, m_commRequest.FormPost);
+
+                if (_isBinaryResponse)
 				{
-					StartCoroutine(WaitForRequest(www));
-				}
+                    StartCoroutine(WaitForUnityWebRequest(www));
+                }
 				else
 				{
-					StartCoroutine(WaitForStringRequest(www));
-				}
+                    StartCoroutine(WaitForUnityWebStringRequest(www));
+                }
 			}
 		}
 
@@ -271,7 +265,7 @@ namespace YourCommonTools
 		 */
 		public void QueuedRequest(string _nameEvent, bool _isBinaryResponse, params object[] _list)
 		{
-			m_listQueuedEvents.Add(new CommEventData(_nameEvent, _isBinaryResponse, 0, _list));
+            m_listQueuedEvents.Add(new CommEventData(_nameEvent, _isBinaryResponse, 0, _list));
 		}
 
 		// -------------------------------------------
@@ -291,53 +285,121 @@ namespace YourCommonTools
 		{
 			yield return www;
 
-			// check for errors
-			if (www.error == null)
-			{
-				if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.text);
-				m_commRequest.Response(www.bytes);
-			}
-			else
-			{
-				if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
-				m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+            // check for errors
+            try
+            {
+			    if (www.error == null)
+			    {
+				    if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.text);
+				    m_commRequest.Response(www.bytes);
+			    }
+			    else
+			    {
+				    if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+				    m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+			    }
+            } catch (Exception err)
+            {
+                if (DEBUG_LOG) Utilities.DebugLogError("CommController::WaitForRequest::err=" + err.Message);
+            }
 
-			}
-
-			ChangeState(STATE_IDLE);
+            ChangeState(STATE_IDLE);
 			ProcesQueuedComms();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* WaitForUnityWebRequest
+		*/
+        IEnumerator WaitForUnityWebRequest(UnityWebRequest www)
+        {
+            yield return www.SendWebRequest();
+
+            try { 
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+                    m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+                }
+                else
+                {
+                    if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.downloadHandler.text);
+                    m_commRequest.Response(www.downloadHandler.data);
+                }
+            } catch (Exception err)
+            {
+                if (DEBUG_LOG) Utilities.DebugLogError("CommController::WaitForUnityWebRequest::err=" + err.Message);
+            }
+
+            ChangeState(STATE_IDLE);
+            ProcesQueuedComms();
+        }
+        
+
+        // -------------------------------------------
+        /* 
 		* WaitForRequest
 		*/
-		IEnumerator WaitForStringRequest(WWW www)
+        IEnumerator WaitForStringRequest(WWW www)
 		{
 			yield return www;
 
-			// check for errors
-			if (www.error == null)
-			{
-				if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.text);
-				m_commRequest.Response(www.text);
-			}
-			else
-			{
-				if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
-				m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+            // check for errors
+            try
+            {
+                if (www.error == null)
+                {
+                    if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.text);
+                    m_commRequest.Response(www.text);
+                }
+                else
+                {
+                    if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+                    m_commRequest.Response(Encoding.ASCII.GetBytes(www.error));
+                }
+            } catch (Exception err)
+            {
+                if (DEBUG_LOG) Utilities.DebugLogError("CommController::WaitForStringRequest::err=" + err.Message);
+            }
 
-			}
-
-			ChangeState(STATE_IDLE);
+            ChangeState(STATE_IDLE);
 			ProcesQueuedComms();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* WaitForUnityWebStringRequest
+		*/
+        IEnumerator WaitForUnityWebStringRequest(UnityWebRequest www)
+        {
+            yield return www.SendWebRequest();
+
+            try
+            { 
+                if (www.isNetworkError || www.isHttpError)
+                {
+                    if (DEBUG_LOG) Debug.LogError("WWW Error: " + www.error);
+                    m_commRequest.Response(www.error);
+                }
+                else
+                {
+                    if (DEBUG_LOG) Debug.Log("WWW Ok!: " + www.downloadHandler.text);
+                    m_commRequest.Response(www.downloadHandler.text);
+                }
+            } catch (Exception err)
+            {
+                if (DEBUG_LOG) Utilities.DebugLogError("CommController::WaitForUnityWebStringRequest::err=" + err.Message);
+            }
+
+            ChangeState(STATE_IDLE);
+            ProcesQueuedComms();
+        }
+
+        // -------------------------------------------
+        /* 
 		 * DisplayLog
 		 */
-		public void DisplayLog(string _data)
+        public void DisplayLog(string _data)
 		{
 			m_inGameLog = _data + "\n";
 			if (DEBUG_LOG)

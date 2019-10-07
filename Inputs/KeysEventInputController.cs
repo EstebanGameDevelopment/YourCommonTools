@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -46,6 +47,8 @@ namespace YourCommonTools
 		private int DIRECTION_DOWN = 3;
 		private int DIRECTION_UP = 4;
 
+        private float OCULUS_TRIGGER_SENSIBILITY = 0.7f;
+
 		// ----------------------------------------------
 		// CONSTANTS
 		// ----------------------------------------------	
@@ -79,17 +82,12 @@ namespace YourCommonTools
 					{
 						GameObject container = new GameObject();
 						container.name = "KeysEventInputController";
-						_instance = container.AddComponent(typeof(KeysEventInputController)) as KeysEventInputController;
+                        _instance = container.AddComponent(typeof(KeysEventInputController)) as KeysEventInputController;
 					}
 				}
 				return _instance;
 			}
 		}
-
-        // ----------------------------------------------
-        // PUBLIC MEMBERS
-        // ----------------------------------------------
-        public bool EnableActionButton = true;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -102,6 +100,9 @@ namespace YourCommonTools
 
         // DAYDREAM
         private List<GameObject> m_controllerPointers;
+
+        private bool m_enableActionButton = true;
+        private bool m_enableInteractions = true;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -123,12 +124,22 @@ namespace YourCommonTools
 			get { return m_temporalNumberScreensActive; }
 			set { m_temporalNumberScreensActive = value; }			
 		}
-
-		// -------------------------------------------
-		/* 
+        public bool EnableActionButton
+        {
+            get { return m_enableActionButton; }
+            set { m_enableActionButton = value; }
+        }
+        public bool EnableInteractions
+        {
+            get { return m_enableInteractions; }
+            set { m_enableInteractions = value; }
+        }
+        
+        // -------------------------------------------
+        /* 
 		 * Initialization
 		 */
-		public void Initialization()
+        public void Initialization()
 		{
 		}
 
@@ -210,10 +221,346 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * GetActionDaydreamController
-		 */
-        public bool GetActionDaydreamController(bool _down, string _eventDown = null, string _eventUp = null)
+        * GetActionDefaultController
+        */
+        public bool GetActionDefaultController(bool _isDown, string _eventDown = null, string _eventUp = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            // KEY PRESSED
+            if (Input.GetKeyDown(KeyCode.LeftControl)
+                || Input.GetKeyDown(KeyCode.JoystickButton0)
+                || Input.GetMouseButtonDown(0)
+#if !UNITY_EDITOR
+                || Input.GetButtonDown("Fire1")
+#endif
+                )
+            {
+                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DispatchUIEvent(_eventDown);
+                if (_isDown) return true;
+            }
+
+            // KEY RELEASE
+            if (Input.GetKeyUp(KeyCode.LeftControl)
+                || Input.GetKeyUp(KeyCode.JoystickButton0)
+                || Input.GetMouseButtonUp(0)
+#if !UNITY_EDITOR
+                        || Input.GetButtonUp("Fire1")
+#endif
+                        )
+            {
+                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DispatchUIEvent(_eventUp);
+                if (!_isDown) return true;
+            }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionCurrentStateDefaultController
+        */
+        public bool GetActionCurrentStateDefaultController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            // KEY PRESSED
+            if (Input.GetKey(KeyCode.LeftControl)
+                || Input.GetKey(KeyCode.JoystickButton0)
+                || Input.GetMouseButton(0)
+#if !UNITY_EDITOR
+                || Input.GetButton("Fire1")
+#endif
+                )
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DispatchUIEvent(_event);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool m_oculusActionPressed = false;
+
+        // -------------------------------------------
+        /* 
+        * GetActionOculusController
+        */
+        public bool GetActionOculusController(bool _isDown, string _eventDown = null, string _eventUp = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+            if (_isDown)
+            {
+                // +++++ BUTTON CONTROLLERS (DOWN)
+                try
+                {
+                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        m_oculusActionPressed = true;
+                        if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                // +++++ TOUCH CONTROLLERS (DOWN)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if (!m_oculusActionPressed)
+                        {
+                            float pressionOnButton = OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger, OVRInput.Controller.RTouch);
+                            if (pressionOnButton > OCULUS_TRIGGER_SENSIBILITY)
+                            {
+                                m_oculusActionPressed = true;
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return true;
+                            }
+                        }
+                    }
+                }
+                catch (Exception err) { }
+            }
+            else
+            {
+                // +++++ BUTTON CONTROLLERS (UP)
+                try
+                {
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        m_oculusActionPressed = false;
+                        if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                if (m_oculusActionPressed)
+                {
+                    // +++++ TOUCH CONTROLLERS (UP)
+                    try
+                    {
+                        if (OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                        {
+                            m_oculusActionPressed = false;
+                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                            return true;
+                        }
+                    }
+                    catch (Exception err) { }
+                }
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionOculusController
+        */
+        public bool GetActionCurrentStateOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+
+                        float pressionOnButton = OVRInput.Get(OVRInput.RawAxis1D.RIndexTrigger, OVRInput.Controller.RTouch);
+                        if (pressionOnButton > OCULUS_TRIGGER_SENSIBILITY)
+                        {
+                            return true;
+                        }                
+                    }
+                }
+                catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetAppButtonDownOculusController
+        */
+        public bool GetAppButtonDownOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+
+            bool buttonAWasTouched = false, buttonBWasTouched = false;
+
+            try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.One"); }
+            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Two"); }
+
+            if (buttonAWasTouched || buttonBWasTouched)
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetAppButtonUpOculusController
+        */
+        public bool GetAppButtonUpOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+
+            bool buttonAWasTouched = false, buttonBWasTouched = false;
+
+            try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.One"); }
+            try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("+++++++++OVRInput.Touch.Two"); }
+
+            if (buttonAWasTouched || buttonBWasTouched)
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        private bool m_rightPrimaryThumbstickWasTouched = false;
+        private bool m_rightPrimaryThumbstickWasUntouched = false;
+        private bool m_stickRightPressed = false;
+
+        // -------------------------------------------
+        /* 
+        * GetThumbstickDownOculusController
+        */
+        public bool GetThumbstickDownOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+                // RIGHT STICK
+                m_rightPrimaryThumbstickWasTouched = OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (m_rightPrimaryThumbstickWasTouched)
+                {
+                    if (!m_stickRightPressed)
+                    {
+                        if (axisValueRight.sqrMagnitude > 0.2f)
+                        {
+                            m_stickRightPressed = true;
+                        }
+                        if (m_stickRightPressed)
+                        {
+                            if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                            return true;
+                        }
+                    }
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetThumbstickUpOculusController
+        */
+        public bool GetThumbstickUpOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+                Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                if (axisValueRight.sqrMagnitude < 0.1f)
+                {
+                    if (m_stickRightPressed)
+                    {
+                        m_stickRightPressed = false;
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionDaydreamController
+        */
+        public bool GetActionDaydreamController(bool _isDown, string _eventDown = null, string _eventUp = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
             {
@@ -236,41 +583,35 @@ namespace YourCommonTools
                     foreach (var hand in AllHands)
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
-                        if (_down)
+                        if (device.GetButtonDown(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
                         {
-                            if (device.GetButtonDown(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
                             {
-                                // Match the button to our own controllerPointers list.
-                                if (device == trackedController1.ControllerInputDevice)
-                                {
-                                    if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                                    return true;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                if (_isDown) return true;
+                            }
+                            else
+                            {
+                                if (_isDown) return false;
                             }
                         }
-                        else
+                        if (device.GetButtonUp(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
                         {
-                            if (device.GetButtonUp(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
                             {
-                                // Match the button to our own controllerPointers list.
-                                if (device == trackedController1.ControllerInputDevice)
-                                {
-                                    if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                                    return true;
-                                }
-                                else
-                                {
-                                    return false;
-                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                if (!_isDown) return true;
+                            }
+                            else
+                            {
+                                if (!_isDown) return false;
                             }
                         }
                     }
                 }
-            }
+            }            
 #endif
             return false;
         }
@@ -278,10 +619,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * GetAppButtonDowDaydreamController
-		 */
-        public bool GetAppButtonDowDaydreamController()
+        * GetActionCurrentStateDaydreamController
+        */
+        public bool GetActionCurrentStateDaydreamController(string _event = null)
         {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
 #if ENABLE_WORLDSENSE
             if (m_controllerPointers == null)
             {
@@ -304,7 +650,69 @@ namespace YourCommonTools
                     foreach (var hand in AllHands)
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
-                        if (device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER))
+                        if (device.GetButton(POINTER_ACTION_DOWN_DAYDREAMCONTROLLER))
+                        {
+                            // Match the button to our own controllerPointers list.
+                            if (device == trackedController1.ControllerInputDevice)
+                            {
+                                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }            
+#endif
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetAppButtonDowDaydreamController
+		 */
+        public bool GetAppButtonDowDaydreamController(bool _isDown = true)
+        {
+            if (!EnableInteractions) 
+            {
+                return false;
+            }
+
+#if ENABLE_WORLDSENSE
+            if (m_controllerPointers == null)
+            {
+                GvrTrackedController[] gvrTrackedControllers = GameObject.FindObjectsOfType<GvrTrackedController>();
+                if (gvrTrackedControllers.Length > 0)
+                {
+                    m_controllerPointers = new List<GameObject>();
+                    foreach (GvrTrackedController trackControl in gvrTrackedControllers)
+                    {
+                        m_controllerPointers.Add(trackControl.gameObject);
+                    }
+                }
+            }
+
+            if (m_controllerPointers != null)
+            {
+                if (m_controllerPointers.Count > 0 && m_controllerPointers[0] != null)
+                {
+                    GvrTrackedController trackedController1 = m_controllerPointers[0].GetComponent<GvrTrackedController>();
+                    foreach (var hand in AllHands)
+                    {
+                        GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
+                        bool isPressedApp = false;
+                        if (_isDown)
+                        {
+                            isPressedApp = device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER);
+                        }
+                        else
+                        {
+                            isPressedApp = device.GetButtonUp(APP_BUTTON_DAYDREAMCONTROLLER);
+                        }
+                        if (isPressedApp)
                         {
                             // Match the button to our own controllerPointers list.
                             if (device == trackedController1.ControllerInputDevice)
@@ -321,9 +729,9 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * KeyInputPressActionButton
+		 * KeyInputActionButton
 		 */
-        private void KeyInputPressActionButton()
+        private void KeyInputActionButton()
 		{
             if (!EnableActionButton) return;
 
@@ -336,174 +744,40 @@ namespace YourCommonTools
             }
 #endif
 
-#if ENABLE_OCULUS && !UNITY_EDITOR
+#if ENABLE_OCULUS
             if (OVRInput.GetControllerWasRecentered())
             {
                 UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
             }
 #endif
 
-            bool hasEntered = false;
 			if (m_enableActionOnMouseDown)
 			{
-				// DAYDREAM CONTROLLER				
-				if (m_isDaydreamActivated)
-				{
-                    hasEntered = GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-                }
-
-                if (!hasEntered)
-				{
-					bool fire1Triggered = false;
-
-#if ENABLE_OCULUS && !UNITY_EDITOR
-                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-                    }
+#if ENABLE_WORLDSENSE && !UNITY_EDITOR
+                GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_OCULUS
+                GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #else
-                    if (m_temporalNumberScreensActive == 0)
-                    {
-                        if (Input.GetButtonDown("Fire1"))
-                        {
-                            fire1Triggered = true;
-                        }
-                    }
-
-                    if (Input.GetKeyDown(KeyCode.LeftControl)
-                        || Input.GetKeyDown(KeyCode.JoystickButton0)
-#if !UNITY_EDITOR
-                        || Input.GetButtonDown("Fire1")
+                GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #endif
-                        || fire1Triggered)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-                    }
-#endif
-                }
             }
 			else
 			{
-				// DAYDREAM CONTROLLER
-				if (m_isDaydreamActivated)
-				{
-                    hasEntered = GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-                }
-
-				if (!hasEntered)
-				{
-
-#if ENABLE_OCULUS && !UNITY_EDITOR
-                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
-                    }
-
-                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-                    }
+#if ENABLE_WORLDSENSE && !UNITY_EDITOR
+                GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_OCULUS
+                GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #else
-
-                    bool fire1Triggered = false;
-                    if (m_temporalNumberScreensActive == 0)
-                    {
-                        if (Input.GetButtonDown("Fire1"))
-                        {
-                            fire1Triggered = true;
-                        }
-                    }
-
-                    bool fire1Released = false;
-					if (m_temporalNumberScreensActive == 0)
-					{
-						if (Input.GetButtonUp("Fire1"))
-						{
-							fire1Released = true;
-						}
-					}
-
-					// ACTION BUTTON ANCHOR
-					if (Input.GetKeyDown(KeyCode.LeftControl)
-						|| Input.GetKeyDown(KeyCode.JoystickButton0)
-#if !UNITY_EDITOR
-                        || Input.GetButtonDown("Fire1")
+                GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #endif
-                        || fire1Triggered)
-					{
-						UIEventController.Instance.DispatchUIEvent(ACTION_SET_ANCHOR_POSITION);
-					}
-
-                    // ACTION BUTTON RELEASED
-                    if (Input.GetKeyUp(KeyCode.LeftControl)
-						|| Input.GetKeyUp(KeyCode.JoystickButton0)
-#if !UNITY_EDITOR
-                        || Input.GetButtonUp("Fire1")
-#endif
-                        || fire1Released)
-					{
-						UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_DOWN);
-					}
-#endif
-                }
 			}
-		}
-
-        // -------------------------------------------
-        /* 
-		 * KeyInputReleasedActionButton
-		 */
-        private void KeyInputReleasedActionButton()
-        {
-            if (!EnableActionButton) return;
-
-            bool hasEntered = false;
-            if (m_enableActionOnMouseDown)
-            {
-                // DAYDREAM CONTROLLER				
-                if (m_isDaydreamActivated)
-                {
-#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-                    hasEntered = GetActionDaydreamController(false, ACTION_BUTTON_UP, ACTION_BUTTON_UP);
-#endif
-                }
-                if (!hasEntered)
-                {
-                    bool fire1Released = false;
-
-#if ENABLE_OCULUS && !UNITY_EDITOR
-                    Debug.LogError("KeyInputPressActionButton::OCULUS BASURA");
-                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
-                    }
-#else
-                    if (m_temporalNumberScreensActive == 0)
-                    {
-                        if (Input.GetButtonUp("Fire1"))
-                        {
-                            fire1Released = true;
-                        }
-                    }
-
-                    if (Input.GetKeyUp(KeyCode.LeftControl)
-                        || Input.GetKeyUp(KeyCode.JoystickButton0)
-#if !UNITY_EDITOR
-                        || Input.GetButtonUp("Fire1")
-#endif
-                        || fire1Released)
-                    {
-                        UIEventController.Instance.DispatchUIEvent(ACTION_BUTTON_UP);
-                    }
-#endif
-                }
-            }
         }
 
+
         // -------------------------------------------
         /* 
-		 * KeyInputCancelManagement
-		 */
+         * KeyInputCancelManagement
+         */
         private void KeyInputCancelManagement()
 		{
 			// DAYDREAM CONTROLLER
@@ -521,7 +795,7 @@ namespace YourCommonTools
 			}
 			// BACK BUTTON
 			if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
-#if ENABLE_OCULUS
+#if ENABLE_OCULUS && !ENABLE_QUEST
                 || OVRInput.GetDown(OVRInput.Button.Back)
 #endif
                 )
@@ -608,8 +882,7 @@ namespace YourCommonTools
         private void KeyInputManagment()
 		{
 			// ACTION BUTTON MANAGEMENT
-			KeyInputPressActionButton();
-            KeyInputReleasedActionButton();
+			KeyInputActionButton();
 
             // CANCEL BUTTON MANAGEMENT
             KeyInputCancelManagement();
@@ -627,8 +900,8 @@ namespace YourCommonTools
 		 */
 		void Update()
 		{
-			KeyInputManagment();
+            KeyInputManagment();
 		}
-	}
+    }
 
 }

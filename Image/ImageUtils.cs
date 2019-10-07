@@ -40,16 +40,19 @@ namespace YourCommonTools
 		 */
 		public static void TransformTexture(Texture2D _textureOriginal, Image _image, int _height, string _pathFile, int _maximumHeightAllowed)
 		{
-			if ((_textureOriginal.width > 100) && (_textureOriginal.height > 100))
-			{
-				float factorScale = ((float)_maximumHeightAllowed / (float)_textureOriginal.height);
-				Texture2D textureScaled = ImageUtils.ScaleTexture(_textureOriginal, (int)(_textureOriginal.width * factorScale), (int)_maximumHeightAllowed);
-				_image.overrideSprite = ToSprite(textureScaled);
-				float finalWidth = textureScaled.width * ((float)_height / (float)textureScaled.height);
-				_image.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(finalWidth, _height);
-			}
-			BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM, _pathFile, _textureOriginal.width, _textureOriginal.height);
-		}
+            if (_image != null)
+            {
+                if ((_textureOriginal.width > 100) && (_textureOriginal.height > 100))
+                {
+                    float factorScale = ((float)_maximumHeightAllowed / (float)_textureOriginal.height);
+                    Texture2D textureScaled = ImageUtils.ScaleTexture(_textureOriginal, (int)(_textureOriginal.width * factorScale), (int)_maximumHeightAllowed);
+                    _image.overrideSprite = ToSprite(textureScaled);
+                    float finalWidth = textureScaled.width * ((float)_height / (float)textureScaled.height);
+                    _image.gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(finalWidth, _height);
+                }
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM, _pathFile, _textureOriginal.width, _textureOriginal.height);
+            }
+        }
 
 		// -------------------------------------------
 		/* 
@@ -78,11 +81,21 @@ namespace YourCommonTools
 			return ImageUtils.ScaleTexture(_texture, (int)(_texture.width * factorScale), (int)_height);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * LoadBytesTexture
+		 */
+        public static Texture2D LoadBytesTexture(byte[] _pvrtcBytes)
+        {
+            Texture2D tex = new Texture2D(2, 2);
+            tex.LoadImage(_pvrtcBytes);
+            return tex;
+        }
+        // -------------------------------------------
+        /* 
 		 * LoadBytesRawImage
 		 */
-		public static void LoadBytesRawImage(Image _image, byte[] _pvrtcBytes)
+        public static void LoadBytesRawImage(Image _image, byte[] _pvrtcBytes)
 		{
 			Texture2D tex = new Texture2D(16, 16, TextureFormat.PVRTC_RGBA4, false);
 			tex.LoadRawTextureData(_pvrtcBytes);

@@ -18,12 +18,53 @@ namespace YourCommonTools
 		public const string SCREEN_INFORMATION			= "SCREEN_INFORMATION";
 		public const string SCREEN_CONFIRMATION			= "SCREEN_CONFIRMATION";
 		public const string SCREEN_INFORMATION_IMAGE	= "SCREEN_INFORMATION_IMAGE";
-		public const string SCREEN_WAIT					= "SCREEN_WAIT";
+        public const string SCREEN_INFORMATION_ICON     = "SCREEN_INFORMATION_ICON";
+        public const string SCREEN_WAIT					= "SCREEN_WAIT";
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
         public const string SCREEN_UNLOCK_CURRENCY      = "SCREEN_UNLOCK_CURRENCY";
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
         public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
+
+        // -------------------------------------------
+        /* 
+		 * CheckNameInformationScreen
+		 */
+        public static bool CheckNameGenericScreen(string _screenName)
+        {
+            return (_screenName.IndexOf(SCREEN_INFORMATION)!=-1) ||
+                (_screenName.IndexOf(SCREEN_CONFIRMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_IMAGE) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1) ||
+                (_screenName.IndexOf(SCREEN_WAIT) != -1) ||
+                (_screenName.IndexOf(SCREEN_INITIAL_CONNECTION) != -1) ||
+                (_screenName.IndexOf(SCREEN_UNLOCK_CURRENCY) != -1) ||
+                (_screenName.IndexOf(SCREEN_CHANGE_NETWORK) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_FIT_SCAN) != -1) ||
+                (_screenName.IndexOf(SCREEN_DIALOG) != -1);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckNameInformationScreen
+		 */
+        public static bool CheckNameInformationScreen(string _screenName)
+        {
+            return (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_CONFIRMATION) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_IMAGE) != -1) ||
+                (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckNameConfirmationScreen
+		 */
+        public static bool CheckNameConfirmationScreen(string _screenName)
+        {
+            return  (_screenName.IndexOf(SCREEN_CONFIRMATION)!=-1);
+        }
 
         // ----------------------------------------------
         // EVENTS
@@ -33,6 +74,9 @@ namespace YourCommonTools
         public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
         public const string EVENT_SCREEN_FADE_BACKGROUND            = "EVENT_SCREEN_FADE_BACKGROUND";
         public const string EVENT_SCREEN_RESET_ANIMATION_PARAMS     = "EVENT_SCREEN_RESET_ANIMATION_PARAMS";
+
+        public const string EVENT_SCREEN_INFORMATION_DISPLAYED = "EVENT_SCREEN_INFORMATION_DISPLAYED";
+        public const string EVENT_SCREEN_INFORMATION_CLOSED = "EVENT_SCREEN_INFORMATION_CLOSED";
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -159,6 +203,7 @@ namespace YourCommonTools
             {
                 UIEventController.Instance.DelayUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP, UIEventController.Instance.ActivateAutoDestruction);
             }
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_DISPLAYED);
         }
 
 		// -------------------------------------------
@@ -193,6 +238,7 @@ namespace YourCommonTools
             UIEventController.Instance.UIEvent -= OnUIEvent;
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
 
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_CLOSED);
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 
             return false;
@@ -274,9 +320,9 @@ namespace YourCommonTools
 
 			if ((m_currentPage >= 0) && (m_currentPage < m_pagesInfo.Count))
 			{
-				if (m_title != null) m_title.text = m_pagesInfo[m_currentPage].MyTitle;
-				if (m_textDescription != null) m_textDescription.text = m_pagesInfo[m_currentPage].MyText;
-				if (m_imageContent != null)
+                if (m_title != null) m_title.text = LanguageController.Instance.GetText(m_pagesInfo[m_currentPage].MyTitle);
+                if (m_textDescription != null) m_textDescription.text = LanguageController.Instance.GetText(m_pagesInfo[m_currentPage].MyText);
+                if (m_imageContent != null)
 				{
 					if (m_pagesInfo[m_currentPage].MySprite != null)
 					{

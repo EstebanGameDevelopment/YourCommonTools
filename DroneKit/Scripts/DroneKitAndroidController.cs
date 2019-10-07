@@ -140,7 +140,7 @@ namespace YourCommonTools
         /* 
         * Start the drone with the desired vector velocity
         */
-        public bool RunVelocity(float _vx, float _vy, float _vz, bool _autoStart = false, float _timeoutRunning = 5, int _speedDrone = 5)
+        public bool RunVelocity(float _vx, float _vy, float _vz, bool _autoStart = false, float _timeoutRunning = 5, float _speedDrone = 5)
 		{
             // IF IT'S IN STATE GO TO, THE PAUSE THE DRONE BEFORE NEW VELOCITY
             if (m_gotoActivated)

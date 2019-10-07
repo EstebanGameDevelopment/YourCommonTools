@@ -145,6 +145,11 @@ namespace YourCommonTools
 		 */
         public GameObject CreateGameObject(string _name)
         {
+#if UNITY_EDITOR
+            Utilities.DebugLogError("AssetbundleController::CreateGameObject::_name=" + _name);
+#endif
+            if (!m_assetBundle.Contains(_name)) return null;
+
             if (!m_loadedObjects.ContainsKey(_name))
             {
                 m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
@@ -155,10 +160,50 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * CreateSprite
+		 */
+        public Sprite CreateSprite(string _name)
+        {
+#if UNITY_EDITOR
+            Utilities.DebugLogError("AssetbundleController::CreateSprite::_name=" + _name);
+#endif
+            if (!m_assetBundle.Contains(_name)) return null;
+
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as Sprite;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CreateTexture
+		 */
+        public Texture2D CreateTexture(string _name)
+        {
+#if UNITY_EDITOR
+            Utilities.DebugLogError("AssetbundleController::CreateTexture::_name=" + _name);
+#endif
+            if (!m_assetBundle.Contains(_name)) return null;
+
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as Texture2D;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Create a game audioclip
 		 */
         public AudioClip CreateAudioclip(string _name)
         {
+            if (!m_assetBundle.Contains(_name)) return null;
+
             if (!m_loadedObjects.ContainsKey(_name))
             {
                 m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));

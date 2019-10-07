@@ -38,7 +38,7 @@ namespace YourCommonTools
         {
             base.OnPointerExit(eventData);
 
-            UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject);
+            // UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject);
         }
 
     }
