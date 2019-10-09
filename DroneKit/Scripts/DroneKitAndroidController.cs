@@ -25,6 +25,9 @@ namespace YourCommonTools
         public const string EVENT_DRONEKITCONTROLLER_LANDING            = "EVENT_DRONEKITCONTROLLER_LANDING";
         public const string EVENT_DRONEKITCONTROLLER_LANDED             = "EVENT_DRONEKITCONTROLLER_LANDED";
 
+        public const string EVENT_DRONEKITCONTROLLER_ERROR              = "EVENT_DRONEKITCONTROLLER_ERROR";
+        public const string EVENT_DRONEKITCONTROLLER_VEHICLEMODE_CHANGED= "EVENT_DRONEKITCONTROLLER_VEHICLEMODE_CHANGED";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------
