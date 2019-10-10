@@ -39,6 +39,14 @@ namespace YourCommonTools
         private bool m_hasTakenOff = false;
         private bool m_takeoffAltitudeReached = false;
 
+        private Vector3 m_currentVelocity;
+        private float m_timeoutFlying = -1;
+        private float m_speedDrone = -1;
+
+        private Vector3 m_nextVelocity;
+        private float m_nextTimeout = -1;
+        private float m_nextSpeedDrone = -1;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -74,9 +82,12 @@ namespace YourCommonTools
 		 */
         public void OnDestroy()
         {
-            m_cws.OnMessage -= ReceivedMessage;
-            m_cws.OnError -= ProccessErrorMessage;
-            m_cws.OnClose -= ProccessCloseConnection;
+            if (m_cws != null)
+            {
+                m_cws.OnMessage -= ReceivedMessage;
+                m_cws.OnError -= ProccessErrorMessage;
+                m_cws.OnClose -= ProccessCloseConnection;
+            }
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
             _instance = null;
         }
@@ -147,7 +158,7 @@ namespace YourCommonTools
 		 */
         public void ArmDrone()
         {
-            m_cws.Send("armDrone");            
+            if (m_cws != null) m_cws.Send("armDrone");            
         }
 
         // -------------------------------------------
@@ -156,7 +167,7 @@ namespace YourCommonTools
 		 */
         public void TakeOffDrone(int _height)
         {
-            m_cws.Send("takeOffDrone_"+ _height);
+            if (m_cws != null) m_cws.Send("takeOffDrone_"+ _height);
         }
 
         // -------------------------------------------
@@ -165,7 +176,7 @@ namespace YourCommonTools
 		 */
         public void LandDrone()
         {
-            m_cws.Send("landDrone");
+            if (m_cws != null) m_cws.Send("landDrone");
             BasicSystemEventController.Instance.DelayBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_LANDING, 0.1f);
         }
 
@@ -175,7 +186,7 @@ namespace YourCommonTools
 		 */
         public void RTLDrone()
         {
-            m_cws.Send("RTLDrone");
+            if (m_cws != null) m_cws.Send("RTLDrone");
             BasicSystemEventController.Instance.DelayBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_LANDING, 0.1f);
         }
 
@@ -185,7 +196,7 @@ namespace YourCommonTools
 		 */
         public void DisarmDrone()
         {
-            m_cws.Send("disconnectDrone");
+            if (m_cws != null) m_cws.Send("disconnectDrone");
         }
 
         // -------------------------------------------
@@ -199,12 +210,34 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * Start the drone with the desired vector velocity
+		 * Requests the drone with the desired vector velocity
 		 */
         public bool RunVelocity(float _vx, float _vy, float _vz, bool _returnHome = false, float _totalTime = 2, float _totalSpeed = 5)
         {
-            m_cws.Send("Velocity_vx_"+_vx+"_vy_"+_vy+"_vz_"+_vz+"_time_"+ _totalTime+ "_speed_" + _totalSpeed + "_end");
-            return true;
+            if (m_timeoutFlying > 0)
+            {
+                m_nextVelocity = new Vector3(_vx, _vy, _vz);
+                m_nextTimeout = _totalTime;
+                m_nextSpeedDrone = _totalSpeed;
+                return false;
+            }
+            else
+            {
+                m_currentVelocity = new Vector3(_vx, _vy, _vz);
+                m_timeoutFlying = _totalTime;
+                m_speedDrone = _totalSpeed;
+                return true;
+            }            
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Start the drone with the desired vector velocity
+		 */
+        private void RunDronekitVelocity()
+        {
+            // Debug.LogError("VECTOR VELOCITY[" + m_currentVelocity.ToString() + "]::TOTAL TIME[" + m_timeoutFlying + "]::SPEED["+ m_speedDrone + "]");
+            if (m_cws != null) m_cws.Send("Velocity_vx_" + m_currentVelocity.x + "_vy_" + m_currentVelocity.y + "_vz_" + m_currentVelocity.z + "_time_" + m_timeoutFlying + "_speed_" + m_speedDrone + "_end");
         }
 
         // -------------------------------------------
@@ -213,7 +246,7 @@ namespace YourCommonTools
         */
         public void SetModeOperation(string _operationMode)
         {
-            m_cws.Send("operationDrone_"+_operationMode);
+            if (m_cws != null) m_cws.Send("operationDrone_"+_operationMode);
         }
 
         // -------------------------------------------
@@ -249,17 +282,52 @@ namespace YourCommonTools
 		 */
         void Update()
         {
+#if UNITY_EDITOR
+            m_hasTakenOff = true;
+#endif
+
             if (m_hasTakenOff)
             {
+                // FALLBACK PROTOCAL TO RETURN HONE
                 if (m_timerToReturn > 0)
                 {
                     m_timerToReturn -= Time.deltaTime;
                     if (m_timerToReturn <= 0)
                     {
                         BasicSystemEventController.Instance.DispatchBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_ERROR);
+                        return;
+                    }
+                }
+
+                // FLY VECTOR VELOCITY
+                if (m_timeoutFlying > 0)
+                {
+                    RunDronekitVelocity();
+                    m_timeoutFlying -= Time.deltaTime;
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_FLYING, m_timeoutFlying);
+                    if (m_timeoutFlying <= 0)
+                    {
+                        m_currentVelocity = Vector3.zero;
+                        m_speedDrone = -1;
+                        if (m_nextVelocity != Vector3.zero)
+                        {
+                            m_timeoutFlying = m_nextTimeout;
+                            m_speedDrone = m_nextSpeedDrone;
+                            m_currentVelocity = Utilities.Clone(m_nextVelocity);
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_START_FLYING, m_timeoutFlying, m_currentVelocity);
+                            m_nextVelocity = Vector3.zero;
+                            m_nextTimeout = -1;
+                            m_nextSpeedDrone = -1;
+                        }
+                        else
+                        {
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_READY);
+                        }
                     }
                 }
             }
+
+
         }
 
 #endif

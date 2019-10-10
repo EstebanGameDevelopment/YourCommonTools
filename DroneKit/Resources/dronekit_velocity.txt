@@ -34,7 +34,7 @@ def arm_and_takeoff(altitude):
           break
       time.sleep(1)
       
- #-- Define the function for sending mavlink velocity command in body frame
+#-- Define the function for sending mavlink velocity command in body frame
 def set_velocity_body(vehicle, vx, vy, vz):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(0,0,0,mavutil.mavlink.MAV_FRAME_BODY_NED, 0b0000111111000111, 0, 0, 0, vx, vy, vz, 0, 0, 0, 0, 0)
     vehicle.send_mavlink(msg)

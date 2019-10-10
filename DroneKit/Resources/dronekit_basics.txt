@@ -1,0 +1,62 @@
+
+    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
+    #  after Vehicle.commands.takeoff will execute immediately).
+    while not api.exit:
+        print " Altitude: ", vehicle.location.alt
+        if vehicle.location.alt>=aTargetAltitude*0.95: #Just below target, in case of undershoot.
+            print "Reached target altitude"
+            break
+        time.sleep(1)
+
+def get_distance_metres(aLocation1, aLocation2):
+    dlat        = aLocation2.lat - aLocation1.lat
+    dlong       = aLocation2.lon - aLocation1.lon
+    return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
+
+def goto_position_target_global_int(aLocation):
+    """
+    Send SET_POSITION_TARGET_GLOBAL_INT command to request the vehicle fly to a specified location.
+
+    For more information see: https://pixhawk.ethz.ch/mavlink/#SET_POSITION_TARGET_GLOBAL_INT
+
+    See the above link for information on the type_mask (0=enable, 1=ignore). 
+    At time of writing, acceleration and yaw bits are ignored.
+    """
+    msg = vehicle.message_factory.set_position_target_global_int_encode(
+        0,       # time_boot_ms (not used)
+        0, 0,    # target system, target component
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT, # frame      
+        0b0000111111111000, # type_mask (only speeds enabled)
+        aLocation.lat*1e7, # lat_int - X Position in WGS84 frame in 1e7 * meters
+        aLocation.lon*1e7, # lon_int - Y Position in WGS84 frame in 1e7 * meters
+        aLocation.alt, # alt - Altitude in meters in AMSL altitude, not WGS84 if absolute or relative, above terrain if GLOBAL_TERRAIN_ALT_INT
+        0, # X velocity in NED frame in m/s
+        0, # Y velocity in NED frame in m/s
+        0, # Z velocity in NED frame in m/s
+        0, 0, 0, # afx, afy, afz acceleration (not supported yet, ignored in GCS_Mavlink)
+        0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink) 
+    # send command to vehicle
+    vehicle.send_mavlink(msg)
+    vehicle.flush()
+
+
+
+def gotoGPS(location):
+    currentLocation = vehicle.location
+    targetDistance = get_distance_metres(currentLocation, location)
+    goto_position_target_global_int(location)
+    vehicle.flush()
+    while not api.exit and vehicle.mode.name=="GUIDED": #Stop action if we are no longer in guided mode.
+        remainingDistance=get_distance_metres(vehicle.location, location)
+        if remainingDistance<=targetDistance*0.05: #Just below target, in case of undershoot.
+            print "Reached target"
+            break
+        time.sleep(2)
+
+arm_and_takeoff(10)
+time.sleep(2)
+newLoc = Location (vehicle.location.lat, vehicle.location.lon, vehicle.location.alt+10)
+gotoGPS(newLoc)
+time.sleep(10)
+vehicle.mode = VehicleMode("LAND")
+vehicle.flush()
