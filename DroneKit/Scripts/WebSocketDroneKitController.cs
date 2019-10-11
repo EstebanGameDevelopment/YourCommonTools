@@ -244,7 +244,7 @@ namespace YourCommonTools
         /* 
         * SetModeOperation
         */
-        public void SetModeOperation(string _operationMode)
+        public void SetModeOperation(int _operationMode)
         {
             if (m_cws != null) m_cws.Send("operationDrone_"+_operationMode);
         }
