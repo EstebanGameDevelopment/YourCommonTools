@@ -25,6 +25,7 @@ namespace YourCommonTools
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
         public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
+        public const string SCREEN_TREE                 = "SCREEN_TREE";
 
         // -------------------------------------------
         /* 

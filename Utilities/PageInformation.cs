@@ -26,12 +26,13 @@ namespace YourCommonTools
 		public GameObject Reference;
 		public string OkButtonText = "";
 		public string CancelButtonText = "";
+        public Dictionary<string, PageInformation> Responses;
 
 		// -------------------------------------------
 		/* 
 		 * Constructor
 		 */
-		public PageInformation(string _title, string _text, Sprite _sprite, string _eventData, GameObject _reference, string _okButtonText = "", string _cancelButtonText = "")
+		public PageInformation(string _title, string _text, Sprite _sprite, string _eventData, GameObject _reference, string _okButtonText = "", string _cancelButtonText = "", Dictionary<string, PageInformation> _responses = null)
 		{
 			MyTitle = _title;
 			MyText = _text;
@@ -40,7 +41,8 @@ namespace YourCommonTools
 			Reference = _reference;
 			OkButtonText = _okButtonText;
 			CancelButtonText = _cancelButtonText;
-		}
+            Responses = _responses;
+        }
 
 		// -------------------------------------------
 		/* 

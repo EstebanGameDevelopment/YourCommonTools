@@ -15,9 +15,11 @@ namespace YourCommonTools
 	*/
 	public class InterpolatorController : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const int TYPE_INTERPOLATE_POSITION = 0;
+        public const int TYPE_INTERPOLATE_FORWARD  = 1;
 
 		// ----------------------------------------------
 		// SINGLETON
@@ -49,8 +51,8 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
-        private List<InterpolateData> m_inteporlateObjects = new List<InterpolateData>();
-        private List<InterpolateData> m_inteporlateQueue = new List<InterpolateData>();
+        private List<IInterpolateData> m_inteporlateObjects = new List<IInterpolateData>();
+        private List<IInterpolateData> m_inteporlateQueue = new List<IInterpolateData>();
 
         // -------------------------------------------
         /* 
@@ -82,7 +84,7 @@ namespace YourCommonTools
 		{
 			for (int i = 0; i < m_inteporlateObjects.Count; i++)
 			{
-				InterpolateData item = m_inteporlateObjects[i];
+                IInterpolateData item = m_inteporlateObjects[i];
 				if (item.GameActor == _actor)
 				{
 					item.Destroy();
@@ -93,22 +95,31 @@ namespace YourCommonTools
 			return false;
 		}
 
-		// -------------------------------------------
-		/* 
-		* Instantiate a new shoot
+        // -------------------------------------------
+        /* 
+		* InterpolatePosition
 		*/
-		public void Interpolate(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
-		{
-            m_inteporlateQueue.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
-		}
+        public void Interpolate(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
+        {
+            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
+        }
 
         // -------------------------------------------
         /* 
-		* Instantiate a new shoot
+		* InterpolatePosition
 		*/
-        public void Interpolate(GameObject _actor, Vector3 _goal, float _time, float _delay, bool _setTargetWhenFinished = false)
+        public void InterpolatePosition(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
+		{
+            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
+		}
+       
+        // -------------------------------------------
+        /* 
+		* InterpolateForward
+		*/
+        public void InterpolateForward(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
         {
-            m_inteporlateQueue.Add(new InterpolateData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished, _delay));
+            m_inteporlateQueue.Add(new InterpolateForwardData(_actor, _actor.transform.forward, _goal, _time, 0, _setTargetWhenFinished));
         }
 
         // -------------------------------------------
@@ -121,7 +132,7 @@ namespace YourCommonTools
             {
                 for (int i = 0; i < m_inteporlateObjects.Count; i++)
                 {
-                    InterpolateData itemData = m_inteporlateObjects[i];
+                    IInterpolateData itemData = m_inteporlateObjects[i];
                     if (itemData.Inperpolate())
                     {
                         itemData.Destroy();
@@ -133,14 +144,14 @@ namespace YourCommonTools
             catch (Exception err) { };
             for (int j = 0; j < m_inteporlateQueue.Count; j++)
             {
-                InterpolateData newItem = m_inteporlateQueue[j];
+                IInterpolateData newItem = m_inteporlateQueue[j];
                 bool found = false;
                 for (int i = 0; i < m_inteporlateObjects.Count; i++)
                 {
-                    InterpolateData item = m_inteporlateObjects[i];
-                    if (item.GameActor == newItem.GameActor)
+                    IInterpolateData item = m_inteporlateObjects[i];
+                    if ((item.GameActor == newItem.GameActor) && (item.TypeData == newItem.TypeData))
                     {
-                        item.ResetData(newItem.GameActor.transform.position, newItem.Goal, newItem.TotalTime, 0);
+                        item.ResetData(newItem.GameActor.transform, newItem.Goal, newItem.TotalTime, 0);
                         found = true;
                     }
                 }
