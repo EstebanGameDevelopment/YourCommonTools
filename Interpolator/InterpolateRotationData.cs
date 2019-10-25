@@ -8,14 +8,14 @@ namespace YourCommonTools
 
     /******************************************
 	 * 
-	 * InterpolateForwardData
+	 * InterpolateRotationData
 	 * 
 	 * Keeps the information of a gameobject to be interpolated
 	 * 
 	 * @author Esteban Gallardo
 	 */
-    public class InterpolateForwardData : IEquatable<InterpolatePositionData>, IInterpolateData
-	{
+    public class InterpolateRotationData : IEquatable<InterpolatePositionData>, IInterpolateData
+    {
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------
@@ -28,8 +28,8 @@ namespace YourCommonTools
         // PRIVATE VARIABLES
         // -----------------------------------------
         private GameObject m_gameActor;
-		private Vector3 m_origin;
-		private Vector3 m_goal;
+		private Vector4 m_origin;
+		private Vector4 m_goal;
 		private float m_totalTime;
 		private float m_timeDone;
         private bool m_activated;
@@ -46,7 +46,7 @@ namespace YourCommonTools
 		public object Goal
 		{
 			get { return m_goal; }
-			set { m_goal = (Vector3)value; }
+			set { m_goal = (Vector4)value; }
 		}
 		public float TotalTime
 		{
@@ -65,21 +65,22 @@ namespace YourCommonTools
         }
         public int TypeData
         {
-            get { return InterpolatorController.TYPE_INTERPOLATE_FORWARD; }
+            get { return InterpolatorController.TYPE_INTERPOLATE_ROTATION; }
         }
 
         // -------------------------------------------
         /* 
 		 * Constructor
 		 */
-        public InterpolateForwardData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
+        public InterpolateRotationData(GameObject _actor, Quaternion _origin, Quaternion _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
 		{
 			m_gameActor = _actor;
             m_activated = true;
             m_setTargetWhenFinished = _setTargetWhenFinished;
 
-            ResetData(m_gameActor.transform, _goal, _totalTime, _timeDone);
+            ResetData(m_gameActor.transform, new Vector4(_goal.x, _goal.y, _goal.z, _goal.w), _totalTime, _timeDone);
 
+            
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 		}
 
@@ -89,10 +90,10 @@ namespace YourCommonTools
 		 */
         public void ResetData(Transform _origin, object _goal, float _totalTime, float _timeDone)
 		{
-			m_origin = new Vector3(_origin.forward.x, _origin.forward.y, _origin.forward.z);
-            Vector3 sgoal = (Vector3)_goal;
-            m_goal = new Vector3(sgoal.x, sgoal.y, sgoal.z);
-			m_totalTime = _totalTime;
+			m_origin = new Vector4(_origin.rotation.x, _origin.rotation.y, _origin.rotation.z, _origin.rotation.w);
+            Vector4 sgoal = (Vector4)_goal;
+            m_goal = new Vector4(sgoal.x, sgoal.y, sgoal.z, sgoal.w);
+            m_totalTime = _totalTime;
 			m_timeDone = _timeDone;
             m_activated = true;
         }
@@ -125,9 +126,10 @@ namespace YourCommonTools
             m_timeDone += Time.deltaTime;
             if (m_timeDone <= m_totalTime)
 			{
-				Vector3 forwardTarget = (m_goal - m_origin);
+				Vector4 quaternionTarget = (m_goal - m_origin);
 				float increaseFactor = (1 - ((m_totalTime - m_timeDone) / m_totalTime));
-				m_gameActor.transform.forward = m_origin + (increaseFactor * forwardTarget);
+                Vector4 newRotation = m_origin + (increaseFactor * quaternionTarget);
+                m_gameActor.transform.rotation = new Quaternion(newRotation.x, newRotation.y, newRotation.z, newRotation.w);
 				return false;
 			}
 			else
@@ -140,7 +142,7 @@ namespace YourCommonTools
 				{
                     if (m_setTargetWhenFinished)
                     {
-                        m_gameActor.transform.forward = m_goal;
+                        m_gameActor.transform.rotation = new Quaternion(m_goal.x, m_goal.y, m_goal.z, m_goal.w);
                     }
 					BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
 					return true;

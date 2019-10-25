@@ -43,10 +43,10 @@ namespace YourCommonTools
 		{
 			get { return m_gameActor; }
 		}
-		public Vector3 Goal
+		public object Goal
 		{
 			get { return m_goal; }
-			set { m_goal = value; }
+			set { m_goal = (Vector3)value; }
 		}
 		public float TotalTime
 		{
@@ -87,10 +87,11 @@ namespace YourCommonTools
         /* 
 		 * ResetData
 		 */
-        public void ResetData(Transform _origin, Vector3 _goal, float _totalTime, float _timeDone)
+        public void ResetData(Transform _origin, object _goal, float _totalTime, float _timeDone)
 		{
 			m_origin = new Vector3(_origin.position.x, _origin.position.y, _origin.position.z);
-			m_goal = new Vector3(_goal.x, _goal.y, _goal.z);
+            Vector3 sgoal = (Vector3)_goal;
+            m_goal = new Vector3(sgoal.x, sgoal.y, sgoal.z);
 			m_totalTime = _totalTime;
 			m_timeDone = _timeDone;
             m_activated = true;
