@@ -2140,5 +2140,19 @@ namespace YourCommonTools
             float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
             _go.Rotate(0, angle, 0);
         }
+
+        // -------------------------------------------
+        /* 
+		 * ScaleAround
+		 */
+        public static void ScaleAround(Transform _target, Transform _pivot, Vector3 _scale)
+        {
+            Transform pivotParent = _pivot.parent;
+            Vector3 pivotPos = _pivot.position;
+            _pivot.parent = _target;
+            _target.localScale = _scale;
+            _target.position += pivotPos - _pivot.position;
+            _pivot.parent = pivotParent;
+        }
     }
 }
