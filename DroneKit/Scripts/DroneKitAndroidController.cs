@@ -42,6 +42,7 @@ namespace YourCommonTools
         public const int STATE_CRASH        = 8;
         public const int STATE_CHANGE_ALTITUDE = 9;
         public const int STATE_GUIDE_MODE   = 10;
+        public const int STATE_DISARM       = 11;
 
         public const int DRONE_DEFAULT_LISTENING_CHANNEL= 14550;
         public const int DRONE_DEFAULT_HEIGHT_TAKEOFF   = 10;
@@ -116,6 +117,11 @@ namespace YourCommonTools
         {
             get { return m_takeoffAltitudeReached; }
         }
+        public float HeightTakeOff
+        {
+            get { return m_heightTakeOff; }
+            set { m_heightTakeOff = value; }
+        }        
 
         // -------------------------------------------
         /* 
@@ -227,6 +233,18 @@ namespace YourCommonTools
             if (m_state != STATE_CONNECTED) return;
 
             ChangeState(STATE_ARMED);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DisarmDrone
+		 */
+        public void DisarmDrone()
+        {
+            if (m_dronekitAndroid == null) return;
+            if (m_state == STATE_DISARM) return;
+
+            ChangeState(STATE_DISARM);
         }
 
         // -------------------------------------------
@@ -423,6 +441,23 @@ namespace YourCommonTools
                     m_reportedLanding = false;
                     resultAction = m_dronekitAndroid.Call<System.Boolean>("takeOffDrone");                    
                     Debug.LogError("DroneKit::TAKING OFF DRONE[" + resultAction + "]+++++++++++++");
+                    break;
+
+                case STATE_DISARM:
+                    if (m_dronekitAndroid.Call<System.Boolean>("getArmedDrone"))
+                    {
+                        resultAction = m_dronekitAndroid.Call<System.Boolean>("disarmDrone");
+                        Debug.LogError("DroneKit::DISARMING DRONE[" + resultAction + "]+++++++++++++");
+                        if (resultAction)
+                        {
+                            m_reportedLanding = true;
+                            m_reportedToTakeOff = false;
+                            m_reportedLanding = false;
+                            m_autoStart = false;
+                            m_activatedLanding = false;
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_DRONEKITCONTROLLER_DISARMED);
+                        }
+                    }
                     break;
             }
 #endif
