@@ -92,7 +92,7 @@ namespace YourCommonTools
             m_yaw = _yaw;
             if (m_enableYawUpdate || _force)
             {
-                if (!m_ignoreRigidBody && (this.gameObject.GetComponent<Rigidbody>() != null) && (this.gameObject.GetComponent<Rigidbody>().isKinematic))
+                if (!m_ignoreRigidBody && (this.gameObject.GetComponent<Rigidbody>() != null) && (!this.gameObject.GetComponent<Rigidbody>().isKinematic))
                 {
                     Quaternion deltaRotation = Quaternion.Euler(new Vector3(0, -m_yaw, 0));
                     this.gameObject.GetComponent<Rigidbody>().MoveRotation(deltaRotation);
@@ -306,19 +306,26 @@ namespace YourCommonTools
 			yawGoal = yawGoal * Mathf.Rad2Deg;
 			if ((_speedMovement != -1) && (_speedMovement != 0))
 			{
-				CharacterController controller = this.GetComponent<CharacterController>();
+                Vector3 movement = new Vector3((vf.x * _speedMovement * Time.deltaTime),
+                                                0,
+                                                (vf.y * _speedMovement * Time.deltaTime)) + ((normalVector.z != 0) ? Vector3.zero : (ApplyGravity ? (Physics.gravity * Time.deltaTime) : Vector3.zero));
+                CharacterController controller = this.GetComponent<CharacterController>();
 				if (controller == null)
 				{
-					this.GetComponent<Rigidbody>().MovePosition(new Vector3(this.GetComponent<Rigidbody>().position.x + (vf.x * _speedMovement * Time.deltaTime)
-																			 , this.GetComponent<Rigidbody>().position.y
-																			 , this.GetComponent<Rigidbody>().position.z + (vf.y * _speedMovement * Time.deltaTime)));
-				}
-				else
+                    if (this.GetComponent<Rigidbody>().isKinematic)
+                    {
+                        this.gameObject.transform.position += movement;
+                    }
+                    else
+                    {
+                        this.GetComponent<Rigidbody>().MovePosition(new Vector3(this.GetComponent<Rigidbody>().position.x + (vf.x * _speedMovement * Time.deltaTime)
+                                                                                 , this.GetComponent<Rigidbody>().position.y
+                                                                                 , this.GetComponent<Rigidbody>().position.z + (vf.y * _speedMovement * Time.deltaTime)));
+                    }
+                }
+                else
 				{
-					Vector3 movement = new Vector3((vf.x * _speedMovement * Time.deltaTime),
-													0,
-													(vf.y * _speedMovement * Time.deltaTime)) + ((normalVector.z != 0) ? Vector3.zero : (ApplyGravity ? (Physics.gravity * Time.deltaTime) : Vector3.zero));
-					controller.Move(movement);
+                    controller.Move(movement);
 				}
 			}
 			DirectionLeft = directionLeft;
