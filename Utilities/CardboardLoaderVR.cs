@@ -33,13 +33,20 @@ namespace YourCommonTools
             PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
 		}
 
+        public static int m_loadedEnabledCardboard = -1;
+
 		// -------------------------------------------
 		/* 
 		 * Get the if we need to use or not the Google VR
 		 */
 		public static bool LoadEnableCardboard()
 		{
-			return (PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0) == 1);
+            if (m_loadedEnabledCardboard == -1)
+            {
+                m_loadedEnabledCardboard = PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0);
+            }
+
+            return (m_loadedEnabledCardboard == 1);
 		}
 
 
