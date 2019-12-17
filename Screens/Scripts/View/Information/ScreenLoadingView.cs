@@ -46,6 +46,7 @@ namespace YourCommonTools
                 if (m_container.Find("Info") != null) m_container.Find("Info").GetComponent<Text>().text = "";
 
                 UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
+#if ENABLE_ASSET_BUNDLE
                 if ((UIEventController.Instance.URLAssetBundle.Length > 0) && (UIEventController.Instance.VersionAssetBundle != -1))
                 {
                     m_enabledAssetBundle = true;
@@ -58,6 +59,9 @@ namespace YourCommonTools
                 {
                     Invoke("LoadGameScene", 0.2f);
                 }
+#else
+                Invoke("LoadGameScene", 0.2f);
+#endif
             }
         }
 
