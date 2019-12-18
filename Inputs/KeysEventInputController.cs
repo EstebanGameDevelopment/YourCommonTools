@@ -308,7 +308,7 @@ namespace YourCommonTools
                 // +++++ BUTTON CONTROLLERS (DOWN)
                 try
                 {
-                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
                     {
                         m_oculusActionPressed = true;
                         if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
@@ -319,7 +319,7 @@ namespace YourCommonTools
                 // +++++ TOUCH CONTROLLERS (DOWN)
                 try
                 {
-                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger))
                     {
                         if (!m_oculusActionPressed)
                         {
@@ -340,7 +340,7 @@ namespace YourCommonTools
                 // +++++ BUTTON CONTROLLERS (UP)
                 try
                 {
-                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger))
                     {
                         m_oculusActionPressed = false;
                         if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
@@ -353,7 +353,7 @@ namespace YourCommonTools
                     // +++++ TOUCH CONTROLLERS (UP)
                     try
                     {
-                        if (OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                        if (OVRInput.GetUp(OVRInput.Touch.PrimaryIndexTrigger))
                         {
                             m_oculusActionPressed = false;
                             if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
@@ -386,7 +386,7 @@ namespace YourCommonTools
                 // +++++ TOUCH CONTROLLERS (PRESSED)
                 try
                 {
-                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger))
                     {
                         if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
                         return true;
@@ -396,7 +396,7 @@ namespace YourCommonTools
                 // +++++ TOUCH CONTROLLERS (PRESSED)
                 try
                 {
-                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
+                    if (OVRInput.Get(OVRInput.Touch.PrimaryIndexTrigger))
                     {
                         if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
 
