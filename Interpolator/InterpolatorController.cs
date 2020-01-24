@@ -21,6 +21,7 @@ namespace YourCommonTools
         public const int TYPE_INTERPOLATE_POSITION = 0;
         public const int TYPE_INTERPOLATE_FORWARD  = 1;
         public const int TYPE_INTERPOLATE_ROTATION  = 2;
+        public const int TYPE_INTERPOLATE_SCALE  = 3;
 
 		// ----------------------------------------------
 		// SINGLETON
@@ -130,6 +131,15 @@ namespace YourCommonTools
         public void InterpolateRotation(GameObject _actor, Quaternion _goal, float _time, bool _setTargetWhenFinished = false)
         {
             m_inteporlateQueue.Add(new InterpolateRotationData(_actor, _actor.transform.rotation, _goal, _time, 0, _setTargetWhenFinished));
+        }
+
+        // -------------------------------------------
+        /* 
+		* InterpolateScale
+		*/
+        public void InterpolateScale(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
+        {
+            m_inteporlateQueue.Add(new InterpolateScaleData(_actor, _actor.transform.localScale, _goal, _time, 0, _setTargetWhenFinished));
         }
 
         // -------------------------------------------
