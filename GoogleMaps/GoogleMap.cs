@@ -47,33 +47,7 @@ namespace YourCommonTools
 
         public const string EVENT_GOOGLEMAP_SELECTED_LOCATION = "EVENT_GOOGLEMAP_SELECTED_LOCATION";
 
-        // ----------------------------------------------
-        // CONSTANTS
-        // ----------------------------------------------	
-
-        // ----------------------------------------------
-        // SINGLETON
-        // ----------------------------------------------	
-        private static GoogleMap _instance;
-
-        public static GoogleMap Instance
-        {
-            get
-            {
-                if (!_instance)
-                {
-                    _instance = GameObject.FindObjectOfType(typeof(GoogleMap)) as GoogleMap;
-                    if (!_instance)
-                    {
-                        GameObject container = new GameObject();
-                        DontDestroyOnLoad(container);
-                        container.name = "GoogleMap";
-                        _instance = container.AddComponent(typeof(GoogleMap)) as GoogleMap;
-                    }
-                }
-                return _instance;
-            }
-        }
+        public const string CTE_ACCESS_MAPS = "CTE_ACCESS_MAPS";
 
         // ----------------------------------------------
         // PUBLIC MEMBERS
@@ -153,8 +127,38 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * CheckNumberAccessToAllowMaps
+		 * GetAccessNumberToGoogleMaps
 		 */
+        private void GetAccessNumberToGoogleMaps()
+        {
+            object valueAccess = null;
+            if (BasicSystemEventController.Instance.GlobalVars.TryGetValue(CTE_ACCESS_MAPS, out valueAccess))
+            {
+                m_accessNumberToGoogleMaps = (int)valueAccess;
+            }
+            else
+            {
+                m_accessNumberToGoogleMaps = -1;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetAccessNumberToGoogleMaps
+		 */
+        private void SetAccessNumberToGoogleMaps(int _value)
+        {
+            if (BasicSystemEventController.Instance.GlobalVars.ContainsKey(CTE_ACCESS_MAPS))
+            {
+                BasicSystemEventController.Instance.GlobalVars.Remove(CTE_ACCESS_MAPS);
+            }
+            BasicSystemEventController.Instance.GlobalVars.Add(CTE_ACCESS_MAPS, _value);
+        }
+
+        // -------------------------------------------
+        /* 
+        * CheckNumberAccessToAllowMaps
+        */
         private bool CheckNumberAccessToAllowMaps()
         {
             if (m_totalAccessAllowed == -1)
@@ -163,6 +167,7 @@ namespace YourCommonTools
             }
             else
             {
+                GetAccessNumberToGoogleMaps();
                 if (m_accessNumberToGoogleMaps == -1)
                 {
                     m_accessNumberToGoogleMaps = PlayerPrefs.GetInt(m_accessToGoogleMap, 0);
@@ -173,6 +178,7 @@ namespace YourCommonTools
                         PlayerPrefs.SetInt(m_accessTimestamp, currentNumberDaysSince1970);
                         PlayerPrefs.SetInt(m_accessToGoogleMap, 0);
                         m_accessNumberToGoogleMaps = 0;
+                        SetAccessNumberToGoogleMaps(m_accessNumberToGoogleMaps);
                     }
                     else
                     {
@@ -181,6 +187,7 @@ namespace YourCommonTools
                 }
 
                 m_accessNumberToGoogleMaps++;
+                SetAccessNumberToGoogleMaps(m_accessNumberToGoogleMaps);
                 if (m_accessNumberToGoogleMaps > m_totalAccessAllowed)
                 {
                     return false;

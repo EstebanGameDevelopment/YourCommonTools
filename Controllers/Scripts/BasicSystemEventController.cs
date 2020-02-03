@@ -53,10 +53,15 @@ namespace YourCommonTools
 			}
 		}
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------
-		private List<TimedEventData> listEvents = new List<TimedEventData>();
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------
+        public Dictionary<string,object> GlobalVars = new Dictionary<string, object>();
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------
+        private List<TimedEventData> listEvents = new List<TimedEventData>();
 
 		// -------------------------------------------
 		/* 
