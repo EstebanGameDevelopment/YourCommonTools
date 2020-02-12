@@ -32,23 +32,17 @@ namespace YourCommonTools
 
         private Material m_mat;
         public Texture m_overlay;
-        public bool m_activated = false;
+        public Shader m_shader;
 
         private void Awake()
         {
-            this.enabled = m_activated;
+            this.enabled = false;
         }
 
         private void OnRenderImage(RenderTexture _src, RenderTexture _dest)
         {
-            if (!m_activated)
-            {
-                DestroyMaterial();
-                return;
-            }
-
             if (!m_mat)
-                m_mat = new Material(Shader.Find("Hidden/GSF"));
+                m_mat = new Material(m_shader);
 
             m_mat.SetTexture("_Mask", m_overlay);
 
@@ -58,6 +52,11 @@ namespace YourCommonTools
         private void OnDisable()
         {
             DestroyMaterial();
+        }
+
+        private void OnDestroy()
+        {
+            this.enabled = true;
         }
 
         private void DestroyMaterial()
@@ -71,8 +70,7 @@ namespace YourCommonTools
 
         public void SetActivation(bool _enable)
         {
-            m_activated = _enable;
-            this.enabled = m_activated;
+            this.enabled = _enable;
         }
     }
 }
