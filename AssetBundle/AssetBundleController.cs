@@ -148,6 +148,8 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             Utilities.DebugLogError("AssetbundleController::CreateGameObject::_name=" + _name);
 #endif
+            if (m_assetBundle == null) return null;
+
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
