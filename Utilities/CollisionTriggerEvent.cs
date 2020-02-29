@@ -38,16 +38,17 @@ namespace YourCommonTools
 					hasCollided = false;
 				}
 			}
-				
-			if (hasCollided)
+
+            if (hasCollided)
 			{
                 if (CustomEventEnter.Length > 0)
                 {
-                    Debug.LogError("CollisionTriggerEvent::TargetObject=" + TargetObject.name);
+                    // Debug.LogError("CollisionTriggerEvent::CustomEventEnter["+ CustomEventEnter + "] COLLIDED WITH " + _collision.gameObject.name);
                     BasicSystemEventController.Instance.DispatchBasicSystemEvent(CustomEventEnter, this.gameObject, _collision.gameObject);
                 }
 				else
                 {
+                    // Debug.LogError("+++++CollisionTriggerEvent::this.gameObject=" + this.gameObject.name+ " COLLIDED WITH " + _collision.gameObject.name);
                     BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_COLLIDERTRIGGER_ENTER_EVENT, this.gameObject, _collision.gameObject);
                 }
 				if (DestroyOnEnter)
