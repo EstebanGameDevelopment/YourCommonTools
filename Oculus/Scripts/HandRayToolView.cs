@@ -14,20 +14,19 @@ namespace YourCommonTools
 		private const float DEFAULT_RAY_CAST_DISTANCE = 3.0f;
 
 		[SerializeField] private Transform _targetTransform = null;
-		[SerializeField] private LineRenderer _lineRenderer = null;
 		[SerializeField] private Material _normalColor = null;
 		[SerializeField] private Material _selectedColor = null;
+		[SerializeField] private Transform _referenceRay = null;
 
 		public bool EnableState
 		{
 			get
 			{
-				return _lineRenderer.enabled;
+				return _targetTransform.gameObject.activeSelf;
 			}
 			set
 			{
 				_targetTransform.gameObject.SetActive(value);
-				_lineRenderer.enabled = value;
 			}
 		}
 
@@ -39,8 +38,13 @@ namespace YourCommonTools
 			set
 			{
 				_toolActivateState = value;
-                _lineRenderer.material = _toolActivateState ? _selectedColor : _normalColor;
-                // _lineRenderer.colorGradient = _toolActivateState ? _highLightColorGradient : _oldColorGradient;
+                if (_referenceRay != null)
+                {
+                    if (_referenceRay.gameObject.activeSelf)
+                    {
+                        _referenceRay.gameObject.GetComponent<LineRenderer>().material = _toolActivateState ? _selectedColor : _normalColor;
+                    }
+                }                
 			}
 		}
 
@@ -50,11 +54,8 @@ namespace YourCommonTools
 		private void Awake()
 		{
 			Assert.IsNotNull(_targetTransform);
-			Assert.IsNotNull(_lineRenderer);
-			_lineRenderer.positionCount = NUM_RAY_LINE_POSITIONS;
 
-			_oldColorGradient = _lineRenderer.colorGradient;
-			_highLightColorGradient = new Gradient();
+            _highLightColorGradient = new Gradient();
 			_highLightColorGradient.SetKeys(
 			  new GradientColorKey[] { new GradientColorKey(new Color(0.90f, 0.90f, 0.90f), 0.0f),
 		  new GradientColorKey(new Color(0.90f, 0.90f, 0.90f), 1.0f) },
@@ -66,26 +67,22 @@ namespace YourCommonTools
 
 		private void Update()
 		{
-			var myPosition = InteractableTool.ToolTransform.position;
-			var myForward = InteractableTool.ToolTransform.forward;
+            var myPosition = InteractableTool.ToolTransform.position;
+            var myForward = InteractableTool.ToolTransform.forward;
 
-			var targetPosition = myPosition + myForward * DEFAULT_RAY_CAST_DISTANCE;
-            var targetVector = targetPosition - myPosition;
-			var targetDistance = targetVector.magnitude;
-			var p0 = myPosition;
-			// make points in between based on my forward as opposed to targetvector
-			// this way the curve "bends" toward to target
-			var p1 = myPosition + myForward * targetDistance * 0.3333333f;
-			var p2 = myPosition + myForward * targetDistance * 0.6666667f;
-			var p3 = targetPosition;
-			for (int i = 0; i < NUM_RAY_LINE_POSITIONS; i++)
-			{
-				linePositions[i] = GetPointOnBezierCurve(p0, p1, p2, p3, i / 25.0f);
-			}
+            var targetPosition = myPosition + myForward * DEFAULT_RAY_CAST_DISTANCE;
+            _targetTransform.position = targetPosition;
 
-			_lineRenderer.SetPositions(linePositions);
-			_targetTransform.position = targetPosition;
-		}
+            if (_referenceRay != null)
+            {
+                if (EnableState)
+                {
+                    _referenceRay.gameObject.SetActive(true);
+                    _referenceRay.transform.position = myPosition;
+                    _referenceRay.transform.forward = myForward;
+                }
+            }
+        }
 
 		/// <summary>
 		/// Returns point on four-point Bezier curve.
