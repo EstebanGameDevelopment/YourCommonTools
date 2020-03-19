@@ -48,7 +48,12 @@ namespace YourCommonTools
 			}
 		}
 
-		private Vector3[] linePositions = new Vector3[NUM_RAY_LINE_POSITIONS];
+        public Transform ReferenceRay
+        {
+            get { return _referenceRay; }
+        }
+
+        private Vector3[] linePositions = new Vector3[NUM_RAY_LINE_POSITIONS];
 		private Gradient _oldColorGradient, _highLightColorGradient;
 
 		private void Awake()
@@ -78,9 +83,9 @@ namespace YourCommonTools
                 if (EnableState)
                 {
                     _referenceRay.gameObject.SetActive(true);
-                    _referenceRay.transform.position = myPosition;
-                    _referenceRay.transform.forward = myForward;
                 }
+                _referenceRay.transform.position = myPosition;
+                _referenceRay.transform.forward = myForward;
             }
         }
 

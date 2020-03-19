@@ -356,7 +356,8 @@ namespace YourCommonTools
             }
             else
             {
-                if (GameObject.FindObjectOfType<PinchInteractionTool>() != null)
+                if (ScreenOculusControlSelectionView.ControOculusWithHands() && 
+                    (GameObject.FindObjectOfType<PinchInteractionTool>() != null))
                 {
                     GetRightPinchInteractionTool();
                     return false;
@@ -387,7 +388,8 @@ namespace YourCommonTools
             }
             else
             {
-                if (GameObject.FindObjectOfType<PinchInteractionTool>() != null)
+                if (ScreenOculusControlSelectionView.ControOculusWithHands() && 
+                    (GameObject.FindObjectOfType<PinchInteractionTool>() != null))
                 {
                     GetRightPinchInteractionTool();
                     return false;
@@ -437,7 +439,8 @@ namespace YourCommonTools
             }
             else
             {
-                if (GameObject.FindObjectOfType<PinchInteractionTool>() != null)
+                if (ScreenOculusControlSelectionView.ControOculusWithHands() 
+                    && (GameObject.FindObjectOfType<PinchInteractionTool>() != null))
                 {
                     GetRightPinchInteractionTool(false);
                     return false;
@@ -628,7 +631,7 @@ namespace YourCommonTools
                             if (m_timeoutStayleftHandIndex > 2)
                             {
                                 m_teleportActivated = true;
-                                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_REQUEST_TELEPORT_AVAILABLE, m_leftHandTrigger.transform);
+                                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_REQUEST_TELEPORT_AVAILABLE, m_leftHandTrigger.RayToolView.ReferenceRay.transform);
                                 m_timeoutStayleftHandIndex = 0;
                                 return true;
                             }
@@ -646,7 +649,8 @@ namespace YourCommonTools
                 }
                 else
                 {
-                    if (GameObject.FindObjectOfType<PinchInteractionTool>() != null)
+                    if (ScreenOculusControlSelectionView.ControOculusWithHands() &&
+                        (GameObject.FindObjectOfType<PinchInteractionTool>() != null))
                     {
                         GetRightPinchInteractionTool(false);
                         return false;

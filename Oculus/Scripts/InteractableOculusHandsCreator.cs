@@ -14,18 +14,21 @@ namespace YourCommonTools
 		[SerializeField] private Transform[] LeftHandTools = null;
 		[SerializeField] private Transform[] RightHandTools = null;
 
-		private void Awake()
+		private void Start()
 		{
-			if (LeftHandTools != null && LeftHandTools.Length > 0)
-			{
-				StartCoroutine(AttachToolsToHands(LeftHandTools, false));
-			}
+            if (ScreenOculusControlSelectionView.ControOculusWithHands())
+            {
+                if (LeftHandTools != null && LeftHandTools.Length > 0)
+                {
+                    StartCoroutine(AttachToolsToHands(LeftHandTools, false));
+                }
 
-			if (RightHandTools != null && RightHandTools.Length > 0)
-			{
-				StartCoroutine(AttachToolsToHands(RightHandTools, true));
-			}
-		}
+                if (RightHandTools != null && RightHandTools.Length > 0)
+                {
+                    StartCoroutine(AttachToolsToHands(RightHandTools, true));
+                }
+            }
+        }
 
 		private IEnumerator AttachToolsToHands(Transform[] toolObjects, bool isRightHand)
 		{
