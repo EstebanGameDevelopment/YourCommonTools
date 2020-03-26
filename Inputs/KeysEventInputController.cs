@@ -366,11 +366,20 @@ namespace YourCommonTools
                 {
                     if (_checkDown)
                     {
+#if UNITY_EDITOR
+                        return Input.GetKeyDown(KeyCode.LeftControl);
+#else
                         return OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+#endif
                     }
                     else
                     {
+#if UNITY_EDITOR
+                        return Input.GetKeyUp(KeyCode.LeftControl);
+#else
                         return OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+#endif
+
                     }
                 }
             }            
@@ -480,8 +489,7 @@ namespace YourCommonTools
             try
             {
 #if ENABLE_OCULUS
-                if (_isDown)
-                {
+                
                     // +++++ BUTTON CONTROLLERS (DOWN)
                     try
                     {
@@ -490,15 +498,20 @@ namespace YourCommonTools
 #else
                         if (CheckOculusControllerOrHandActionDown(true)) {
 #endif
-                            m_oculusActionPressed = true;
+                            if (_isDown)
+                            {
+                                m_oculusActionPressed = true;
+                            }
+                            else
+                            {
+                                m_oculusActionPressed = false;
+                            }
                             if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return true;
+                            return m_oculusActionPressed;
                         }
                     }
                     catch (Exception err) { }
-                }
-                else
-                {
+                
                     // +++++ BUTTON CONTROLLERS (UP)
                     try
                     {
@@ -507,13 +520,19 @@ namespace YourCommonTools
 #else
                         if (CheckOculusControllerOrHandActionDown(false)) {
 #endif
-                            m_oculusActionPressed = false;
+                            if (_isDown)
+                            {
+                                m_oculusActionPressed = false;
+                            }
+                            else
+                            {
+                                m_oculusActionPressed = true;
+                            }
                             if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return true;
+                            return m_oculusActionPressed;
                         }
                     }
                     catch (Exception err) { }
-                }
 #endif
             }
             catch (Exception err) { }

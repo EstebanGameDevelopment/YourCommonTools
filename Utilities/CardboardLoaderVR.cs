@@ -41,10 +41,16 @@ namespace YourCommonTools
 		 */
 		public static bool LoadEnableCardboard()
 		{
+#if ENABLE_WORLDSENSE
+            m_loadedEnabledCardboard = 1;
+#elif ENABLE_OCULUS
+            m_loadedEnabledCardboard = 1;
+#else
             if (m_loadedEnabledCardboard == -1)
             {
                 m_loadedEnabledCardboard = PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0);
             }
+#endif
 
             return (m_loadedEnabledCardboard == 1);
 		}
@@ -68,6 +74,9 @@ namespace YourCommonTools
 #if ENABLE_WORLDSENSE
             ForceActivation = true;
             DefaultDeviceName = "Daydream";
+#elif ENABLE_OCULUS
+            ForceActivation = true;
+            DefaultDeviceName = "Oculus";
 #endif
             if (LoadEnableCardboard() || ForceActivation)
             {
