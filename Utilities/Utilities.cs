@@ -1009,6 +1009,25 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
+		 * Converst from string to Vector2
+		 */
+        public static Vector2 StringToVector2(string _data)
+        {
+            string[] values = _data.Split(',');
+            return new Vector2(float.Parse(values[0]), float.Parse(values[1]));
+        }
+
+        // ---------------------------------------------------
+        /**
+		 * Converst from string to Vector2
+		 */
+        public static string Vector2ToString(Vector2 _data)
+        {
+            return _data.x + "," + _data.y;
+        }
+
+        // ---------------------------------------------------
+        /**
 		 * Converst from string to Quaternion
 		 */
         public static Quaternion StringToQuaternion(string _data)
