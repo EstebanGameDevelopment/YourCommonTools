@@ -366,20 +366,11 @@ namespace YourCommonTools
                 {
                     if (_checkDown)
                     {
-#if UNITY_EDITOR
-                        return Input.GetKeyDown(KeyCode.LeftControl);
-#else
-                        return OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
-#endif
+                        return Input.GetKeyDown(KeyCode.LeftControl) || OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
                     }
                     else
                     {
-#if UNITY_EDITOR
-                        return Input.GetKeyUp(KeyCode.LeftControl);
-#else
-                        return OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
-#endif
-
+                        return Input.GetKeyUp(KeyCode.LeftControl) || OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);                        
                     }
                 }
             }            

@@ -21,26 +21,30 @@ namespace YourCommonTools
 		public const string EVENT_SELECTED_VR_BUTTON_COMPONENT = "EVENT_SELECTED_VR_BUTTON_COMPONENT";
 		public const string EVENT_CLICKED_VR_BUTTON = "EVENT_CLICKED_VR_BUTTON";
 		public const string EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST = "EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST";
+        public const string EVENT_BUTTONVR_SELECTED_INPUTFIELD = "EVENT_BUTTONVR_SELECTED_INPUTFIELD";
 
-		// ----------------------------------------------
-		// CONSTANTS
-		// ----------------------------------------------	
-		public const string SELECTOR_COMPONENT_NAME = "Selector";
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string SELECTOR_COMPONENT_NAME = "Selector";
 
 		// ----------------------------------------------
 		// PRIVATE MEMBERS
 		// ----------------------------------------------	
 		private GameObject m_selector;
 		private string m_tagTrigger;
+        private bool m_isInputField = false;
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * We add a visual selector (if there is not already one with the name "Selector")
 		 * and we also add a box collider to be able for the screen to be used
 		 * with systems like Leap Motion
 		 */
-		public void Initialize(Sprite _selectorGraphic, string _tagTrigger)
+        public void Initialize(Sprite _selectorGraphic, string _tagTrigger)
 		{
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+
 			m_tagTrigger = _tagTrigger;
 			if (transform.Find(SELECTOR_COMPONENT_NAME) != null)
 			{
@@ -97,17 +101,25 @@ namespace YourCommonTools
 				{
 					this.gameObject.GetComponent<Toggle>().onValueChanged.AddListener(OnValueChangedToggle);
 				}
-			}
+                else
+                {
+                    if (this.gameObject.GetComponent<InputField>() != null)
+                    {
+                        m_isInputField = true;
+                    }
+                }
+            }
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Destroy all the references
 		 */
-		public void Destroy()
+        public void Destroy()
 		{
+            UIEventController.Instance.UIEvent -= OnUIEvent;
             if (this.gameObject.GetComponent<Button>() != null) this.gameObject.GetComponent<Button>().onClick.RemoveListener(OnClickedButton);
-            if (this.gameObject.GetComponent<Toggle>() != null) this.gameObject.GetComponent<Toggle>().onValueChanged.RemoveListener(OnValueChangedToggle);
+            if (this.gameObject.GetComponent<Toggle>() != null) this.gameObject.GetComponent<Toggle>().onValueChanged.RemoveListener(OnValueChangedToggle);            
             m_selector = null;
         }
 
@@ -136,7 +148,7 @@ namespace YourCommonTools
 		 */
 		public void InvokeButton()
 		{
-			if (this.gameObject.GetComponent<Button>() != null)
+            if (this.gameObject.GetComponent<Button>() != null)
 			{
 				this.gameObject.GetComponent<Button>().onClick.Invoke();
 			}
@@ -187,5 +199,26 @@ namespace YourCommonTools
 				}
 			}
 		}
-	}
+
+
+        // -------------------------------------------
+        /* 
+		 * OnUIEvent
+		 */
+        private void OnUIEvent(string _nameEvent, object[] _list)
+        {
+            if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
+            {
+                if (m_isInputField)
+                {
+                    if (m_selector.activeSelf)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_SELECTED_INPUTFIELD, this.gameObject.GetComponent<InputField>());
+                    }
+                }
+            }
+        }
+
+
+    }
 }
