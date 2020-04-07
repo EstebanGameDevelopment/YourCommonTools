@@ -33,6 +33,15 @@ namespace YourCommonTools
             PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
 		}
 
+        // -------------------------------------------
+        /* 
+		* Reset the cardboard for the next execution
+		*/
+        public static void ResetEnableCardboard()
+        {
+            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, 0);
+        }
+
         public static int m_loadedEnabledCardboard = -1;
 
 		// -------------------------------------------
