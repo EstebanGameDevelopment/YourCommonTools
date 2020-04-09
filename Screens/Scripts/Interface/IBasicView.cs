@@ -1,4 +1,6 @@
-﻿namespace YourCommonTools
+﻿using UnityEngine;
+
+namespace YourCommonTools
 {
 
 	/******************************************
@@ -22,5 +24,6 @@
         void Initialize(params object[] _list);
 		bool Destroy();
 		void SetActivation(bool _activation);
+		void ApplyCentered();
 	}
 }

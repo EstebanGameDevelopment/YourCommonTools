@@ -241,16 +241,24 @@ namespace YourCommonTools
 			throw new NotImplementedException();
 		}
 
-
-		// -------------------------------------------
-		/* 
-		 * Runs an action
+        // -------------------------------------------
+        /* 
+		 * ApplyAction
 		 */
-		public virtual void ApplyAction()
+        public virtual void ApplyAction()
 		{
 		}
 
-		bool IBasicView.Destroy()
+        // -------------------------------------------
+        /* 
+		 * ApplyStretch
+		 */
+        public void ApplyCentered()
+        {
+
+        }
+
+        bool IBasicView.Destroy()
 		{
 			throw new NotImplementedException();
 		}

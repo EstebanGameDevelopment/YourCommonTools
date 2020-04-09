@@ -81,8 +81,7 @@ namespace YourCommonTools
 		{
 			get { return m_screen; }
 		}
-
-		public CanvasGroup CanvasGroup
+        public CanvasGroup CanvasGroup
 		{
 			get { return m_canvasGroup; }
 		}
@@ -147,11 +146,32 @@ namespace YourCommonTools
 			this.gameObject.SetActive(_activation);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		* ApplyCentered
+		*/
+        public void ApplyCentered()
+        {
+            if (m_containerBase != null)
+            {
+                if (m_containerBase.GetComponent<RectTransform>() != null)
+                {
+                    if (m_containerBase.parent != null)
+                    {
+                        if (m_containerBase.parent.GetComponent<RectTransform>() != null)
+                        {
+                            m_containerBase.GetComponent<RectTransform>().SetCenteredToParentSize(m_containerBase.parent.GetComponent<RectTransform>());
+                        }                        
+                    }                    
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		* Called on the destroy method of the object
 		*/
-		void OnDestroy()
+        void OnDestroy()
 		{
 			Debug.Log("ScreenBaseView::OnDestroy::NAME OBJECT DESTROYED[" + this.gameObject.name + "]");
 
