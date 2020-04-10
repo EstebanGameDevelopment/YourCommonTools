@@ -104,6 +104,14 @@ namespace YourCommonTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * IsCardboardDevice
+		 */
+        public bool IsCardboardDevice()
+        {
+            return DefaultDeviceName.Equals(CARDBOARD_DEVICE_NAME);
+        }
 
         // -------------------------------------------
         /* 
