@@ -35,6 +35,11 @@ namespace YourCommonTools
 		private string m_tagTrigger;
         private bool m_isInputField = false;
 
+        public bool IsSelected
+        {
+            get { return m_selector.activeSelf; }
+        }
+
         // -------------------------------------------
         /* 
 		 * We add a visual selector (if there is not already one with the name "Selector")
@@ -213,6 +218,7 @@ namespace YourCommonTools
                 {
                     if (m_selector.activeSelf)
                     {
+                        m_selector.SetActive(false);
                         UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_SELECTED_INPUTFIELD, this.gameObject.GetComponent<InputField>());
                     }
                 }
