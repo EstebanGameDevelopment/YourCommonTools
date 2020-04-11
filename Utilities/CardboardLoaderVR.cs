@@ -24,6 +24,8 @@ namespace YourCommonTools
         public string DefaultDeviceName = CARDBOARD_DEVICE_NAME;
 #endif
 
+        private bool m_deviceLoaded = false;
+
         // -------------------------------------------
         /* 
 		* Save a flag to report if we need to use or not the Google VR
@@ -33,17 +35,6 @@ namespace YourCommonTools
             PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
 		}
 
-        // -------------------------------------------
-        /* 
-		* Reset the cardboard for the next execution
-		*/
-        public static void ResetEnableCardboard()
-        {
-            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, 0);
-        }
-
-        public static int m_loadedEnabledCardboard = -1;
-
 		// -------------------------------------------
 		/* 
 		 * Get the if we need to use or not the Google VR
@@ -51,25 +42,28 @@ namespace YourCommonTools
 		public static bool LoadEnableCardboard()
 		{
 #if ENABLE_WORLDSENSE
-            m_loadedEnabledCardboard = 1;
+            return true;
 #elif ENABLE_OCULUS
-            m_loadedEnabledCardboard = 1;
+            return true;
 #else
-            if (m_loadedEnabledCardboard == -1)
-            {
-                m_loadedEnabledCardboard = PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0);
-            }
+            return (PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0) == 1);
 #endif
+        }
 
-            return (m_loadedEnabledCardboard == 1);
-		}
+        // -------------------------------------------
+        /* 
+		* ResetEnableCardboard
+		*/
+        public static void ResetEnableCardboard()
+        {
+            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, 0);
+        }
 
-
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Start
 		 */
-		void Start()
+        void Start()
 		{
             InitializeCardboard();
         }
@@ -92,9 +86,13 @@ namespace YourCommonTools
                 string nameDeviceLoaded = DefaultDeviceName;
                 if (!UnityEngine.XR.XRSettings.enabled)
                 {
-                    // StartCoroutine(LoadDevice(DAYDREAM_DEVICE_NAME));
-                    nameDeviceLoaded = DefaultDeviceName;
-                    StartCoroutine(LoadDevice(DefaultDeviceName));
+                    if (!m_deviceLoaded)
+                    {
+                        m_deviceLoaded = true;
+                        // StartCoroutine(LoadDevice(DAYDREAM_DEVICE_NAME));
+                        nameDeviceLoaded = DefaultDeviceName;
+                        StartCoroutine(LoadDevice(DefaultDeviceName));
+                    }
                 }
                 BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_VRLOADER_LOADED_DEVICE_NAME, 1, nameDeviceLoaded);
             }
