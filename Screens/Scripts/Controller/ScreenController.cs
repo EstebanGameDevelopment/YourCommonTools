@@ -82,6 +82,8 @@ namespace YourCommonTools
 
         protected List<GameObject> m_layers = new List<GameObject>();
 
+        protected bool m_enableProcessEvents = true;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -100,6 +102,10 @@ namespace YourCommonTools
                 }
                 return totalScreens;
             }
+        }
+        public bool EnableProcessEvents
+        {
+            set { m_enableProcessEvents = value; }
         }
 
         // -------------------------------------------
@@ -737,6 +743,8 @@ namespace YourCommonTools
 		 */
         protected void ProcessScreenEvents(string _nameEvent, params object[] _list)
         {
+            if (!m_enableProcessEvents) return;
+
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
             {
                 string nameScreen = (string)_list[0];
