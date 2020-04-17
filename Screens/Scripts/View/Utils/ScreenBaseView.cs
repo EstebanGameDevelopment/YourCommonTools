@@ -36,6 +36,7 @@ namespace YourCommonTools
         // CONSTANTS
         // ----------------------------------------------	
         public const string CONTENT_COMPONENT_NAME = "Content";
+        public const string CONTENT_BACKGROUND_NAME = "Background";
 
         // ----------------------------------------------
         // PUBLIC VARIABLE MEMBERS
@@ -49,6 +50,7 @@ namespace YourCommonTools
         protected int m_layer = -1;
         private GameObject m_screen;
         protected Transform m_containerBase;
+        protected Transform m_backgroundBase;
         protected CanvasGroup m_canvasGroup;
         protected Vector3 m_initialPosition;
 		protected bool m_hasFocus = true;
@@ -129,6 +131,10 @@ namespace YourCommonTools
                     m_initialPosition = Utilities.Clone(m_canvasGroup.transform.position);
                 }
 			}
+            if (m_screen.transform.Find(CONTENT_BACKGROUND_NAME) != null)
+            {
+                m_backgroundBase = m_screen.transform.Find(CONTENT_BACKGROUND_NAME);
+            }
 
             UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_OPENED, this.gameObject);
 
@@ -150,7 +156,7 @@ namespace YourCommonTools
         /* 
 		* ApplyCentered
 		*/
-        public void ApplyCentered()
+        public virtual void ApplyCentered()
         {
             if (m_containerBase != null)
             {
@@ -163,6 +169,19 @@ namespace YourCommonTools
                             m_containerBase.GetComponent<RectTransform>().SetCenteredToParentSize(m_containerBase.parent.GetComponent<RectTransform>());
                         }                        
                     }                    
+                }
+            }
+            if (m_backgroundBase != null)
+            {
+                if (m_backgroundBase.GetComponent<RectTransform>() != null)
+                {
+                    if (m_backgroundBase.parent != null)
+                    {
+                        if (m_backgroundBase.parent.GetComponent<RectTransform>() != null)
+                        {
+                            m_backgroundBase.GetComponent<RectTransform>().SetCenteredToParentSize(m_backgroundBase.parent.GetComponent<RectTransform>());
+                        }
+                    }
                 }
             }
         }

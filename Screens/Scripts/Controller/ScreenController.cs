@@ -939,7 +939,9 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.Escape))
             {
+#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS
                 SceneManager.LoadSceneAsync("EmptyScene");
+#endif
             }
 #endif
         }
