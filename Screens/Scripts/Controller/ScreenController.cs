@@ -41,6 +41,9 @@ namespace YourCommonTools
 
         public const string EVENT_SCREENCONTROLLER_REPLACE_LOGO = "EVENT_SCREENCONTROLLER_REPLACE_LOGO";
 
+        public const string EVENT_SCREENCONTROLLER_ENABLE_PROCESS_EVENTS = "EVENT_SCREENCONTROLLER_ENABLE_PROCESS_EVENTS";
+        public const string EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS = "EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS";
+
         public const int TOTAL_LAYERS_SCREENS = 10;
 
         public const int ANIMATION_MOVEMENT = 0;
@@ -728,6 +731,7 @@ namespace YourCommonTools
             }
         }
 
+
         // -------------------------------------------
         /* 
 		 * Manager of ui events
@@ -739,11 +743,32 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * ProcessScreenEvents
+		 * PreProcessScreenEvents
 		 */
+        protected virtual bool PreProcessScreenEvents(string _nameEvent, params object[] _list)
+        {
+            if (_nameEvent == EVENT_SCREENCONTROLLER_ENABLE_PROCESS_EVENTS)
+            {
+                if (this.gameObject == (GameObject)_list[0])
+                {
+                    m_enableProcessEvents = (bool)_list[1];
+                }
+            }
+            if (_nameEvent == EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS)
+            {
+                m_enableProcessEvents = false;
+            }
+
+            return m_enableProcessEvents;
+        }
+
+        // -------------------------------------------
+        /* 
+        * ProcessScreenEvents
+        */
         protected void ProcessScreenEvents(string _nameEvent, params object[] _list)
         {
-            if (!m_enableProcessEvents) return;
+            if (!PreProcessScreenEvents(_nameEvent, _list)) return;
 
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN)
             {
