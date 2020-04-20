@@ -87,7 +87,7 @@ namespace YourCommonTools
                 }
                 else
                 {
-                    if (GetComponent<LayoutElement>()!=null)
+                    if (GetComponent<LayoutElement>() != null)
                     {
                         GetComponent<BoxCollider>().size = new Vector3(GetComponent<LayoutElement>().preferredWidth, GetComponent<LayoutElement>().preferredHeight, 0.1f);
                     }
@@ -96,25 +96,32 @@ namespace YourCommonTools
 				GetComponent<BoxCollider>().isTrigger = true;
 			}
 
-			if (this.gameObject.GetComponent<Button>() != null)
-			{
-				this.gameObject.GetComponent<Button>().onClick.AddListener(OnClickedButton);
-			}
-			else
-			{
-				if (this.gameObject.GetComponent<Toggle>() != null)
-				{
-					this.gameObject.GetComponent<Toggle>().onValueChanged.AddListener(OnValueChangedToggle);
-				}
+            if (this.gameObject.GetComponent<ICustomButton>() != null)
+            {
+                this.gameObject.GetComponent<ICustomButton>().GetOnClick().AddListener(OnClickedButton);
+            }
+            else
+            {
+                if (this.gameObject.GetComponent<Button>() != null)
+                {
+                    this.gameObject.GetComponent<Button>().onClick.AddListener(OnClickedButton);
+                }
                 else
                 {
-                    if (this.gameObject.GetComponent<InputField>() != null)
+                    if (this.gameObject.GetComponent<Toggle>() != null)
                     {
-                        m_isInputField = true;
+                        this.gameObject.GetComponent<Toggle>().onValueChanged.AddListener(OnValueChangedToggle);
+                    }
+                    else
+                    {
+                        if (this.gameObject.GetComponent<InputField>() != null)
+                        {
+                            m_isInputField = true;
+                        }
                     }
                 }
             }
-		}
+        }
 
         // -------------------------------------------
         /* 
