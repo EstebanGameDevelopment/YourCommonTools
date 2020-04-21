@@ -731,6 +731,41 @@ namespace YourCommonTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * HideCurrentScreen
+		 */
+        private void HideCurrentScreen(int _layer = -1)
+        {
+            int finalLayer = _layer;
+            if (finalLayer < 0) finalLayer = 0;
+
+            if (m_screensPool[finalLayer].Count > 0)
+            {
+                for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
+                {
+                    m_screensPool[finalLayer][k].SetActive(false);
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ShowCurrentScreen
+		 */
+        private void ShowCurrentScreen(int _layer = -1)
+        {
+            int finalLayer = _layer;
+            if (finalLayer < 0) finalLayer = 0;
+
+            if (m_screensPool[finalLayer].Count > 0)
+            {
+                for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
+                {
+                    m_screensPool[finalLayer][k].SetActive(true);
+                }
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -872,6 +907,16 @@ namespace YourCommonTools
                 {
                     Utilities.DebugLogError("EVENT_SCREENMANAGER_DESTROY_SCREEN::POOL[" + ScreensEnabled + "]-----------------------------------------------------------");
                 }
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_HIDE_CURRENT_SCREEN)
+            {
+                int layer = (int)_list[0];
+                HideCurrentScreen(layer);
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_SHOW_CURRENT_SCREEN)
+            {
+                int layer = (int)_list[0];
+                ShowCurrentScreen(layer);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
             {
