@@ -14,8 +14,8 @@ namespace YourCommonTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public interface ISlotView
-	{
+	public interface ISlotView : ICustomButton
+    {
 		// FUNCTIONS
 		void Initialize(params object[] _list);
 		bool Destroy();

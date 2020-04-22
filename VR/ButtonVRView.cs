@@ -160,18 +160,28 @@ namespace YourCommonTools
 		 */
 		public void InvokeButton()
 		{
-            if (this.gameObject.GetComponent<Button>() != null)
-			{
-				this.gameObject.GetComponent<Button>().onClick.Invoke();
-			}
-			else
-			{
-				if (this.gameObject.GetComponent<Toggle>() != null)
-				{
-					this.gameObject.GetComponent<Toggle>().onValueChanged.Invoke(!this.gameObject.GetComponent<Toggle>().isOn);
-				}
-			}
-		}
+            if (this.gameObject.GetComponent<ICustomButton>() != null)
+            {
+                if (!this.gameObject.GetComponent<ICustomButton>().RunOnClick())
+                {
+                    this.gameObject.GetComponent<ICustomButton>().GetOnClick().Invoke();
+                }
+            }
+            else
+            {
+                if (this.gameObject.GetComponent<Button>() != null)
+                {
+                    this.gameObject.GetComponent<Button>().onClick.Invoke();
+                }
+                else
+                {
+                    if (this.gameObject.GetComponent<Toggle>() != null)
+                    {
+                        this.gameObject.GetComponent<Toggle>().onValueChanged.Invoke(!this.gameObject.GetComponent<Toggle>().isOn);
+                    }
+                }
+            }
+        }
 
 		// -------------------------------------------
 		/* 

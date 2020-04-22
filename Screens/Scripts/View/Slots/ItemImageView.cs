@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.UI.Button;
 
 namespace YourCommonTools
 {
@@ -86,11 +87,30 @@ namespace YourCommonTools
 			return true;
 		}
 
-		// -------------------------------------------
-		/* 
+
+        // -------------------------------------------
+        /* 
+		 * GetOnClick
+		 */
+        public ButtonClickedEvent GetOnClick()
+        {
+            return transform.GetComponent<Button>().onClick;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RunOnClick
+		 */
+        public bool RunOnClick()
+        {
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OnMenuEvent
 		 */
-		private void OnMenuEvent(string _nameEvent, object[] _list)
+        private void OnMenuEvent(string _nameEvent, object[] _list)
 		{
 			if (_nameEvent == EVENT_ITEM_IMAGE_SELECTED)
 			{

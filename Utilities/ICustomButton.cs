@@ -7,8 +7,9 @@ using static UnityEngine.UI.Button;
 
 namespace YourCommonTools
 {
-    interface ICustomButton
+    public interface ICustomButton
     {
         ButtonClickedEvent GetOnClick();
+        bool RunOnClick();
     }
 }
