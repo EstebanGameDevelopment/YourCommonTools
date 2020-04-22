@@ -74,6 +74,10 @@ namespace YourCommonTools
         [Tooltip("Time used for default animation transitions")]
         public float PushAnimationTime = 0.3f;
 
+        [Tooltip("Limit the total number of stacked screens")]
+        public int TotalStackedScreensAllowed = 5;
+
+
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
@@ -234,6 +238,27 @@ namespace YourCommonTools
         {
             if (!m_enableScreens) return;
 
+            if (ScreensEnabled > TotalStackedScreensAllowed)
+            {
+                List<PageInformation> pages = new List<PageInformation>();
+                pages.Add(new PageInformation(LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("total.maximum.screen.reached"), null, "",  "", ""));
+
+                CreateRealNewScreenLayer(TOTAL_LAYERS_SCREENS - 1, null, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, pages);
+            }
+            else
+            {
+                CreateRealNewScreenLayer(_layer, _animation, _nameScreen, _previousAction, _list);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		* CreateRealNewScreenLayer
+		*/
+        protected void CreateRealNewScreenLayer(int _layer, object _animation, string _nameScreen, UIScreenTypePreviousAction _previousAction, params object[] _list)
+        {
+            if (!m_enableScreens) return;
+
             int finalLayer = _layer;
             if (finalLayer < 0) finalLayer = 0;
 
@@ -263,13 +288,13 @@ namespace YourCommonTools
                         {
                             m_screensPool[finalLayer][k].SetActive(false);
                         }
-					}
-					break;
+                    }
+                    break;
 
                 case UIScreenTypePreviousAction.HIDE_ALL_SCREENS:
                     foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
                     {
-                        for (int i = 0; i < screenPool.Value.Count;i++)
+                        for (int i = 0; i < screenPool.Value.Count; i++)
                         {
                             screenPool.Value[i].SetActive(false);
                         }
@@ -277,39 +302,39 @@ namespace YourCommonTools
                     break;
 
                 case UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN:
-					break;
+                    break;
 
-				case UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN:
+                case UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN:
                     if (m_screensPool[finalLayer].Count > 0)
                     {
                         DestroyGameObjectSingleScreen(m_screensPool[finalLayer][m_screensPool[finalLayer].Count - 1], true);
                     }
-					break;
+                    break;
 
-				case UIScreenTypePreviousAction.DESTROY_ALL_SCREENS:
+                case UIScreenTypePreviousAction.DESTROY_ALL_SCREENS:
                     DestroyScreensPool();
-					break;
-			}
+                    break;
+            }
 
-			// CREATE SCREEN
+            // CREATE SCREEN
             GameObject currentScreen = null;
-			for (int i = 0; i < ScreensPrefabs.Length; i++)
-			{
-				if (ScreensPrefabs[i] != null)
-				{
-					if (ScreensPrefabs[i].name == _nameScreen)
-					{
+            for (int i = 0; i < ScreensPrefabs.Length; i++)
+            {
+                if (ScreensPrefabs[i] != null)
+                {
+                    if (ScreensPrefabs[i].name == _nameScreen)
+                    {
                         currentScreen = (GameObject)Utilities.AddChild(m_layers[finalLayer].transform, ScreensPrefabs[i]);
                         if (_layer >= 0)
                         {
                             currentScreen.GetComponent<Canvas>().sortingOrder = _layer;
-                        }                        
+                        }
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
-						currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
+                        currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
                         break;
-					}
-				}
-			}
+                    }
+                }
+            }
 
             if (currentScreen != null)
             {
@@ -331,7 +356,6 @@ namespace YourCommonTools
                 Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
             }
         }
-
 
         // -------------------------------------------
         /* 
