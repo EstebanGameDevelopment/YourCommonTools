@@ -759,7 +759,7 @@ namespace YourCommonTools
         /* 
 		 * HideCurrentScreen
 		 */
-        private void HideCurrentScreen(int _layer = -1)
+        private void HideCurrentScreen(int _layer = -1, GameObject _screen = null)
         {
             int finalLayer = _layer;
             if (finalLayer < 0) finalLayer = 0;
@@ -768,7 +768,17 @@ namespace YourCommonTools
             {
                 for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
                 {
-                    m_screensPool[finalLayer][k].SetActive(false);
+                    if (_screen == null)
+                    {
+                        m_screensPool[finalLayer][k].SetActive(false);
+                    }
+                    else
+                    {
+                        if (m_screensPool[finalLayer][k].gameObject == _screen)
+                        {
+                            m_screensPool[finalLayer][k].SetActive(false);
+                        }
+                    }
                 }
             }
         }
@@ -777,7 +787,7 @@ namespace YourCommonTools
         /* 
 		 * ShowCurrentScreen
 		 */
-        private void ShowCurrentScreen(int _layer = -1)
+        private void ShowCurrentScreen(int _layer = -1, GameObject _screen = null)
         {
             int finalLayer = _layer;
             if (finalLayer < 0) finalLayer = 0;
@@ -786,7 +796,17 @@ namespace YourCommonTools
             {
                 for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
                 {
-                    m_screensPool[finalLayer][k].SetActive(true);
+                    if (_screen == null)
+                    {
+                        m_screensPool[finalLayer][k].SetActive(true);
+                    }
+                    else
+                    {
+                        if (m_screensPool[finalLayer][k].gameObject == _screen)
+                        {
+                            m_screensPool[finalLayer][k].SetActive(true);
+                        }
+                    }
                 }
             }
         }
@@ -935,12 +955,14 @@ namespace YourCommonTools
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_HIDE_CURRENT_SCREEN)
             {
                 int layer = (int)_list[0];
-                HideCurrentScreen(layer);
+                GameObject screenToHide = (GameObject)_list[1];
+                HideCurrentScreen(layer, screenToHide);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_SHOW_CURRENT_SCREEN)
             {
                 int layer = (int)_list[0];
-                ShowCurrentScreen(layer);
+                GameObject screenToShow = (GameObject)_list[1];
+                ShowCurrentScreen(layer, screenToShow);
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_ALL_SCREEN)
             {
