@@ -25,5 +25,6 @@ namespace YourCommonTools
 		bool Destroy();
 		void SetActivation(bool _activation);
 		void ApplyCentered();
-	}
+        void SetLayer(int _layer);
+    }
 }
