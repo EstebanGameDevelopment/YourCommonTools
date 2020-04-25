@@ -595,6 +595,15 @@ namespace YourCommonTools
                     }
                 }
             }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_DESTROY_NAME_SCREEN)
+            {
+                Debug.LogError("EVENT_SCREENMANAGER_DESTROY_NAME_SCREEN::(string)_list[0][" + (string)_list[0] + "]!!!!!!!!!!!!!!!!!!!!");
+                if (this.gameObject.name.IndexOf((string)_list[0]) != -1)
+                {
+                    Debug.LogError("    DESTROYED(string)_list[0][" + (string)_list[0] + "]+++++++++++++");
+                    Destroy();
+                }
+            }
 
             if (!this.gameObject.activeSelf) return;
 			if (m_selectors == null) return;
@@ -790,5 +799,13 @@ namespace YourCommonTools
 				}
 			}
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+		 * SetLayer
+		 */
+        public void SetLayer(int _layer)
+        {
+        }
+    }
 }

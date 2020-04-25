@@ -106,9 +106,12 @@ namespace YourCommonTools
         {
             base.OnMenuEvent(_nameEvent, _list);
 
-            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+            if (this.gameObject.activeSelf)
             {
-                BackPressed();
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    BackPressed();
+                }
             }
         }
     }

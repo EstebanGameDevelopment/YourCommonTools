@@ -258,9 +258,22 @@ namespace YourCommonTools
 
         }
 
+        // -------------------------------------------
+        /* 
+		 * Destroy
+		 */
         bool IBasicView.Destroy()
 		{
-			throw new NotImplementedException();
+            return true;
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+		 * SetLayer
+		 */
+        public void SetLayer(int _layer)
+        {
+        }
+
+    }
 }
