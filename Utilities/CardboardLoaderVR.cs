@@ -7,15 +7,20 @@ namespace YourCommonTools
 {
 	public class CardboardLoaderVR : MonoBehaviour
 	{
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
         public const string EVENT_VRLOADER_LOADED_DEVICE_NAME = "EVENT_VRLOADER_LOADED_DEVICE_NAME";
 
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
         public const string CARDBOARD_ENABLE_COOCKIE = "CARDBOARD_ENABLE_COOCKIE";
 
         public const string CARDBOARD_DEVICE_NAME = "Cardboard";
         public const string DAYDREAM_DEVICE_NAME = "Daydream";
         public const string OCULUS_DEVICE_NAME = "Oculus";
 
-        public bool ForceActivation = false;
 #if ENABLE_OCULUS
         public string DefaultDeviceName = OCULUS_DEVICE_NAME;
 #elif ENABLE_WORLDSENSE
@@ -24,29 +29,65 @@ namespace YourCommonTools
         public string DefaultDeviceName = CARDBOARD_DEVICE_NAME;
 #endif
 
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static CardboardLoaderVR _instance;
+
+        public static CardboardLoaderVR Instance
+        {
+            get
+            {
+                if (!_instance)
+                {
+                    _instance = GameObject.FindObjectOfType(typeof(CardboardLoaderVR)) as CardboardLoaderVR;
+                }
+                return _instance;
+            }
+        }
+
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
+        public bool ForceActivation = false;
+        public string CoockieName = "CARDBOARD_ENABLE_COOCKIE";
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
         private bool m_deviceLoaded = false;
 
         // -------------------------------------------
         /* 
 		* Save a flag to report if we need to use or not the Google VR
 		*/
-        public static void SaveEnableCardboard(bool _enabledCardboard)
+        public void SaveEnableCardboard(bool _enabledCardboard)
 		{
-            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, (_enabledCardboard ? 1 : 0));
+            if (CoockieName.Length > 0)
+            {
+                PlayerPrefs.SetInt(CoockieName, (_enabledCardboard ? 1 : 0));
+            }
 		}
 
 		// -------------------------------------------
 		/* 
 		 * Get the if we need to use or not the Google VR
 		 */
-		public static bool LoadEnableCardboard()
+		public bool LoadEnableCardboard()
 		{
 #if ENABLE_WORLDSENSE
             return true;
 #elif ENABLE_OCULUS
             return true;
 #else
-            return (PlayerPrefs.GetInt(CARDBOARD_ENABLE_COOCKIE, 0) == 1);
+            if (CoockieName.Length > 0)
+            {
+                return (PlayerPrefs.GetInt(CoockieName, 0) == 1);
+            }
+            else
+            {
+                return false;
+            }
 #endif
         }
 
@@ -54,18 +95,25 @@ namespace YourCommonTools
         /* 
 		* ResetEnableCardboard
 		*/
-        public static void ResetEnableCardboard()
+        public void ResetEnableCardboard()
         {
-            PlayerPrefs.SetInt(CARDBOARD_ENABLE_COOCKIE, 0);
+            if (CoockieName.Length > 0)
+            {
+                PlayerPrefs.SetInt(CoockieName, 0);
+            }
         }
 
         // -------------------------------------------
         /* 
-		 * Start
-		 */
-        void Start()
-		{
+		* ResetEnableCardboard
+		*/
+        private void Start()
+        {
+#if ENABLE_WORLDSENSE
             InitializeCardboard();
+#elif ENABLE_OCULUS
+            InitializeCardboard();
+#endif
         }
 
         // -------------------------------------------
