@@ -45,6 +45,10 @@ namespace YourCommonTools
         public const string EVENT_SCREENMANAGER_MOVE_SCREEN_TO_LAYER    = "EVENT_SCREENMANAGER_MOVE_SCREEN_TO_LAYER";
         public const string EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_ABOVE    = "EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_ABOVE";
         public const string EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_BELOW = "EVENT_SCREENMANAGER_DESTROY_SCREENS_LAYERS_BELOW";
+        public const string EVENT_SCREENMANAGER_DESTROY_NAME_SCREEN      = "EVENT_SCREENMANAGER_DESTROY_NAME_SCREEN";
+
+        public const string EVENT_SCREENMANAGER_MOVE_TEMPORAL_TO_FOREVER = "EVENT_SCREENMANAGER_MOVE_TEMPORAL_TO_FOREVER";
+        public const string EVENT_SCREENMANAGER_MOVE_FOREVER_TO_TEMPORAL = "EVENT_SCREENMANAGER_MOVE_FOREVER_TO_TEMPORAL";
 
         // ScreenMainCommandCenterView 
         public const string EVENT_SCREENMAINCOMMANDCENTER_REGISTER_LOG				= "EVENT_SCREENMAINCOMMANDCENTER_REGISTER_LOG";
@@ -180,6 +184,8 @@ namespace YourCommonTools
 		 */
         public void DispatchUIEvent(string _nameEvent, params object[] _list)
 		{
+            if (instance == null) return;
+
             // Debug.Log("[UI]_nameEvent=" + _nameEvent);
             if (!CheckBlockEvent(_nameEvent))
             {
@@ -193,6 +199,8 @@ namespace YourCommonTools
 		 */
 		public void DelayUIEvent(string _nameEvent, float _time, params object[] _list)
 		{
+            if (instance == null) return;
+
             if (!CheckBlockEvent(_nameEvent))
             {
                 listEvents.Add(new AppEventData(_nameEvent, -1, true, -1, _time, _list));
@@ -231,6 +239,8 @@ namespace YourCommonTools
 		 */
         void Update()
 		{
+            if (instance == null) return;
+
             // BLOCKED EVENTS
             if (m_blockEvents > 0)
             {

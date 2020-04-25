@@ -99,7 +99,9 @@ namespace YourCommonTools
 		 */
 		public void DispatchBasicSystemEvent(string _nameEvent, params object[] _list)
 		{
-			if (BasicSystemEvent != null) BasicSystemEvent(_nameEvent, _list);
+            if (_instance == null) return;
+
+            if (BasicSystemEvent != null) BasicSystemEvent(_nameEvent, _list);
 		}
 
 		// -------------------------------------------
@@ -108,7 +110,9 @@ namespace YourCommonTools
 		 */
 		public void DelayBasicSystemEvent(string _nameEvent, float _time, params object[] _list)
 		{
-			listEvents.Add(new TimedEventData(_nameEvent, _time, _list));
+            if (_instance == null) return;
+
+            listEvents.Add(new TimedEventData(_nameEvent, _time, _list));
 		}
 
         // -------------------------------------------
@@ -143,6 +147,8 @@ namespace YourCommonTools
 		 */
         void Update()
         {
+            if (_instance == null) return;
+
             // DELAYED EVENTS
             for (int i = 0; i < listEvents.Count; i++)
             {
