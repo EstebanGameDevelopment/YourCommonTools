@@ -23,17 +23,24 @@ namespace YourCommonTools
 		public const string EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST = "EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST";
         public const string EVENT_BUTTONVR_SELECTED_INPUTFIELD = "EVENT_BUTTONVR_SELECTED_INPUTFIELD";
 
+        public const string EVENT_BUTTONVR_REQUEST_LAYER_INFORMATION = "EVENT_BUTTONVR_REQUEST_LAYER_INFORMATION";
+        public const string EVENT_BUTTONVR_RESPONSE_LAYER_INFORMATION = "EVENT_BUTTONVR_RESPONSE_LAYER_INFORMATION";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------	
         public const string SELECTOR_COMPONENT_NAME = "Selector";
 
-		// ----------------------------------------------
-		// PRIVATE MEMBERS
-		// ----------------------------------------------	
-		private GameObject m_selector;
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+        private bool m_hasBeenInitialized = false;
+        private GameObject m_selector;
 		private string m_tagTrigger;
         private bool m_isInputField = false;
+
+        private int m_layerScreen = 0;
+        private string m_nameScreen = "";
 
         public bool IsSelected
         {
@@ -46,8 +53,14 @@ namespace YourCommonTools
 		 * and we also add a box collider to be able for the screen to be used
 		 * with systems like Leap Motion
 		 */
-        public void Initialize(Sprite _selectorGraphic, string _tagTrigger)
+        public void Initialize(Sprite _selectorGraphic, string _tagTrigger, int _layerScreen, string _nameScreen)
 		{
+            if (m_hasBeenInitialized) return;
+            m_hasBeenInitialized = true;
+
+            m_layerScreen = _layerScreen;
+            m_nameScreen = _nameScreen;
+
             UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 
 			m_tagTrigger = _tagTrigger;
@@ -125,11 +138,26 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * OnDestroy
+		 */
+        private void OnDestroy()
+        {
+            Destroy();
+        }
+
+        private bool m_hasBeenDestroyed = false;
+
+        // -------------------------------------------
+        /* 
 		 * Destroy all the references
 		 */
         public void Destroy()
 		{
+            if (m_hasBeenDestroyed) return;
+            m_hasBeenDestroyed = true;
+
             UIEventController.Instance.UIEvent -= OnUIEvent;
+
             if (this.gameObject.GetComponent<Button>() != null) this.gameObject.GetComponent<Button>().onClick.RemoveListener(OnClickedButton);
             if (this.gameObject.GetComponent<Toggle>() != null) this.gameObject.GetComponent<Toggle>().onValueChanged.RemoveListener(OnValueChangedToggle);            
             m_selector = null;
@@ -160,6 +188,15 @@ namespace YourCommonTools
 		 */
 		public void InvokeButton()
 		{
+            UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_REQUEST_LAYER_INFORMATION, this.gameObject);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Will be called to invoke the button functionality
+		 */
+        private void RunInvokeButton()
+        {
             if (this.gameObject.GetComponent<ICustomButton>() != null)
             {
                 if (!this.gameObject.GetComponent<ICustomButton>().RunOnClick())
@@ -183,11 +220,11 @@ namespace YourCommonTools
             }
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Clicked the button
 		 */
-		public void OnClickedButton()
+        public void OnClickedButton()
 		{
 			UIEventController.Instance.DispatchUIEvent(EVENT_CLICKED_VR_BUTTON, this.gameObject);
 		}
@@ -229,19 +266,38 @@ namespace YourCommonTools
 		 */
         private void OnUIEvent(string _nameEvent, object[] _list)
         {
-            if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
+            if (this == null)
             {
-                if (m_isInputField)
+                Destroy();
+                Debug.LogError("TRYING TO ACCESS TO A DESTROYED COMPONENT[" + m_nameScreen + "]");
+            }
+            else
+            {
+                if (_nameEvent == KeysEventInputController.ACTION_BUTTON_DOWN)
                 {
-                    if (m_selector.activeSelf)
+                    if (m_isInputField)
                     {
-                        m_selector.SetActive(false);
-                        UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_SELECTED_INPUTFIELD, this.gameObject.GetComponent<InputField>());
+                        if (m_selector.activeSelf)
+                        {
+                            m_selector.SetActive(false);
+                            Debug.LogError("m_isInputField:ACTION_BUTTON_DOWN!!!!!!!!!!!!!!!!!");
+                            UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_SELECTED_INPUTFIELD, this.gameObject.GetComponent<InputField>());
+                        }
+                    }
+                }
+                if (_nameEvent == EVENT_BUTTONVR_RESPONSE_LAYER_INFORMATION)
+                {
+                    if (this.gameObject == (GameObject)_list[0])
+                    {
+                        int currentMaxLayer = (int)_list[1];
+                        if (m_layerScreen == currentMaxLayer)
+                        {
+                            RunInvokeButton();
+                        }
                     }
                 }
             }
         }
-
 
     }
 }
