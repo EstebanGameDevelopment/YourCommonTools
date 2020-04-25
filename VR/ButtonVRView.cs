@@ -57,6 +57,7 @@ namespace YourCommonTools
 		{
             if (m_hasBeenInitialized) return;
             m_hasBeenInitialized = true;
+            m_hasBeenDestroyed = false;
 
             m_layerScreen = _layerScreen;
             m_nameScreen = _nameScreen;
@@ -156,8 +157,11 @@ namespace YourCommonTools
             if (m_hasBeenDestroyed) return;
             m_hasBeenDestroyed = true;
 
+            m_hasBeenInitialized = false;
+
             UIEventController.Instance.UIEvent -= OnUIEvent;
 
+            if (this.gameObject.GetComponent<ICustomButton>() != null) this.gameObject.GetComponent<ICustomButton>().GetOnClick().RemoveListener(OnClickedButton);
             if (this.gameObject.GetComponent<Button>() != null) this.gameObject.GetComponent<Button>().onClick.RemoveListener(OnClickedButton);
             if (this.gameObject.GetComponent<Toggle>() != null) this.gameObject.GetComponent<Toggle>().onValueChanged.RemoveListener(OnValueChangedToggle);            
             m_selector = null;
