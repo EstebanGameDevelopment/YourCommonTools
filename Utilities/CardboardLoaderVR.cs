@@ -41,6 +41,12 @@ namespace YourCommonTools
                 if (!_instance)
                 {
                     _instance = GameObject.FindObjectOfType(typeof(CardboardLoaderVR)) as CardboardLoaderVR;
+                    if (!_instance)
+                    {
+                        GameObject container = new GameObject();
+                        container.name = "CardboardLoaderPlaceHolder";
+                        _instance = container.AddComponent(typeof(CardboardLoaderVR)) as CardboardLoaderVR;
+                    }
                 }
                 return _instance;
             }
