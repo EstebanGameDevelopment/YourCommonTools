@@ -37,8 +37,10 @@ namespace YourCommonTools
 		 */
 		public override void Initialize(params object[] _list)
 		{
-			m_idImage = (long)_list[0];
-			m_binaryDataImage = (byte[])_list[1];
+            object[] objectParams = (object[])_list[0];
+
+			m_idImage = (long)objectParams[0];
+			m_binaryDataImage = (byte[])objectParams[1];
 
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
