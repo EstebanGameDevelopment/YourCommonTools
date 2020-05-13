@@ -24,6 +24,13 @@ namespace YourCommonTools
                 if (!_instance)
                 {
                     _instance = GameObject.FindObjectOfType(typeof(WebSocketDroneKitController)) as WebSocketDroneKitController;
+                    if (!_instance)
+                    {
+                        GameObject container = new GameObject();
+                        DontDestroyOnLoad(container);
+                        container.name = "WebSocketDroneKitController";
+                        _instance = container.AddComponent(typeof(WebSocketDroneKitController)) as WebSocketDroneKitController;
+                    }
                 }
                 return _instance;
             }
@@ -104,6 +111,7 @@ namespace YourCommonTools
             }
             else
             {
+#if !ENABLE_ROOMBA
                 Debug.LogError("++WEB SERVER SOCKET::ReceivedMessage::DATA RECEIVED["+ e.Data + "]");
                 if (e.Data.IndexOf("armed_success") != -1)
                 {
@@ -130,6 +138,20 @@ namespace YourCommonTools
                 {
                     BasicSystemEventController.Instance.DelayBasicSystemEvent(DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_VEHICLEMODE_CHANGED, 0.1f);
                 }
+#else
+                if (e.Data.IndexOf("turnleft_success") != -1)
+                {
+                    Debug.LogError("TURN LEFT CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+                if (e.Data.IndexOf("turnright_success") != -1)
+                {
+                    Debug.LogError("TURN RIGHT CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+                if (e.Data.IndexOf("moveforward_success") != -1)
+                {
+                    Debug.LogError("TURN RIGHT CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+#endif
             }
         }
 
@@ -278,6 +300,42 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * RoombaTurnLeft
+		 */
+        public void RoombaTurnLeft()
+        {
+            if (m_cws != null) m_cws.Send("turnLeft");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RoombaTurnRight
+		 */
+        public void RoombaTurnRight()
+        {
+            if (m_cws != null) m_cws.Send("turnRight");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RoombaTurnRight
+		 */
+        public void RoombaMoveForward()
+        {
+            if (m_cws != null) m_cws.Send("moveForward");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RoombaCloseCommunication
+		 */
+        public void RoombaCloseCommunication()
+        {
+            if (m_cws != null) m_cws.Send("closeCommunication");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Update
 		 */
         void Update()
@@ -286,6 +344,7 @@ namespace YourCommonTools
             m_hasTakenOff = true;
 #endif
 
+#if !ENABLE_ROOMBA
             if (m_hasTakenOff)
             {
                 // FALLBACK PROTOCAL TO RETURN HONE
@@ -326,10 +385,10 @@ namespace YourCommonTools
                     }
                 }
             }
-
+#endif
 
         }
 
 #endif
-    }
-}
+            }
+        }
