@@ -10,57 +10,177 @@ namespace YourCommonTools
      */
     public class ProjectileShooter
     {
-        private static readonly float TIME_SCALE = 20;
-        public static readonly float GRAVITY = 9.81f * 0.1f;
+        // ----------------------------------------------
+        // PUBLIC CONSTANTS
+        // ----------------------------------------------	
+        public const string EVENT_PROJECTILESHOOTER_DESTROY = "EVENT_PROJECTILESHOOTER_DESTROY";
 
+        // ----------------------------------------------
+        // PUBLIC CONSTANTS
+        // ----------------------------------------------	
+        public const float TOTAL_TIME = 0.6f;
+        public const float TIME_SCALE = 20;
+        public const float GRAVITY = 9.81f * 0.1f;
+
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
         private float m_angleRad = Mathf.Deg2Rad * 45;
         private float m_power = 5;
 
         private Vector2 m_origin = new Vector2(50, 50);
         private Vector2 m_target = new Vector2(500, 100);
 
-        private Projectile m_projectile = new Projectile();
+        private GameObject m_ball;
+        private Vector3 m_originSource;
+        private Vector3 m_direction;
+        private float m_totalDistance;
+        private float m_totalTrajectory = 0;
+        private float m_x0;
+        private float m_x1;
+        private float m_timeAcum = 0;
+        private float m_delayToRun = 1;
+        private float m_totalTimeWithTrajectory = -1;
+        private GameObject m_ballContainer;
 
+        // -------------------------------------------
+        /* 
+		 * Initialitzation
+		 */
+        public void Initialitzation(GameObject _ball, GameObject _prefabReference, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _delay = 0)
+        {
+            m_ball = _ball;
+            m_originSource = _origin;
+            m_delayToRun = _delay;
+
+            m_direction = _target - _origin;
+            m_totalDistance = m_direction.magnitude;
+            m_direction.Normalize();
+
+            SetOrigin(new Vector2(0, _origin.y));
+            SetTarget(new Vector2(m_totalDistance, _target.y));
+
+            float angleDeg = Mathf.Rad2Deg * GetAngle();
+            float power = GetPower();
+            Vector3 origin = GetOrigin();
+            Vector3 target = GetTarget();
+            float range = ComputeRange(origin.y);
+            float impactX = range + origin.x;
+
+            if (_calculatePower)
+            {
+                float requiredPower = ComputeRequiredPower();
+                SetPower(requiredPower);
+                /// Debug.LogError("ProjectileShooter::SET POWER TO[" + requiredPower + "]!!!!!!!!!!!!!!!!!!");
+            }
+            else
+            {
+                SetPower(_power);
+
+                Vector2 requiredAngles = ComputeRequiredAngles();
+                float requiredAngleDeg0 = Mathf.Rad2Deg * requiredAngles.x;
+                float requiredAngleDeg1 = Mathf.Rad2Deg * requiredAngles.y;
+
+                SetAngle(requiredAngles.y);
+                // Debug.LogError("ProjectileShooter::SET ANGLE Y[" + requiredAngles.y + "]!!!!!!!!!!!!!!!!!!");
+            }
+
+            m_x0 = Mathf.Min(origin.x, impactX);
+            m_x1 = Mathf.Max(origin.x, impactX);
+
+            RenderPath(_prefabReference);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Destroy
+		 */
+        public void Destroy()
+        {
+            if (m_ballContainer != null)
+            {
+                GameObject.Destroy(m_ballContainer);
+                m_ballContainer = null;
+            }
+            m_ball = null;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetOrigin
+		 */
         public void SetOrigin(Vector2 _origin)
         {
             m_origin = _origin;
         }
 
+        // -------------------------------------------
+        /* 
+		 * GetOrigin
+		 */
         public Vector2 GetOrigin()
         {
             return m_origin;
         }
 
+        // -------------------------------------------
+        /* 
+		 * SetTarget
+		 */
         public void SetTarget(Vector2 _target)
         {
             m_target = _target;
         }
 
+        // -------------------------------------------
+        /* 
+		 * GetTarget
+		 */
         public Vector2 GetTarget()
         {
             return m_target;
         }
 
+        // -------------------------------------------
+        /* 
+		 * SetAngle
+		 */
         public void SetAngle(float _angleRad)
         {
             m_angleRad = _angleRad;
         }
 
+        // -------------------------------------------
+        /* 
+		 * GetAngle
+		 */
         public float GetAngle()
         {
             return m_angleRad;
         }
 
+        // -------------------------------------------
+        /* 
+		 * SetPower
+		 */
         public void SetPower(float _power)
         {
             m_power = _power;
         }
 
+        // -------------------------------------------
+        /* 
+		 * GetPower
+		 */
         public float GetPower()
         {
             return m_power;
         }
 
+        // -------------------------------------------
+        /* 
+		 * ComputeY
+		 */
         public float ComputeY(float x)
         {
             // http://de.wikipedia.org/wiki/Wurfparabel
@@ -76,6 +196,10 @@ namespace YourCommonTools
             return x * Mathf.Tan(b) - g / (2 * v0 * v0 * cb * cb) * x * x;
         }
 
+        // -------------------------------------------
+        /* 
+		 * ComputeRange
+		 */
         public float ComputeRange(float _h0)
         {
             // http://de.wikipedia.org/wiki/Wurfparabel
@@ -90,6 +214,10 @@ namespace YourCommonTools
             return f0 * f1;
         }
 
+        // -------------------------------------------
+        /* 
+		 * ComputeRequiredAngles
+		 */
         public Vector2 ComputeRequiredAngles()
         {
             // http://en.wikipedia.org/wiki/Trajectory_of_a_projectile
@@ -107,6 +235,10 @@ namespace YourCommonTools
             return new Vector2(angle0, angle1);
         }
 
+        // -------------------------------------------
+        /* 
+		 * ComputeRequiredPower
+		 */
         public float ComputeRequiredPower()
         {
             // WolframAlpha told me so...
@@ -123,6 +255,10 @@ namespace YourCommonTools
             return v0;
         }
 
+        // -------------------------------------------
+        /* 
+		 * PolarToCartesian
+		 */
         private static Vector2 PolarToCartesian(Vector2 _polar, Vector2 _cartesian)
         {
             float x = Mathf.Cos(_polar.x) * _polar.y;
@@ -135,9 +271,84 @@ namespace YourCommonTools
             return cartesian;
         }
 
-        Projectile GetProjectile()
+        // -------------------------------------------
+        /* 
+		 * RenderPath
+		 */
+        private void RenderPath(GameObject _prefabReference)
         {
-            return m_projectile;
+            m_ballContainer = new GameObject();
+            m_ballContainer.name = "BALL_CONTAINER";
+            Vector2 originRender = GetOrigin();
+            m_totalTrajectory = 0;
+            Vector3 previousPosition = Vector3.zero;
+            float previousAngleTangent = -1;
+            Vector2 current2DPosition = Vector2.zero;
+            Vector2 previous2DPosition = Vector2.zero;
+            for (float x = m_x0; x <= m_totalDistance; x += 0.5f)
+            {
+                float y = ComputeY(Mathf.Abs(originRender.x - x));
+                current2DPosition = new Vector2(x, y);
+                Vector3 currentPosition = m_originSource + (m_direction * x);                
+                currentPosition = new Vector3(currentPosition.x, y + m_originSource.y, currentPosition.z);
+                if (_prefabReference != null)
+                {
+                    GameObject ballPath = GameObject.Instantiate(_prefabReference, m_ballContainer.transform);
+                    ballPath.transform.position = currentPosition;
+                }
+                if (previousPosition != Vector3.zero)
+                {
+                    m_totalTrajectory += Vector3.Distance(currentPosition, previousPosition);
+
+                    // TANGENT
+                    if (previous2DPosition != Vector2.zero)
+                    {
+                        Vector2 directionTangent = current2DPosition - previous2DPosition;
+                        float angleTangent = Mathf.Atan2(directionTangent.y, directionTangent.x);
+                        if (previousAngleTangent != -1)
+                        {
+                            float differenceTangents = Mathf.Abs(Mathf.Abs(angleTangent) - Mathf.Abs(previousAngleTangent));
+                            m_totalTrajectory += 16 * differenceTangents;
+                        }
+                        previousAngleTangent = angleTangent;
+                    }
+                }
+                previousPosition = currentPosition;
+                previous2DPosition = current2DPosition;
+            }
+            m_totalTimeWithTrajectory = (TOTAL_TIME * m_totalTrajectory) / m_totalDistance;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Update
+		 */
+        public void Update()
+        {
+            if (m_ball != null)
+            {
+                m_delayToRun -= Time.deltaTime;
+                if (m_delayToRun < 0)
+                {
+                    m_timeAcum += Time.deltaTime;
+                    float totalTimeBallDone = (m_timeAcum / m_totalTimeWithTrajectory);
+                    float xUpdate = (m_x0 + totalTimeBallDone * m_totalDistance);
+                    float yUpdate = ComputeY(Mathf.Abs(GetOrigin().x - xUpdate));
+                    Vector3 currentPosition = m_originSource + (m_direction * xUpdate);
+                    currentPosition = new Vector3(currentPosition.x, yUpdate + m_originSource.y, currentPosition.z);
+                    m_ball.transform.position = currentPosition;
+                    if (totalTimeBallDone > 1.2f)
+                    {
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PROJECTILESHOOTER_DESTROY, this, m_ball);
+                        Destroy();
+                    }
+                }
+            }
+            else
+            {
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PROJECTILESHOOTER_DESTROY, this, m_ball);
+                Destroy();
+            }
         }
     }
 }

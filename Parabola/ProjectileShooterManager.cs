@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace YourCommonTools
 {
@@ -10,64 +12,71 @@ namespace YourCommonTools
      */
     public class ProjectileShooterManager : MonoBehaviour
     {
+        // ----------------------------------------------
+        // PUBLIC MEMBERS
+        // ----------------------------------------------	
         public GameObject BallReference;
 
-        public void RenderParabola(Vector3 _origin, Vector3 _target)
+        // ----------------------------------------------
+        // PRIVATE MEMBERS
+        // ----------------------------------------------	
+
+        private List<ProjectileShooter> m_projectileShooter = new List<ProjectileShooter>();
+
+        // -------------------------------------------
+        /* 
+		 * RunParabola
+		 */
+        public void RunParabola(GameObject _ball, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _delay = 0)
         {
-            Vector3 direction = _target - _origin;
-            float totalDistance = direction.magnitude;
-            direction.Normalize();
+            ProjectileShooter newProjectile = new ProjectileShooter();
+            newProjectile.Initialitzation(_ball, BallReference, _origin, _target, _calculatePower, _power, _delay);
+            m_projectileShooter.Add(newProjectile);
+            Debug.LogError("RunParabola::ADD NEW PROJECTILE[" + m_projectileShooter.Count + "]");
 
-            ProjectileShooter projectileShooter = new ProjectileShooter();
-            projectileShooter.SetOrigin(new Vector2(0, _origin.y));
-            projectileShooter.SetTarget(new Vector2(totalDistance, _target.y));
-
-            float angleDeg = Mathf.Rad2Deg * projectileShooter.GetAngle();
-            float power = projectileShooter.GetPower();
-            Vector3 origin = projectileShooter.GetOrigin();
-            Vector3 target = projectileShooter.GetTarget();
-            float range = projectileShooter.ComputeRange(origin.y);
-            float impactX = range + origin.x;
-
-            /*
-            Debug.LogError("Angle: " + angleDeg);
-            Debug.LogError("Power: " + power);
-            Debug.LogError("Range: " + range);
-            Debug.LogError("Origin: " + origin.ToString());
-            Debug.LogError("Impact X: " + impactX);
-            Debug.LogError("Target: " + target.ToString());
-            */
-
-            Vector2 requiredAngles = projectileShooter.ComputeRequiredAngles();
-            float requiredAngleDeg0 = Mathf.Rad2Deg * requiredAngles.x;
-            float requiredAngleDeg1 = Mathf.Rad2Deg * requiredAngles.y;
-            Debug.LogError("Required angle 0: " + requiredAngleDeg0);
-            Debug.LogError("Required angle 1: " + requiredAngleDeg1);
-
-            float requiredPower = projectileShooter.ComputeRequiredPower();
-            Debug.LogError("Required power: " + requiredPower);
-
-            // projectileShooter.SetPower(requiredPower);
-            projectileShooter.SetAngle(requiredAngles.y);
-
-            RenderPath(projectileShooter, Mathf.Min(origin.x, impactX), Mathf.Max(origin.x, impactX), _origin, direction);
+            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
         }
 
-        private void RenderPath(ProjectileShooter _projectileShooter, float _x0, float _x1, Vector3 _origin, Vector3 _direction)
+        // -------------------------------------------
+        /* 
+		 * OnDestroy
+		 */
+        private void OnDestroy()
         {
-            GameObject ballContainer = new GameObject();
-            ballContainer.name = "BALL_CONTAINER";
-            Destroy(ballContainer, 10);
-            Vector2 originRender = _projectileShooter.GetOrigin();
-            double y0 = _projectileShooter.ComputeY(Mathf.Abs(originRender.x - _x0));
-            for (float x = _x0; x <= _x1; x+=1)
-            {
-                float y = _projectileShooter.ComputeY(Mathf.Abs(originRender.x - x));
+            BasicSystemEventController.Instance.BasicSystemEvent -= new BasicSystemEventHandler(OnBasicSystemEvent);
+        }
 
-                Vector3 currentPosition = _origin + (_direction * x);
-                currentPosition = new Vector3(currentPosition.x, y + _origin.y, currentPosition.z);
-                GameObject ballPath = GameObject.Instantiate(BallReference, ballContainer.transform);
-                ballPath.transform.position = currentPosition;
+        // -------------------------------------------
+        /* 
+		 * OnBasicSystemEvent
+		 */
+        private void OnBasicSystemEvent(string _nameEvent, object[] _list)
+        {
+            if (_nameEvent == ProjectileShooter.EVENT_PROJECTILESHOOTER_DESTROY)
+            {
+                ProjectileShooter projectileToDelete = (ProjectileShooter)_list[0];
+                for (int i = 0; i < m_projectileShooter.Count; i++)
+                {
+                    if (m_projectileShooter[i] == projectileToDelete)
+                    {
+                        projectileToDelete.Destroy();
+                        m_projectileShooter.RemoveAt(i);
+                        Debug.LogError("EVENT_PROJECTILESHOOTER_DESTROY::TOTAL NUMBER OF PROJECTILES LEFT[" + m_projectileShooter.Count + "]");
+                        break;
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Update
+		 */
+        private void Update()
+        {
+            for (int i = 0; i < m_projectileShooter.Count; i++)
+            {
+                m_projectileShooter[i].Update();
             }
         }
     }
