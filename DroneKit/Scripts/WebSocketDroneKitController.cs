@@ -149,7 +149,11 @@ namespace YourCommonTools
                 }
                 if (e.Data.IndexOf("moveforward_success") != -1)
                 {
-                    Debug.LogError("TURN RIGHT CONFIRMED BY RASPBERRY++++++++++++++");
+                    Debug.LogError("MOVE FORWARD CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+                if (e.Data.IndexOf("movebackward_success") != -1)
+                {
+                    Debug.LogError("MOVE BACKWARD CONFIRMED BY RASPBERRY++++++++++++++");
                 }
 #endif
             }
@@ -302,27 +306,36 @@ namespace YourCommonTools
         /* 
 		 * RoombaTurnLeft
 		 */
-        public void RoombaTurnLeft()
+        public void RoombaTurnLeft(float _time)
         {
-            if (m_cws != null) m_cws.Send("turnLeft");
+            if (m_cws != null) m_cws.Send("turnLeft_time_" + _time + "_end");
         }
 
         // -------------------------------------------
         /* 
 		 * RoombaTurnRight
 		 */
-        public void RoombaTurnRight()
+        public void RoombaTurnRight(float _time)
         {
-            if (m_cws != null) m_cws.Send("turnRight");
+            if (m_cws != null) m_cws.Send("turnRight_time_" + _time + "_end");
         }
 
         // -------------------------------------------
         /* 
-		 * RoombaTurnRight
+		 * RoombaMoveForward
 		 */
-        public void RoombaMoveForward()
+        public void RoombaMoveForward(float _time)
         {
-            if (m_cws != null) m_cws.Send("moveForward");
+            if (m_cws != null) m_cws.Send("moveForward_time_" + _time + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RoombaMoveForward
+		 */
+        public void RoombaMoveBackward(float _time)
+        {
+            if (m_cws != null) m_cws.Send("moveBackward_time_" + _time + "_end");
         }
 
         // -------------------------------------------
