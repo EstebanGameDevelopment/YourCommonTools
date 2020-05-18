@@ -18,7 +18,6 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PUBLIC CONSTANTS
         // ----------------------------------------------	
-        public const float TOTAL_TIME = 0.6f;
         public const float TIME_SCALE = 20;
         public const float GRAVITY = 9.81f * 0.1f;
 
@@ -27,6 +26,7 @@ namespace YourCommonTools
         // ----------------------------------------------	
         private float m_angleRad = Mathf.Deg2Rad * 45;
         private float m_power = 5;
+        private float m_duration = 0.6f;
 
         private Vector2 m_origin = new Vector2(50, 50);
         private Vector2 m_target = new Vector2(500, 100);
@@ -47,10 +47,11 @@ namespace YourCommonTools
         /* 
 		 * Initialitzation
 		 */
-        public void Initialitzation(GameObject _ball, GameObject _prefabReference, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _delay = 0)
+        public void Initialitzation(GameObject _ball, GameObject _prefabReference, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _duration = 0.6f, float _delay = 0)
         {
             m_ball = _ball;
             m_originSource = _origin;
+            m_duration = _duration;
             m_delayToRun = _delay;
 
             m_direction = _target - _origin;
@@ -316,7 +317,7 @@ namespace YourCommonTools
                 previousPosition = currentPosition;
                 previous2DPosition = current2DPosition;
             }
-            m_totalTimeWithTrajectory = (TOTAL_TIME * m_totalTrajectory) / m_totalDistance;
+            m_totalTimeWithTrajectory = (m_duration * m_totalTrajectory) / m_totalDistance;
         }
 
         // -------------------------------------------

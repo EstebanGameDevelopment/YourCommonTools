@@ -27,12 +27,12 @@ namespace YourCommonTools
         /* 
 		 * RunParabola
 		 */
-        public void RunParabola(GameObject _ball, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _delay = 0)
+        public void RunParabola(GameObject _ball, Vector3 _origin, Vector3 _target, bool _calculatePower, float _power = 2, float _duration = 0.6f, float _delay = 0)
         {
             ProjectileShooter newProjectile = new ProjectileShooter();
-            newProjectile.Initialitzation(_ball, BallReference, _origin, _target, _calculatePower, _power, _delay);
+            newProjectile.Initialitzation(_ball, BallReference, _origin, _target, _calculatePower, _power, _duration, _delay);
             m_projectileShooter.Add(newProjectile);
-            Debug.LogError("RunParabola::ADD NEW PROJECTILE[" + m_projectileShooter.Count + "]");
+            // Debug.LogError("RunParabola::ADD NEW PROJECTILE[" + m_projectileShooter.Count + "]");
 
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
         }
@@ -61,7 +61,7 @@ namespace YourCommonTools
                     {
                         projectileToDelete.Destroy();
                         m_projectileShooter.RemoveAt(i);
-                        Debug.LogError("EVENT_PROJECTILESHOOTER_DESTROY::TOTAL NUMBER OF PROJECTILES LEFT[" + m_projectileShooter.Count + "]");
+                        // Debug.LogError("EVENT_PROJECTILESHOOTER_DESTROY::TOTAL NUMBER OF PROJECTILES LEFT[" + m_projectileShooter.Count + "]");
                         break;
                     }
                 }
