@@ -25,6 +25,7 @@ namespace YourCommonTools
         protected int m_id;
         protected GameObject m_model;
         protected float m_life;
+        protected float m_initialLife;
 		protected float m_speed;
 		protected float m_yaw;
         protected bool m_enableYawUpdate = true;

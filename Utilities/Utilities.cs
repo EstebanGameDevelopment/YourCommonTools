@@ -148,11 +148,57 @@ namespace YourCommonTools
 			}
 		}
 
-		// ---------------------------------------------------
-		/**
+        // ---------------------------------------------------
+        /**
+		 @brief isInsideCone: Will test if the game player is inside the cone of vision
+		 */
+        public static Vector2 IsInsideConeExtra(GameObject _source, float _yaw, GameObject _objective, float _rangeDetection, float _angleDetection)
+        {
+            float distance = Vector3.Distance(new Vector3(_source.transform.position.x, 0, _source.transform.position.z),
+                                             new Vector3(_objective.transform.position.x, 0, _objective.transform.position.z));
+            if (distance < _rangeDetection)
+            {
+                float yaw = _yaw * Mathf.Deg2Rad;
+                Vector2 pos = new Vector2(_source.transform.position.x, _source.transform.position.z);
+
+                Vector2 v1 = new Vector2((float)Mathf.Cos(yaw), (float)Mathf.Sin(yaw));
+                Vector2 v2 = new Vector2(_objective.transform.position.x - pos.x, _objective.transform.position.z - pos.y);
+
+                // Angle detection
+                float moduloV2 = v2.magnitude;
+                if (moduloV2 == 0)
+                {
+                    v2.x = 0.0f;
+                    v2.y = 0.0f;
+                }
+                else
+                {
+                    v2.x = v2.x / moduloV2;
+                    v2.y = v2.y / moduloV2;
+                }
+                float angleCreated = (v1.x * v2.x) + (v1.y * v2.y);
+                float angleResult = Mathf.Cos(_angleDetection * Mathf.Deg2Rad);
+
+                if (angleCreated > angleResult)
+                {
+                    return new Vector2(distance, angleResult);
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return Vector2.zero;
+            }
+        }
+
+        // ---------------------------------------------------
+        /**
 		 @brief Check if between two points there is no obstacle
 		 */
-		public static bool CheckFreePath(Vector3 _goalPosition, Vector3 _originPosition, params int[] _masks)
+        public static bool CheckFreePath(Vector3 _goalPosition, Vector3 _originPosition, params int[] _masks)
 		{
 			Vector3 fwd = new Vector3(_goalPosition.x - _originPosition.x, _goalPosition.y - _originPosition.y, _goalPosition.z - _originPosition.z);
 			float distanceTotal = fwd.sqrMagnitude;
@@ -2153,11 +2199,23 @@ namespace YourCommonTools
         /* 
 		 * FaceTargetOnYAxis
 		 */
-        public static void FaceTargetOnYAxis(Transform _go, Vector3 _target)
+        public static float FaceTargetOnYAxis(Transform _go, Vector3 _target)
         {
             Vector3 relative = _go.InverseTransformPoint(_target);
             float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
             _go.Rotate(0, angle, 0);
+            return angle;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AngleTargetOnYAxis
+		 */
+        public static float AngleTargetOnYAxis(Transform _go, Vector3 _target)
+        {
+            Vector3 relative = _go.InverseTransformPoint(_target);
+            float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;
+            return angle;
         }
 
         // -------------------------------------------
