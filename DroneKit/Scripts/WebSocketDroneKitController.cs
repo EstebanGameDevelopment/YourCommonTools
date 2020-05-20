@@ -12,6 +12,10 @@ namespace YourCommonTools
     public class WebSocketDroneKitController : MonoBehaviour
     {
 #if ENABLE_WEBSOCKET_DRONEKIT
+        public const string EVENT_WEBSOCKET_REQUESTED_DIRECTION = "EVENT_WEBSOCKET_REQUESTED_DIRECTION";
+
+        public const float TOTAL_TIMEOUT_TO_DIRECTION = 2;
+
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
@@ -53,6 +57,8 @@ namespace YourCommonTools
         private Vector3 m_nextVelocity;
         private float m_nextTimeout = -1;
         private float m_nextSpeedDrone = -1;
+
+        private float m_timeoutToDirectionRoomba = 0;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -154,6 +160,15 @@ namespace YourCommonTools
                 if (e.Data.IndexOf("movebackward_success") != -1)
                 {
                     Debug.LogError("MOVE BACKWARD CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+                string tagDirection = "requestdirection_success_";
+                int indexDirection = e.Data.IndexOf(tagDirection);
+                if (indexDirection != -1)
+                {
+                    int numberIndex = indexDirection + tagDirection.Length;
+                    float differenceX = float.Parse(e.Data.Substring(numberIndex, e.Data.Length - numberIndex));
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_WEBSOCKET_REQUESTED_DIRECTION, differenceX);
+                    Debug.LogError("DIRECTION REQUESTED["+ differenceX + "]++++++++++++++");
                 }
 #endif
             }
@@ -349,6 +364,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * RoombaTurnRight
+		 */
+        public void RoombaRequestDirection()
+        {
+            if (m_cws != null) m_cws.Send("requestDirection");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Update
 		 */
         void Update()
@@ -357,7 +381,14 @@ namespace YourCommonTools
             m_hasTakenOff = true;
 #endif
 
-#if !ENABLE_ROOMBA
+#if ENABLE_ROOMBA
+            m_timeoutToDirectionRoomba += Time.deltaTime;
+            if (m_timeoutToDirectionRoomba > TOTAL_TIMEOUT_TO_DIRECTION)
+            {
+                m_timeoutToDirectionRoomba = 0;
+                RoombaRequestDirection();
+            }
+#else
             if (m_hasTakenOff)
             {
                 // FALLBACK PROTOCAL TO RETURN HONE
@@ -403,5 +434,5 @@ namespace YourCommonTools
         }
 
 #endif
-            }
+    }
         }
