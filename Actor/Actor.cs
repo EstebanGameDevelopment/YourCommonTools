@@ -626,5 +626,14 @@ namespace YourCommonTools
             InterpolatorController.Instance.Interpolate(m_emptyShotgunForward, _nextForward, _timeToUpdateAnimation);
             m_forwardShotgun = Utilities.Clone(_nextForward);
         }
+
+        // -------------------------------------------
+        /* 
+         * ApplyExplosion
+         */
+        public void ApplyExplosion(Vector3 _explosion, float _range, int _intesity)
+        {
+            this.gameObject.GetComponent<Rigidbody>().AddExplosionForce(_intesity, _explosion, _range);
+        }
     }
 }

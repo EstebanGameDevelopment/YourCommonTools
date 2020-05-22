@@ -181,7 +181,7 @@ namespace YourCommonTools
 
                 if (angleCreated > angleResult)
                 {
-                    return new Vector2(distance, angleResult);
+                    return new Vector2(distance, angleCreated);
                 }
                 else
                 {
@@ -1218,11 +1218,45 @@ namespace YourCommonTools
 			return output;
 		}
 
-		// -------------------------------------------
-		/* 
-		 * GetFormattedTimeSeconds
+        // -------------------------------------------
+        /* 
+		 * DisplayTimeMiliseconds
 		 */
-		public static string GetFormattedTimeMinutes(long _timestamp)
+        public static string DisplayTimeMiliseconds(float _seconds)
+        {
+            int totalseconds = (int)_seconds;
+            int totalmiliseconds = (int)((_seconds % 1) * 100);
+
+            // SECONDS
+            string seconds;
+            if (totalseconds < 10)
+            {
+                seconds = "0" + totalseconds;
+            }
+            else
+            {
+                seconds = "" + totalseconds;
+            }
+
+            // MILISECONDS
+            string miliseconds;
+            if (totalmiliseconds < 10)
+            {
+                miliseconds = "0" + totalmiliseconds;
+            }
+            else
+            {
+                miliseconds = "" + totalmiliseconds;
+            }
+
+            return (seconds + ":" + miliseconds);
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetFormattedTimeSeconds
+        */
+        public static string GetFormattedTimeMinutes(long _timestamp)
 		{
 			int totalSeconds = (int)_timestamp;
 			int totalMinutes = (int)Math.Floor((double)(totalSeconds / 60));
