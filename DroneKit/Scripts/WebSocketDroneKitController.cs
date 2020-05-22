@@ -11,10 +11,12 @@ namespace YourCommonTools
 {
     public class WebSocketDroneKitController : MonoBehaviour
     {
+        enum ROOMBA_STATES { IDLE = 0, TURNING, MOVING};
+
 #if ENABLE_WEBSOCKET_DRONEKIT
         public const string EVENT_WEBSOCKET_REQUESTED_DIRECTION = "EVENT_WEBSOCKET_REQUESTED_DIRECTION";
 
-        public const float TOTAL_TIMEOUT_TO_DIRECTION = 2;
+        public const float TOTAL_TIMEOUT_TO_DIRECTION = 1f;
 
         // ----------------------------------------------
         // SINGLETON
@@ -58,7 +60,12 @@ namespace YourCommonTools
         private float m_nextTimeout = -1;
         private float m_nextSpeedDrone = -1;
 
+        // ROOMBA
         private float m_timeoutToDirectionRoomba = 0;
+        private bool m_enableGoToTarget = true;
+        private ROOMBA_STATES m_stateRoomba = ROOMBA_STATES.IDLE;
+        private bool m_turnDirectionRoomba = false;
+        private bool m_runActionRoomba = false;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -66,6 +73,17 @@ namespace YourCommonTools
         public bool TakeoffAltitudeReached
         {
             get { return m_takeoffAltitudeReached; }
+        }
+        public bool EnableGoToTarget
+        {
+            get { return m_enableGoToTarget; }
+            set {
+                m_enableGoToTarget = value;
+                if (!m_enableGoToTarget)
+                {
+                    RoombaMoveForward(0);
+                }                
+            }
         }
 
         // -------------------------------------------
@@ -168,7 +186,6 @@ namespace YourCommonTools
                     int numberIndex = indexDirection + tagDirection.Length;
                     float differenceX = float.Parse(e.Data.Substring(numberIndex, e.Data.Length - numberIndex));
                     BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_WEBSOCKET_REQUESTED_DIRECTION, differenceX);
-                    Debug.LogError("DIRECTION REQUESTED["+ differenceX + "]++++++++++++++");
                 }
 #endif
             }
@@ -313,6 +330,46 @@ namespace YourCommonTools
                 if (m_errorProduced)
                 {
                     DisarmDrone();
+                }
+            }
+            // ROOMBA
+            if (_nameEvent == EVENT_WEBSOCKET_REQUESTED_DIRECTION)
+            {
+                float distanceFromCenter = (float)_list[0];
+                Debug.LogError("DISTANCE FROM CENTER[" + distanceFromCenter + "]++++++++++++++");
+
+                if (Mathf.Abs(distanceFromCenter) > 10)
+                {
+                    m_turnDirectionRoomba = (distanceFromCenter < 0);
+                    m_stateRoomba = ROOMBA_STATES.TURNING;
+                }
+                else
+                {
+                    m_stateRoomba = ROOMBA_STATES.MOVING;
+                }
+
+                if (m_enableGoToTarget)
+                {
+                    switch (m_stateRoomba)
+                    {
+                        case ROOMBA_STATES.IDLE:
+                            break;
+
+                        case ROOMBA_STATES.TURNING:
+                            if (m_turnDirectionRoomba)
+                            {
+                                RoombaTurnRight(1);
+                            }
+                            else
+                            {
+                                RoombaTurnLeft(1);
+                            }
+                            break;
+
+                        case ROOMBA_STATES.MOVING:
+                            RoombaMoveForward(1);
+                            break;
+                    }
                 }
             }
         }
