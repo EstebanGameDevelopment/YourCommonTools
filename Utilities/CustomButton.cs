@@ -20,6 +20,8 @@ namespace YourCommonTools
         public const string BUTTON_PRESSED_DOWN = "BUTTON_PRESSED_DOWN";
         public const string BUTTON_RELEASE_UP   = "BUTTON_RELEASE_UP";
 
+        public int Id;
+
         public override void OnPointerDown(PointerEventData eventData)
         {
             base.OnPointerDown(eventData);
