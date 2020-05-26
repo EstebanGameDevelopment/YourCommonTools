@@ -63,6 +63,11 @@ namespace YourCommonTools
         // ----------------------------------------------	
         private bool m_deviceLoaded = false;
 
+        public bool DeviceLoaded
+        {
+            get { return m_deviceLoaded; }
+        }
+
         // -------------------------------------------
         /* 
 		* Save a flag to report if we need to use or not the Google VR

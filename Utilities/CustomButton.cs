@@ -15,7 +15,7 @@ namespace YourCommonTools
      * 
      * @author Esteban Gallardo
      */
-    public class CustomButton : Button
+    public class CustomButton : Button, ICustomButton
     {
         public const string BUTTON_PRESSED_DOWN = "BUTTON_PRESSED_DOWN";
         public const string BUTTON_RELEASE_UP   = "BUTTON_RELEASE_UP";
@@ -43,5 +43,15 @@ namespace YourCommonTools
             // UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject);
         }
 
+        public ButtonClickedEvent GetOnClick()
+        {
+            return onClick;
+        }
+
+        public bool RunOnClick()
+        {
+            UIEventController.Instance.DispatchUIEvent(BUTTON_PRESSED_DOWN, this.gameObject);
+            return true;
+        }
     }
 }
