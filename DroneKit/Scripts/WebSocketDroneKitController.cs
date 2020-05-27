@@ -15,8 +15,9 @@ namespace YourCommonTools
 
 #if ENABLE_WEBSOCKET_DRONEKIT
         public const string EVENT_WEBSOCKET_REQUESTED_DIRECTION = "EVENT_WEBSOCKET_REQUESTED_DIRECTION";
+        public const string EVENT_WEBSOCKET_TARGET_ANGLE_SUCCESS = "EVENT_WEBSOCKET_TARGET_ANGLE_SUCCESS";
 
-        public const float TOTAL_TIMEOUT_TO_DIRECTION = 1f;
+        public const float TOTAL_TIMEOUT_TO_DIRECTION = 3f;
 
         // ----------------------------------------------
         // SINGLETON
@@ -178,6 +179,11 @@ namespace YourCommonTools
                 if (e.Data.IndexOf("movebackward_success") != -1)
                 {
                     Debug.LogError("MOVE BACKWARD CONFIRMED BY RASPBERRY++++++++++++++");
+                }
+                if (e.Data.IndexOf("targetangle_success") != -1)
+                {
+                    Debug.LogError("ANGLE SUCCESS CONFIRMED BY RASPBERRY++++++++++++++");
+                    BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_WEBSOCKET_TARGET_ANGLE_SUCCESS);
                 }
                 string tagDirection = "requestdirection_success_";
                 int indexDirection = e.Data.IndexOf(tagDirection);
@@ -358,11 +364,11 @@ namespace YourCommonTools
                         case ROOMBA_STATES.TURNING:
                             if (m_turnDirectionRoomba)
                             {
-                                RoombaTurnRight(1);
+                                RoombaTurnLeft(1);
                             }
                             else
                             {
-                                RoombaTurnLeft(1);
+                                RoombaTurnRight(1);
                             }
                             break;
 
@@ -430,6 +436,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * SetTargetAngle
+		 */
+        public void SetTargetAngle(float _angleDeg)
+        {
+            if (m_cws != null) m_cws.Send("setTarget_angle_" + _angleDeg + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Update
 		 */
         void Update()
@@ -443,7 +458,7 @@ namespace YourCommonTools
             if (m_timeoutToDirectionRoomba > TOTAL_TIMEOUT_TO_DIRECTION)
             {
                 m_timeoutToDirectionRoomba = 0;
-                RoombaRequestDirection();
+                // RoombaRequestDirection();
             }
 #else
             if (m_hasTakenOff)
