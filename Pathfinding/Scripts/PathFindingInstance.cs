@@ -322,11 +322,11 @@ namespace YourCommonTools
                     GameObject newdot;
                     if (cellContent == PathFindingController.CELL_EMPTY)
 					{
-						newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReferenceEmtpy);
+						newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReferenceEmtpy, this.gameObject.transform);
 					}
                     else
                     {
-                        newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReference);
+                        newdot = (GameObject)Instantiate(PathFindingController.Instance.DotReference, this.gameObject.transform);
                     }
                     newdot.transform.localScale = new Vector3(m_cellSize / 3, m_cellSize / 3, m_cellSize / 3);
                     // newdot.transform.localScale = new Vector3(m_cellSize / 2, m_cellSize / 2, m_cellSize / 2);
@@ -631,7 +631,7 @@ namespace YourCommonTools
         public Vector3 GetPath(Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
-                                bool _oneLayer,
+                                int _oneLayer,
                                 bool _raycastFilter,
                                 int _limitSearch = -1,
                                 params string[] _masksToIgnore)
@@ -639,12 +639,12 @@ namespace YourCommonTools
             Vector3 origin = new Vector3();
             origin.x = (int)((_origin.x - m_xIni) / m_cellSize);
             origin.y = (int)((_origin.z - m_zIni) / m_cellSize);
-            origin.z = (_oneLayer?0:((int)((_origin.y - m_yIni) / m_cellSize)));
+            origin.z = (_oneLayer != -1? _oneLayer : ((int)((_origin.y - m_yIni) / m_cellSize)));
 
             Vector3 destination = new Vector3();
             destination.x = (int)((_destination.x - m_xIni) / m_cellSize);
             destination.y = (int)((_destination.z - m_zIni) / m_cellSize);
-            destination.z = (_oneLayer ? 0 : ((int)((_destination.y - m_yIni) / m_cellSize)));
+            destination.z = (_oneLayer != -1 ? _oneLayer : ((int)((_destination.y - m_yIni) / m_cellSize)));
 
             // Debug.LogError("GetPath::origin[" + origin.ToString() + "]::destination[" + destination.ToString() + "]");
 
@@ -652,7 +652,7 @@ namespace YourCommonTools
 
             if (!m_hasBeenFileLoaded)
             {
-                return SearchAStar(origin, destination, _origin, _destination, _waypoints, _oneLayer, limitSearch, _raycastFilter, _masksToIgnore);
+                return SearchAStar(origin, destination, _origin, _destination, _waypoints, (_oneLayer != -1), limitSearch, _raycastFilter, _masksToIgnore);
             }
             else
             {

@@ -260,7 +260,7 @@ namespace YourCommonTools
         public Vector3 GetPath(Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
-                                bool _oneLayer,
+                                int _oneLayer,
                                 bool _raycastFilter,
                                 int _limitSearch = -1,
                                 params string[] _masksToIgnore)
@@ -277,7 +277,7 @@ namespace YourCommonTools
                                 Vector3 _origin,
                                 Vector3 _destination,
                                 List<Vector3> _waypoints,
-                                bool _oneLayer,
+                                int _oneLayer,
                                 bool _raycastFilter,
                                 int _limitSearch = -1,
                                 params string[] _masksToIgnore)
