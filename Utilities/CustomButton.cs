@@ -22,6 +22,25 @@ namespace YourCommonTools
 
         public int Id;
 
+        public Sprite[] DefaultSprites;
+        public Sprite[] HighlightSprites;
+        public Sprite[] PressedSprites;
+        public Sprite[] DisabledSprites;
+
+        public void SetSprites(int _index)
+        {
+            if (_index < DefaultSprites.Length) GetComponent<Image>().sprite = DefaultSprites[_index];
+            if ((_index < HighlightSprites.Length) && (_index < PressedSprites.Length) && (_index < DisabledSprites.Length))
+            {
+                SpriteState ss = new SpriteState();
+                ss.highlightedSprite = HighlightSprites[_index];
+                ss.pressedSprite = PressedSprites[_index];
+                ss.disabledSprite = DisabledSprites[_index];
+
+                GetComponent<Button>().spriteState = ss;
+            }
+        }
+
         public override void OnPointerDown(PointerEventData eventData)
         {
             base.OnPointerDown(eventData);
