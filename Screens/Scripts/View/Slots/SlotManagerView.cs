@@ -47,11 +47,16 @@ namespace YourCommonTools
 		private Transform m_buttonNext;
 		private Transform m_buttonPrevious;
 
-		// -------------------------------------------
-		/* 
+        public List<ItemMultiObjectEntry> Data
+        {
+            get { return m_data; }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Initialize
 		 */
-		public void Initialize(int _itemsEachPage, List<ItemMultiObjectEntry> _data, GameObject _slotPrefab, GameObject _createNewPrefab = null)
+        public void Initialize(int _itemsEachPage, List<ItemMultiObjectEntry> _data, GameObject _slotPrefab, GameObject _createNewPrefab = null)
 		{
 			m_itemsEachPage = _itemsEachPage;
 			m_data = _data;
