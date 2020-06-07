@@ -476,7 +476,7 @@ namespace YourCommonTools
             {
                 return false;
             }
-
+            
             try
             {
 #if ENABLE_OCULUS
@@ -627,7 +627,7 @@ namespace YourCommonTools
             {
                 return false;
             }
-
+            
             try
             {
 #if ENABLE_OCULUS
@@ -668,18 +668,14 @@ namespace YourCommonTools
                     else
                     {
                         // RIGHT STICK
-                        m_rightPrimaryThumbstickWasTouched = OVRInput.Get(OVRInput.Touch.PrimaryThumbstick, OVRInput.Controller.RTouch);
-                        Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                        bool isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
 
                         // MANAGE RIGHT TOUCHED/DOWN
-                        if (m_rightPrimaryThumbstickWasTouched)
+                        if (isTeleportHandRight)
                         {
                             if (!m_stickRightPressed)
                             {
-                                if (axisValueRight.sqrMagnitude > 0.2f)
-                                {
-                                    m_stickRightPressed = true;
-                                }
+                                m_stickRightPressed = true;
                                 if (m_stickRightPressed)
                                 {
                                     if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
@@ -724,8 +720,8 @@ namespace YourCommonTools
                 }
                 else
                 {
-                    Vector2 axisValueRight = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
-                    if (axisValueRight.sqrMagnitude < 0.1f)
+                    bool isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
+                    if (!isTeleportHandRight)
                     {
                         if (m_stickRightPressed)
                         {
