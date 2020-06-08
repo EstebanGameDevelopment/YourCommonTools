@@ -20,6 +20,7 @@ namespace YourCommonTools
 		public const string SCREEN_INFORMATION_IMAGE	= "SCREEN_INFORMATION_IMAGE";
         public const string SCREEN_INFORMATION_ICON     = "SCREEN_INFORMATION_ICON";
         public const string SCREEN_WAIT					= "SCREEN_WAIT";
+        public const string SCREEN_BIG_WAIT	    		= "SCREEN_BIG_WAIT";
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
         public const string SCREEN_UNLOCK_CURRENCY      = "SCREEN_UNLOCK_CURRENCY";
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
@@ -38,6 +39,7 @@ namespace YourCommonTools
                 (_screenName.IndexOf(SCREEN_INFORMATION_IMAGE) != -1) ||
                 (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1) ||
                 (_screenName.IndexOf(SCREEN_WAIT) != -1) ||
+                (_screenName.IndexOf(SCREEN_BIG_WAIT) != -1) ||
                 (_screenName.IndexOf(SCREEN_INITIAL_CONNECTION) != -1) ||
                 (_screenName.IndexOf(SCREEN_UNLOCK_CURRENCY) != -1) ||
                 (_screenName.IndexOf(SCREEN_CHANGE_NETWORK) != -1) ||
@@ -454,7 +456,7 @@ namespace YourCommonTools
 			}
 			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_WAIT)
 			{
-				if (m_nameOfScreen == SCREEN_WAIT)
+				if ((m_nameOfScreen == SCREEN_WAIT) || (m_nameOfScreen == SCREEN_BIG_WAIT))
 				{
 					Destroy();
 				}
