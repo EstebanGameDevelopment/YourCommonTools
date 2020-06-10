@@ -15,7 +15,7 @@ namespace YourCommonTools
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ImageUtils
+	public static class ImageUtils
 	{
 		public const string EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM = "EVENT_IMAGES_LOAD_CONFIRMATION_FROM_SYSTEM";
 
@@ -103,11 +103,23 @@ namespace YourCommonTools
 			_image.material.mainTexture = tex;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * LoadBytesRawImage
+		 */
+        public static Texture2D LoadBytesRawImage(byte[] _pvrtcBytes, int _width, int _height)
+        {
+            Texture2D tex = new Texture2D(_width, _height, TextureFormat.PVRTC_RGBA4, false);
+            tex.LoadRawTextureData(_pvrtcBytes);
+            tex.Apply();
+            return tex;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * LoadBytesImage
 		 */
-		public static void LoadBytesImage(Image _image, byte[] _pvrtcBytes)
+        public static void LoadBytesImage(Image _image, byte[] _pvrtcBytes)
 		{
 			Texture2D tex = new Texture2D(2, 2);
 			tex.LoadImage(_pvrtcBytes);
@@ -279,6 +291,20 @@ namespace YourCommonTools
 		{
 			return Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f));
 		}
-	}
+
+        // -------------------------------------------
+        /* 
+		 * ToTexture2D
+		 */
+        public static Texture2D ToTexture2D(this Texture texture)
+        {
+            return Texture2D.CreateExternalTexture(
+                texture.width,
+                texture.height,
+                TextureFormat.RGB24,
+                false, false,
+                texture.GetNativeTexturePtr());
+        }
+    }
 	
 }
