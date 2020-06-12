@@ -402,6 +402,7 @@ namespace YourCommonTools
         }
 
         private float m_timeoutStayRightHandIndex = 0;
+        private float m_timerAcumOculusMenu = 0;
 
         // -------------------------------------------
         /* 
@@ -449,6 +450,26 @@ namespace YourCommonTools
                 {
                     bool buttonAWasTouched = false, buttonBWasTouched = false;
 
+#if ENABLE_GO
+                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger))
+                    {
+                        m_timerAcumOculusMenu += Time.deltaTime;
+                        if (m_timerAcumOculusMenu > 1)
+                        {
+                            buttonAWasTouched = true;
+                        }
+                        else
+                        {
+                            buttonAWasTouched = false;
+                        }
+                    }
+                    else
+                    {
+                        m_timerAcumOculusMenu = 0;
+                        buttonAWasTouched = false;
+                    }
+#else
+
                     if (_checkDown)
                     {
                         try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
@@ -459,6 +480,7 @@ namespace YourCommonTools
                         try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
                         try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                     }
+#endif
 
                     return buttonAWasTouched || buttonBWasTouched;
                 }
@@ -476,7 +498,7 @@ namespace YourCommonTools
             {
                 return false;
             }
-            
+
             try
             {
 #if ENABLE_OCULUS
