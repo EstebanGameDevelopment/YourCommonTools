@@ -58,6 +58,9 @@ namespace YourCommonTools
         public bool ForceActivation = false;
         public string CoockieName = "CARDBOARD_ENABLE_COOCKIE";
 
+        public bool m_hasBeenInited = false;
+        public bool m_isCardboardEnabled = false;
+
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
@@ -91,13 +94,20 @@ namespace YourCommonTools
 #elif ENABLE_OCULUS
             return true;
 #else
-            if (CoockieName.Length > 0)
+            if (m_hasBeenInited)
             {
-                return (PlayerPrefs.GetInt(CoockieName, 0) == 1);
+                return m_isCardboardEnabled;
             }
             else
             {
-                return false;
+                if (CoockieName.Length > 0)
+                {
+                    return (PlayerPrefs.GetInt(CoockieName, 0) == 1);
+                }
+                else
+                {
+                    return false;
+                }
             }
 #endif
         }
@@ -125,6 +135,9 @@ namespace YourCommonTools
 #elif ENABLE_OCULUS
             InitializeCardboard();
 #endif
+
+            m_isCardboardEnabled = LoadEnableCardboard();
+            m_hasBeenInited = true;
         }
 
         // -------------------------------------------
