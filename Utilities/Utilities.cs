@@ -390,6 +390,28 @@ namespace YourCommonTools
 
         // ---------------------------------------------------
         /**
+		 @brief We get the whole RaycastHit information of the collision, with the mask to ignore
+		 */
+        public static bool GetRaycastHitInfoByRay(Ray _ray, ref RaycastHit _hitCollision, params string[] _masksToIgnore)
+        {
+            int layerMask = Physics.IgnoreRaycastLayer;
+            if (_masksToIgnore != null)
+            {
+                for (int i = 0; i < _masksToIgnore.Length; i++)
+                {
+                    layerMask |= (1 << LayerMask.NameToLayer(_masksToIgnore[i]));
+                }
+                layerMask = ~layerMask;
+            }
+            if (Physics.Raycast(_ray, out _hitCollision, Mathf.Infinity, layerMask))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // ---------------------------------------------------
+        /**
 		 @brief We get the whole RaycastHit information of the collision, with the mask to consider
 		 */
         public static RaycastHit GetRaycastHitInfoByRayWithMask(Vector3 _origin, Vector3 _forward, params string[] _masksToConsider)
