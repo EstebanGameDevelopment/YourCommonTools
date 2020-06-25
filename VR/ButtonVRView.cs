@@ -273,7 +273,6 @@ namespace YourCommonTools
             if (this == null)
             {
                 Destroy();
-                Debug.LogError("TRYING TO ACCESS TO A DESTROYED COMPONENT[" + m_nameScreen + "]");
             }
             else
             {
@@ -284,7 +283,6 @@ namespace YourCommonTools
                         if (m_selector.activeSelf)
                         {
                             m_selector.SetActive(false);
-                            Debug.LogError("m_isInputField:ACTION_BUTTON_DOWN!!!!!!!!!!!!!!!!!");
                             UIEventController.Instance.DispatchUIEvent(EVENT_BUTTONVR_SELECTED_INPUTFIELD, this.gameObject.GetComponent<InputField>());
                         }
                     }
