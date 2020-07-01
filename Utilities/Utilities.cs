@@ -2301,5 +2301,20 @@ namespace YourCommonTools
             _mRect.sizeDelta = _parent.rect.size;
             _mRect.transform.SetParent(_parent);
         }
+
+        // -------------------------------------------
+        /* 
+		 * SetCenteredToParentSize
+		 */
+        public static void SetStretchedToParent(this RectTransform _mRect, RectTransform _parent)
+        {
+            _mRect.anchoredPosition = new Vector2(0, 0);
+            _mRect.anchorMin = new Vector2(0, 0);
+            _mRect.anchorMax = new Vector2(1, 1);
+            _mRect.pivot = new Vector2(0.5f, 0.5f);
+            _mRect.sizeDelta = new Vector2(0,0);
+            _mRect.transform.SetParent(_parent);
+        }
+
     }
 }

@@ -188,6 +188,40 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		* ApplyCentered
+		*/
+        protected void ApplyStretched()
+        {
+            if (m_containerBase != null)
+            {
+                if (m_containerBase.GetComponent<RectTransform>() != null)
+                {
+                    if (m_containerBase.parent != null)
+                    {
+                        if (m_containerBase.parent.GetComponent<RectTransform>() != null)
+                        {
+                            m_containerBase.GetComponent<RectTransform>().SetStretchedToParent(m_containerBase.parent.GetComponent<RectTransform>());
+                        }
+                    }
+                }
+            }
+            if (m_backgroundBase != null)
+            {
+                if (m_backgroundBase.GetComponent<RectTransform>() != null)
+                {
+                    if (m_backgroundBase.parent != null)
+                    {
+                        if (m_backgroundBase.parent.GetComponent<RectTransform>() != null)
+                        {
+                            m_backgroundBase.GetComponent<RectTransform>().SetStretchedToParent(m_backgroundBase.parent.GetComponent<RectTransform>());
+                        }
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		* Called on the destroy method of the object
 		*/
         void OnDestroy()
