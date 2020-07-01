@@ -601,7 +601,7 @@ namespace YourCommonTools
         /* 
 		 * AnimationCameraPlayerForDirector		
 		 */
-        protected void AnimationShotgunForEveryone(GameObject _prefabShotgun, Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
+        protected void AnimationShotgunForEveryone(GameObject _prefabShotgun, Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation, params Vector3[] _scale)
         {
             if (m_shotgunPlayer == null)
             {
@@ -614,6 +614,10 @@ namespace YourCommonTools
             if (m_emptyShotgunPosition == null)
             {
                 m_emptyShotgunPosition = new GameObject();
+            }
+            if (_scale.Length > 0)
+            {
+                m_shotgunPlayer.transform.localScale = _scale[0];
             }
             m_emptyShotgunPosition.transform.position = Utilities.Clone(m_positionShotgun);
             InterpolatorController.Instance.Interpolate(m_emptyShotgunPosition, _nextPosition, _timeToUpdateAnimation);
