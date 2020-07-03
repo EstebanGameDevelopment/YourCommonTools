@@ -120,8 +120,18 @@ namespace YourCommonTools
             }
             else
             {
+                Invoke("AllAssetsLoaded", 0.01f);
                 return true;
             }            
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AllAssetsLoaded
+		 */
+        public void AllAssetsLoaded()
+        {
+            DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_LOADED);
         }
 
         // -------------------------------------------
@@ -136,7 +146,7 @@ namespace YourCommonTools
                 yield return new WaitForSeconds(.1f);
             }
             m_assetBundle = _www.assetBundle;
-            DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_LOADED);
+            Invoke("AllAssetsLoaded", 0.01f);
         }
 
         // -------------------------------------------
