@@ -408,7 +408,7 @@ namespace YourCommonTools
         /* 
         * CheckOculusControllerOrHandAppDown
         */
-        private bool CheckOculusControllerOrHandAppDown(bool _checkDown = true)
+        private bool CheckOculusControllerOrHandAppDown(bool _checkDown = true, bool _checkEvent = true)
         {
             if (m_rightHandTrigger != null)
             {
@@ -469,16 +469,23 @@ namespace YourCommonTools
                         buttonAWasTouched = false;
                     }
 #else
-
-                    if (_checkDown)
+                    if (_checkEvent)
                     {
-                        try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                        try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                        if (_checkDown)
+                        {
+                            try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                        }
+                        else
+                        {
+                            try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                            try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                        }
                     }
                     else
                     {
-                        try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                        try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                        try { buttonAWasTouched = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                        try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                     }
 #endif
 
@@ -586,7 +593,7 @@ namespace YourCommonTools
         /* 
         * GetAppButtonDownOculusController
         */
-        public bool GetAppButtonDownOculusController(string _event = null)
+        public bool GetAppButtonDownOculusController(string _event = null, bool _checkEvent = true)
         {
             if (!EnableInteractions)
             {
@@ -596,7 +603,7 @@ namespace YourCommonTools
             try
             {
 #if ENABLE_OCULUS
-            if (CheckOculusControllerOrHandAppDown(true))
+            if (CheckOculusControllerOrHandAppDown(true, _checkEvent))
             {
                 if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
                 return true;
@@ -883,7 +890,7 @@ namespace YourCommonTools
         /* 
 		 * GetAppButtonDowDaydreamController
 		 */
-        public bool GetAppButtonDowDaydreamController(bool _isDown = true)
+        public bool GetAppButtonDowDaydreamController(bool _isDown = true, bool _checkEvent = true)
         {
             if (!EnableInteractions) 
             {
@@ -913,13 +920,20 @@ namespace YourCommonTools
                     {
                         GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
                         bool isPressedApp = false;
-                        if (_isDown)
+                        if (_checkEvent)
                         {
-                            isPressedApp = device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER);
+                            if (_isDown)
+                            {
+                                isPressedApp = device.GetButtonDown(APP_BUTTON_DAYDREAMCONTROLLER);
+                            }
+                            else
+                            {
+                                isPressedApp = device.GetButtonUp(APP_BUTTON_DAYDREAMCONTROLLER);
+                            }
                         }
                         else
                         {
-                            isPressedApp = device.GetButtonUp(APP_BUTTON_DAYDREAMCONTROLLER);
+                            isPressedApp = device.GetButton(APP_BUTTON_DAYDREAMCONTROLLER);
                         }
                         if (isPressedApp)
                         {
