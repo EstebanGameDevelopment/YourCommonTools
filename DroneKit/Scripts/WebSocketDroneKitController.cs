@@ -418,6 +418,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * GenericAction
+		 */
+        public void GenericAction()
+        {
+            if (m_cws != null) m_cws.Send("genericAction");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * RoombaCloseCommunication
 		 */
         public void RoombaCloseCommunication()
