@@ -13,6 +13,11 @@ namespace YourCommonTools
     public class ProjectileShooterManager : MonoBehaviour
     {
         // ----------------------------------------------
+        // PUBLIC EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_PROJECTILESHOOTERMANAGER_UPDATE_ENABLED = "EVENT_PROJECTILESHOOTERMANAGER_UPDATE_ENABLED";
+
+        // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
         public GameObject BallReference;
@@ -20,6 +25,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
+        private bool m_updateEnabled = true;
 
         private List<ProjectileShooter> m_projectileShooter = new List<ProjectileShooter>();
 
@@ -66,6 +72,10 @@ namespace YourCommonTools
                     }
                 }
             }
+            if (_nameEvent == EVENT_PROJECTILESHOOTERMANAGER_UPDATE_ENABLED)
+            {
+                m_updateEnabled = (bool)_list[0];
+            }
         }
 
         // -------------------------------------------
@@ -74,9 +84,12 @@ namespace YourCommonTools
 		 */
         private void Update()
         {
-            for (int i = 0; i < m_projectileShooter.Count; i++)
+            if (m_updateEnabled)
             {
-                m_projectileShooter[i].Update();
+                for (int i = 0; i < m_projectileShooter.Count; i++)
+                {
+                    m_projectileShooter[i].Update();
+                }
             }
         }
     }
