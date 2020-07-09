@@ -32,7 +32,7 @@ namespace YourCommonTools
 		/* 
 		 * Constructor		
 		 */
-		void Start()
+		void OnEnable()
 		{
             base.Initialize(RunAnimation, TimeFrameAnimation, LoopAnimation);
             m_renderer = this.GetComponent<SpriteRenderer>();
@@ -61,6 +61,7 @@ namespace YourCommonTools
                 }
                 else
                 {
+                    m_currentFrame = m_frames.Length - 1;
                     m_run = false;
                 }
             }

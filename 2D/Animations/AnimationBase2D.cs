@@ -69,16 +69,28 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * FlipAnimation		
+		 */
+        public void FlipAnimation(bool _flip)
+        {
+            if (_flip)
+            {
+                this.gameObject.GetComponent<RectTransform>().Rotate(new Vector3(0, 180, 0));
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Update		
 		 */
-        public virtual void UpdateAnimation()
+        public virtual void UpdateAnimation(bool _force = false)
 		{
-            if (m_run)
+            if (m_run || _force)
             {
-                if (IsValid())
+                if (IsValid() || _force)
                 {
                     m_timeAcum += Time.deltaTime;
-                    if (m_timeAcum >= m_frameTime)
+                    if ((m_timeAcum >= m_frameTime) || _force)
                     {
                         m_timeAcum = 0;
                         m_currentFrame++;

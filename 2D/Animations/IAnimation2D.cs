@@ -18,7 +18,8 @@ namespace YourCommonTools
         void Initialize(bool _run, float _time, bool _loop);
         bool IsValid();
         void RenderNewFrame();
-        void UpdateAnimation();
+        void UpdateAnimation(bool _force = false);
+        void FlipAnimation(bool _flip);
 
     }
 }

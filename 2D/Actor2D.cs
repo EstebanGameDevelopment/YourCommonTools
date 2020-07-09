@@ -62,7 +62,7 @@ namespace YourCommonTools
         /* 
 		 * ChangeAnimation		
 		 */
-        public void ChangeAnimation(int _newAnimation)
+        public void ChangeAnimation(int _newAnimation, bool _flip)
         {
             if (Animations != null)
             {
@@ -78,6 +78,8 @@ namespace YourCommonTools
                         }
                         Animations[m_currentAnimation].SetActive(true);
                         Animations[m_currentAnimation].GetComponent<IAnimation2D>().Run = true;
+                        Animations[m_currentAnimation].GetComponent<IAnimation2D>().UpdateAnimation(true);
+                        Animations[m_currentAnimation].GetComponent<IAnimation2D>().FlipAnimation(_flip);
                     }
                 }
             }
