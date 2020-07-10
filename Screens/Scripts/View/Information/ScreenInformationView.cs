@@ -27,6 +27,7 @@ namespace YourCommonTools
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
         public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
         public const string SCREEN_TREE                 = "SCREEN_TREE";
+        public const string SCREEN_INPUT                = "SCREEN_INPUT";
 
         // -------------------------------------------
         /* 
@@ -45,6 +46,7 @@ namespace YourCommonTools
                 (_screenName.IndexOf(SCREEN_CHANGE_NETWORK) != -1) ||
                 (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
                 (_screenName.IndexOf(SCREEN_FIT_SCAN) != -1) ||
+                (_screenName.IndexOf(SCREEN_INPUT) != -1) ||
                 (_screenName.IndexOf(SCREEN_DIALOG) != -1);
         }
 
@@ -104,6 +106,8 @@ namespace YourCommonTools
         private float m_timeAcumProgress;
         private int m_dotNumber;
         private Text m_textProgress;
+
+        private InputField m_inputField = null;
 
         private bool m_animationDissappearTriggered = false;
 
@@ -189,7 +193,12 @@ namespace YourCommonTools
 				m_imageContent = m_container.Find("Image").GetComponent<Image>();
 			}
 
-			if (listPages != null)
+            if (m_container.Find("InputField") != null)
+            {
+                m_inputField = m_container.Find("InputField").GetComponent<InputField>();
+            }
+
+            if (listPages != null)
 			{
 				for (int i = 0; i < listPages.Count; i++)
 				{
@@ -259,7 +268,14 @@ namespace YourCommonTools
 				return;
 			}
 
-			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, true, m_pagesInfo[m_currentPage].EventData);
+            if (m_inputField != null)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, true, m_pagesInfo[m_currentPage].EventData, m_inputField.text);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, true, m_pagesInfo[m_currentPage].EventData);
+            }            
 			Destroy();
 		}
 
@@ -269,7 +285,14 @@ namespace YourCommonTools
 		 */
 		private void CancelPressed()
 		{
-			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, false, m_pagesInfo[m_currentPage].EventData);
+            if (m_inputField != null)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, false, m_pagesInfo[m_currentPage].EventData, m_inputField.text);
+            }
+            else
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CONFIRMATION_POPUP, this.gameObject, false, m_pagesInfo[m_currentPage].EventData);
+            }
 			Destroy();
 		}
 
