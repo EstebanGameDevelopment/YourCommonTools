@@ -251,7 +251,7 @@ namespace YourCommonTools
             BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
 
             UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_CLOSED);
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject, this.gameObject.name);
 
             return false;
         }

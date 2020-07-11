@@ -16,10 +16,15 @@ namespace YourCommonTools
 	 */
 	public class SlotManagerView: MonoBehaviour
 	{
-		// ----------------------------------------------
-		// CONSTANTS
-		// ----------------------------------------------	
-		public const int DEFAULT_ITEMS_EACH_PAGE = 4;
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const string EVENT_SLOTMANAGER_NEW_PAGE_LOADED = "EVENT_SLOTMANAGER_NEW_PAGE_LOADED";
+
+        // ----------------------------------------------
+        // CONSTANTS
+        // ----------------------------------------------	
+        public const int DEFAULT_ITEMS_EACH_PAGE = 4;
 
 		// ----------------------------------------------
 		// PUBLIC MEMBERS
@@ -47,6 +52,9 @@ namespace YourCommonTools
 		private Transform m_buttonNext;
 		private Transform m_buttonPrevious;
 
+        private bool m_addedListenerNext = false;
+        private bool m_addedListenerPrevious = false;
+
         public List<ItemMultiObjectEntry> Data
         {
             get { return m_data; }
@@ -58,7 +66,8 @@ namespace YourCommonTools
 		 */
         public void Initialize(int _itemsEachPage, List<ItemMultiObjectEntry> _data, GameObject _slotPrefab, GameObject _createNewPrefab = null)
 		{
-			m_itemsEachPage = _itemsEachPage;
+            m_currentPage = 0;
+            m_itemsEachPage = _itemsEachPage;
 			m_data = _data;
 			m_slotPrefab = _slotPrefab;
 			m_createNewPrefab = _createNewPrefab;
@@ -69,12 +78,21 @@ namespace YourCommonTools
 
 			if (m_buttonNext != null)
 			{
-				m_buttonNext.GetComponent<Button>().onClick.AddListener(OnNextPressed);
+                if (!m_addedListenerNext)
+                {
+                    m_addedListenerNext = true;
+                    m_buttonNext.GetComponent<Button>().onClick.AddListener(OnNextPressed);
+                }
+                
 				m_buttonNext.gameObject.SetActive(false);
 			}
 			if (m_buttonPrevious != null)
 			{
-				m_buttonPrevious.GetComponent<Button>().onClick.AddListener(OnPreviousPressed);
+                if (!m_addedListenerPrevious)
+                {
+                    m_addedListenerPrevious = true;
+                    m_buttonPrevious.GetComponent<Button>().onClick.AddListener(OnPreviousPressed);
+                }				
 				m_buttonPrevious.gameObject.SetActive(false);
 			}
 
@@ -229,6 +247,8 @@ namespace YourCommonTools
 				if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(false);
                 if (m_textLoading != null) m_textLoading.gameObject.SetActive(false);
 			}
+
+            UIEventController.Instance.DispatchUIEvent(EVENT_SLOTMANAGER_NEW_PAGE_LOADED, this.gameObject);
 		}
 
 		// -------------------------------------------
