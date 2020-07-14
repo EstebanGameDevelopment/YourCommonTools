@@ -210,6 +210,25 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * CreateMaterial
+		 */
+        public Material CreateMaterial(string _name)
+        {
+#if UNITY_EDITOR
+            Utilities.DebugLogError("AssetbundleController::CreateMaterial::_name=" + _name);
+#endif
+            if (!m_assetBundle.Contains(_name)) return null;
+
+            if (!m_loadedObjects.ContainsKey(_name))
+            {
+                m_loadedObjects.Add(_name, m_assetBundle.LoadAsset(_name));
+            }
+
+            return Instantiate(m_loadedObjects[_name]) as Material;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Create a game audioclip
 		 */
         public AudioClip CreateAudioclip(string _name)
