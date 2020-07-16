@@ -58,15 +58,19 @@ namespace YourCommonTools
 		// ----------------------------------------------
 		private AudioSource m_audio1;
 		private AudioSource m_audio2;
-		private bool m_enabled = true;
-		private bool m_enableFX = true;
-		private bool m_enableMelodies = true;
+		private bool m_enabled = false;
+		private bool m_enableFX = false;
+		private bool m_enableMelodies = false;
 		private bool m_hasBeenInitialized = false;
         private int m_requestAudioData = 0;
         private string m_microphoneDeviceName = "";
 
         private AudioClip m_audio1Playing;
         private AudioClip m_audio2Playing;
+
+        private float m_fadeOutMenuMusic = -1;
+        private float m_initialVolume = -1;
+        private float m_totalFadeOutTime = -1;
 
         public AudioSource Audio1
         {
@@ -459,21 +463,6 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * PlaySingleSound
-		 */
-        void Update()
-        {
-            if (m_requestAudioData > 0)
-            {
-                float[] clipData = new float[m_requestAudioData];
-                m_requestAudioData = 0;
-                m_audio1.clip.GetData(clipData, 0);                
-                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SOUNDSCONTROLLER_AUDIO_DATA, clipData);                
-            }
-        }
-
-        // -------------------------------------------
-        /* 
 		 * OnBasicSystemEvent		
 		 */
         private void OnBasicSystemEvent(string _nameEvent, object[] _list)
@@ -492,6 +481,38 @@ namespace YourCommonTools
                 {
                     PlaySingleSound(nameSound, false);
                 }                
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FadeOutLoopMelody
+		 */
+        public void FadeOutLoopMelody(float _totalFadeOutTime)
+        {
+            m_initialVolume = VolumeLoop;
+            m_totalFadeOutTime = _totalFadeOutTime;
+            m_fadeOutMenuMusic = _totalFadeOutTime;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Update
+		 */
+        void Update()
+        {
+            if (m_requestAudioData > 0)
+            {
+                float[] clipData = new float[m_requestAudioData];
+                m_requestAudioData = 0;
+                m_audio1.clip.GetData(clipData, 0);
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SOUNDSCONTROLLER_AUDIO_DATA, clipData);
+            }
+
+            if (m_fadeOutMenuMusic > 0)
+            {
+                m_fadeOutMenuMusic -= Time.deltaTime;
+                SoundsController.Instance.VolumeLoop = m_initialVolume * (m_fadeOutMenuMusic / m_totalFadeOutTime);
             }
         }
     }
