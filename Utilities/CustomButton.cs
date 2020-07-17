@@ -44,15 +44,15 @@ namespace YourCommonTools
         public override void OnPointerDown(PointerEventData eventData)
         {
             base.OnPointerDown(eventData);
-
-            UIEventController.Instance.DispatchUIEvent(BUTTON_PRESSED_DOWN, this.gameObject);
+            
+            UIEventController.Instance.DispatchUIEvent(BUTTON_PRESSED_DOWN, this.gameObject, eventData);
         }
 
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
 
-            UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject);
+            UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject, eventData);
         }
 
         public override void OnPointerExit(PointerEventData eventData)
