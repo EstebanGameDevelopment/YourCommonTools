@@ -68,9 +68,17 @@ namespace YourCommonTools
         private AudioClip m_audio1Playing;
         private AudioClip m_audio2Playing;
 
-        private float m_fadeOutMenuMusic = -1;
-        private float m_initialVolume = -1;
-        private float m_totalFadeOutTime = -1;
+        private float m_fadeInFXMusic = -1;
+        private float m_fadeOutFXMusic = -1;
+        private float m_initialFXVolume = -1;
+        private float m_finalFXVolume = -1;
+        private float m_totalFXFadeTime = -1;
+
+        private float m_fadeInMelodyMusic = -1;
+        private float m_fadeOutMelodyMusic = -1;
+        private float m_initialMelodyVolume = -1;
+        private float m_finalMelodyVolume = -1;
+        private float m_totalMelodyFadeTime = -1;
 
         public AudioSource Audio1
         {
@@ -486,13 +494,85 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * FadeInLoopMelody
+		 */
+        public void FadeInLoopMelody(float _totalFadeTime, float _finalVolume)
+        {
+            m_finalMelodyVolume = _finalVolume;
+            m_totalMelodyFadeTime = _totalFadeTime;
+            m_fadeInMelodyMusic = _totalFadeTime;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * FadeOutLoopMelody
 		 */
-        public void FadeOutLoopMelody(float _totalFadeOutTime)
+        public void FadeOutLoopMelody(float _totalFadeTime)
         {
-            m_initialVolume = VolumeLoop;
-            m_totalFadeOutTime = _totalFadeOutTime;
-            m_fadeOutMenuMusic = _totalFadeOutTime;
+            m_initialMelodyVolume = VolumeLoop;
+            m_totalMelodyFadeTime = _totalFadeTime;
+            m_fadeOutMelodyMusic = _totalFadeTime;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FadeMelodyUpdate
+		 */
+        private void FadeMelodyUpdate()
+        {
+            if (m_fadeInMelodyMusic > 0)
+            {
+                m_fadeInMelodyMusic -= Time.deltaTime;
+                SoundsController.Instance.VolumeLoop = m_finalMelodyVolume * (1 - (m_fadeInMelodyMusic / m_totalMelodyFadeTime));
+            }
+
+            if (m_fadeOutMelodyMusic > 0)
+            {
+                m_fadeOutMelodyMusic -= Time.deltaTime;
+                SoundsController.Instance.VolumeLoop = m_initialMelodyVolume * (m_fadeOutMelodyMusic / m_totalMelodyFadeTime);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FadeInFX
+		 */
+        public void FadeInFX(float _totalFadeTime, float _finalVolume)
+        {
+            m_finalFXVolume = _finalVolume;
+            m_totalFXFadeTime = _totalFadeTime;
+            m_fadeInFXMusic = _totalFadeTime;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * FadeOutFX
+		 */
+        public void FadeOutFX(float _totalFadeTime)
+        {
+            m_initialFXVolume = VolumeFX;
+            m_totalFXFadeTime = _totalFadeTime;
+            m_fadeOutFXMusic = _totalFadeTime;
+        }
+
+
+        // -------------------------------------------
+        /* 
+		 * FadeFXUpdate
+		 */
+        private void FadeFXUpdate()
+        {
+            if (m_fadeInFXMusic > 0)
+            {
+                m_fadeInFXMusic -= Time.deltaTime;
+                SoundsController.Instance.VolumeFX = m_finalFXVolume * (1 - (m_fadeInFXMusic / m_totalFXFadeTime));
+            }
+
+            if (m_fadeOutFXMusic > 0)
+            {
+                m_fadeOutFXMusic -= Time.deltaTime;
+                SoundsController.Instance.VolumeFX = m_initialFXVolume * (m_fadeOutFXMusic / m_totalFXFadeTime);
+            }
         }
 
         // -------------------------------------------
@@ -509,11 +589,8 @@ namespace YourCommonTools
                 BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SOUNDSCONTROLLER_AUDIO_DATA, clipData);
             }
 
-            if (m_fadeOutMenuMusic > 0)
-            {
-                m_fadeOutMenuMusic -= Time.deltaTime;
-                SoundsController.Instance.VolumeLoop = m_initialVolume * (m_fadeOutMenuMusic / m_totalFadeOutTime);
-            }
+            FadeMelodyUpdate();
+            FadeFXUpdate();
         }
     }
 }
