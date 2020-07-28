@@ -70,6 +70,8 @@ namespace YourCommonTools
 
         protected List<List<object>> m_paramsSlide = new List<List<object>>();
 
+        protected Transform m_btnGoBack;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -137,6 +139,15 @@ namespace YourCommonTools
             }
 
             UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_OPENED, this.gameObject);
+
+            if (m_containerBase != null)
+            {
+                m_btnGoBack = m_containerBase.transform.Find("Button_GoBack");
+                if (m_btnGoBack != null)
+                {
+                    m_btnGoBack.GetComponent<Button>().onClick.AddListener(GoBackPressed);
+                }
+            }
 
             // AddAutomaticallyButtons(m_screen);
         }
@@ -230,7 +241,8 @@ namespace YourCommonTools
 
 			ClearListSelectors();
 			m_selectors = null;
-		}		
+            m_btnGoBack = null;
+        }		
 
 		// -------------------------------------------
 		/* 
@@ -840,6 +852,41 @@ namespace YourCommonTools
 		 */
         public void SetLayer(int _layer)
         {
+        }
+
+        // -------------------------------------------
+        /* 
+		 * CheckActivatedNameStack
+		 */
+        protected bool CheckActivatedNameStack()
+        {
+            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
+            if (screenController != null)
+            {
+                return screenController.ActivateNameStack;
+            }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Exit button pressed
+		 */
+        protected virtual void GoBackPressed()
+        {
+            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
+            if (screenController != null)
+            {
+                if (screenController.ActivateNameStack)
+                {
+                    screenController.PopScreenNameFromStack();
+                    string previousScreenName = screenController.PopScreenNameFromStack();
+                    if (previousScreenName != null)
+                    {
+                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                    }                    
+                }
+            }
         }
     }
 }

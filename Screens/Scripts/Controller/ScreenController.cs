@@ -77,6 +77,8 @@ namespace YourCommonTools
         [Tooltip("Limit the total number of stacked screens")]
         public int TotalStackedScreensAllowed = 5;
 
+        [Tooltip("Back up system for navigation")]
+        public bool ActivateNameStack = false;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -90,6 +92,8 @@ namespace YourCommonTools
         protected List<GameObject> m_layers = new List<GameObject>();
 
         protected bool m_enableProcessEvents = true;
+
+        protected List<string> m_stackScreenNames = new List<string>();
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -331,6 +335,22 @@ namespace YourCommonTools
                         }
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
                         currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
+                        if ((_previousAction == UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN) ||(_previousAction == UIScreenTypePreviousAction.DESTROY_ALL_SCREENS))
+                        {
+                            bool addScreenName = true;
+                            if (m_stackScreenNames.Count > 0)
+                            {
+                                if (m_stackScreenNames[m_stackScreenNames.Count - 1] == _nameScreen)
+                                {
+                                    addScreenName = false;
+                                }
+                            }
+                            
+                            if (addScreenName)
+                            {
+                                m_stackScreenNames.Add(_nameScreen);
+                            }                            
+                        }                        
                         break;
                     }
                 }
@@ -809,6 +829,34 @@ namespace YourCommonTools
                     }
                 }
             }
+        }
+
+
+        // -------------------------------------------
+        /* 
+		 * PopScreenNameFromStack
+		 */
+        public string PopScreenNameFromStack()
+        {
+            if (m_stackScreenNames.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                string output = m_stackScreenNames[m_stackScreenNames.Count - 1];
+                m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
+                return output;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AddScreenNameToStack
+		 */
+        public void ClearScreenNameStack()
+        {
+            m_stackScreenNames.Clear();
         }
 
         // -------------------------------------------
