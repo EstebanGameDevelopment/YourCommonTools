@@ -86,7 +86,7 @@ namespace YourCommonTools
 		/* 
 		 * LoadTextsXML
 		 */
-		public void Initialize()
+		public void Initialize(string _forceLanguage = null)
 		{
 			if (m_hasBeenInitialized) return;
 			m_hasBeenInitialized = true;
@@ -95,15 +95,28 @@ namespace YourCommonTools
 
 			if (m_codeLanguage == "null")
 			{
-				if (Application.systemLanguage == SystemLanguage.Spanish)
-				{
-					m_codeLanguage = "es";
-				}
-				else
-				{
-					m_codeLanguage = "en";
-				}
-			}
+                bool checkLanguageSystem = true;
+                if (_forceLanguage != null)
+                {
+                    if (_forceLanguage.Length > 0)
+                    {
+                        m_codeLanguage = _forceLanguage;
+                        checkLanguageSystem = false;
+                    }
+                }
+
+                if (checkLanguageSystem)
+                {
+                    if (Application.systemLanguage == SystemLanguage.Spanish)
+                    {
+                        m_codeLanguage = "es";
+                    }
+                    else
+                    {
+                        m_codeLanguage = "en";
+                    }
+                }
+            }
 			SetLanguage(m_codeLanguage);
 
 			XmlDocument xmlDoc = new XmlDocument();
@@ -164,11 +177,20 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
-		 * GetTextFirstUpper
+        // -------------------------------------------
+        /* 
+		 * ExistsText
 		 */
-		public string GetTextFirstUpper(string _id)
+        public bool ExistsText(string _id)
+        {
+            return (m_texts[_id] != null);
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetTextFirstUpper
+        */
+        public string GetTextFirstUpper(string _id)
 		{
 			Initialize();
 			string text = GetText(_id);
