@@ -883,7 +883,14 @@ namespace YourCommonTools
                     string previousScreenName = screenController.PopScreenNameFromStack();
                     if (previousScreenName != null)
                     {
-                        UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                        if (screenController.AlphaAnimationNameStack == -1)
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                        }
+                        else
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, screenController.AlphaAnimationNameStack }, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                        }
                     }                    
                 }
             }

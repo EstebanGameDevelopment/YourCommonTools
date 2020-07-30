@@ -79,6 +79,7 @@ namespace YourCommonTools
 
         [Tooltip("Back up system for navigation")]
         public bool ActivateNameStack = false;
+        public float AlphaAnimationNameStack = -1;
 
         // ----------------------------------------------
         // PRIVATE MEMBERS
@@ -335,22 +336,7 @@ namespace YourCommonTools
                         }
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
                         currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
-                        if ((_previousAction == UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN) ||(_previousAction == UIScreenTypePreviousAction.DESTROY_ALL_SCREENS))
-                        {
-                            bool addScreenName = true;
-                            if (m_stackScreenNames.Count > 0)
-                            {
-                                if (m_stackScreenNames[m_stackScreenNames.Count - 1] == _nameScreen)
-                                {
-                                    addScreenName = false;
-                                }
-                            }
-                            
-                            if (addScreenName)
-                            {
-                                m_stackScreenNames.Add(_nameScreen);
-                            }                            
-                        }                        
+                        AddScreenNameToStack(_nameScreen, _previousAction);
                         break;
                     }
                 }
@@ -831,6 +817,58 @@ namespace YourCommonTools
             }
         }
 
+        // -------------------------------------------
+        /* 
+		 * DebugLogStackNameScreens
+		 */
+        public void DebugLogStackNameScreens(string _newScreen)
+        {
+            string stackedNames = "";
+            for (int i = 0; i < m_stackScreenNames.Count; i++)
+            {
+                if (i == 0)
+                {
+                    stackedNames = m_stackScreenNames[i];
+                }
+                else
+                {
+                    stackedNames += "," + m_stackScreenNames[i];
+                }                
+            }
+            if (_newScreen.Length > 0)
+            {
+                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::new screen[" + _newScreen + "]::STACKED NAMES[" + stackedNames + "]");
+            }
+            else
+            {
+                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::STACKED NAMES[" + stackedNames + "]");
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AddScreenNameToStack
+		 */
+        public void AddScreenNameToStack(string _nameScreen, UIScreenTypePreviousAction _previousAction)
+        {
+            if ((_previousAction == UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN) || (_previousAction == UIScreenTypePreviousAction.DESTROY_ALL_SCREENS))
+            {
+                bool addScreenName = true;
+                if (m_stackScreenNames.Count > 0)
+                {
+                    if (m_stackScreenNames[m_stackScreenNames.Count - 1] == _nameScreen)
+                    {
+                        addScreenName = false;
+                    }
+                }
+
+                if (addScreenName)
+                {
+                    m_stackScreenNames.Add(_nameScreen);
+                    // DebugLogStackNameScreens(_nameScreen);
+                }
+            }
+        }
 
         // -------------------------------------------
         /* 
@@ -846,6 +884,7 @@ namespace YourCommonTools
             {
                 string output = m_stackScreenNames[m_stackScreenNames.Count - 1];
                 m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
+                // DebugLogStackNameScreens("");
                 return output;
             }
         }
