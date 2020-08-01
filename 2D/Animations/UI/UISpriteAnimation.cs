@@ -34,6 +34,7 @@ namespace YourCommonTools
         {
             base.Initialize(RunAnimation, TimeFrameAnimation, LoopAnimation);
             m_source = GetComponent<Image>();
+            m_source.overrideSprite = m_frames[m_currentFrame];
         }
 
         // -------------------------------------------
