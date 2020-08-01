@@ -221,18 +221,15 @@ namespace YourCommonTools
 			}
 			if (m_commRequest.Method == BaseDataHTTP.METHOD_GET)
 			{
-#if UNITY_ANDROID && !UNITY_EDITOR
-        WWW www = new WWW(m_commRequest.UrlRequest + data, null, m_commRequest.GetHeaders());
-#else
-				WWW www = new WWW(m_commRequest.UrlRequest + data);
-#endif
-				if (_isBinaryResponse)
+                UnityWebRequest www = UnityWebRequest.Get(m_commRequest.UrlRequest + data);
+
+                if (_isBinaryResponse)
 				{
-					StartCoroutine(WaitForRequest(www));
+					StartCoroutine(WaitForUnityWebRequest(www));
 				}
 				else
 				{
-					StartCoroutine(WaitForStringRequest(www));
+					StartCoroutine(WaitForUnityWebStringRequest(www));
 				}
 			}
 			else
