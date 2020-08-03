@@ -32,6 +32,8 @@ namespace YourCommonTools
 
         public const string EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS = "EVENT_SCREENBASE_CLEAR_ANIMATION_PARAMS";
 
+        public const string EVENT_SCREENBASE_GO_BACK_EVENT = "EVENT_SCREENBASE_GO_BACK_EVENT";
+
         // ----------------------------------------------
         // CONSTANTS
         // ----------------------------------------------	
@@ -883,6 +885,7 @@ namespace YourCommonTools
                     string previousScreenName = screenController.PopScreenNameFromStack();
                     if (previousScreenName != null)
                     {
+                        UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_GO_BACK_EVENT);
                         if (screenController.AlphaAnimationNameStack == -1)
                         {
                             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
