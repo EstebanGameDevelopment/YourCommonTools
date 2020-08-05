@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,8 +22,10 @@ namespace YourCommonTools
         public const string SCREEN_INFORMATION_ICON     = "SCREEN_INFORMATION_ICON";
         public const string SCREEN_WAIT					= "SCREEN_WAIT";
         public const string SCREEN_BIG_WAIT	    		= "SCREEN_BIG_WAIT";
+        public const string SCREEN_IMAGE_WAIT	    	= "SCREEN_IMAGE_WAIT";
 		public const string SCREEN_INITIAL_CONNECTION	= "SCREEN_INITIAL_CONNECTION";
         public const string SCREEN_UNLOCK_CURRENCY      = "SCREEN_UNLOCK_CURRENCY";
+        public const string SCREEN_UNLOCK_GAME          = "SCREEN_UNLOCK_GAME";
         public const string SCREEN_CHANGE_NETWORK		= "SCREEN_CHANGE_NETWORK";
 		public const string SCREEN_FIT_SCAN				= "SCREEN_FIT_SCAN";
         public const string SCREEN_DIALOG               = "SCREEN_DIALOG";
@@ -41,8 +44,10 @@ namespace YourCommonTools
                 (_screenName.IndexOf(SCREEN_INFORMATION_ICON) != -1) ||
                 (_screenName.IndexOf(SCREEN_WAIT) != -1) ||
                 (_screenName.IndexOf(SCREEN_BIG_WAIT) != -1) ||
+                (_screenName.IndexOf(SCREEN_IMAGE_WAIT) != -1) ||
                 (_screenName.IndexOf(SCREEN_INITIAL_CONNECTION) != -1) ||
                 (_screenName.IndexOf(SCREEN_UNLOCK_CURRENCY) != -1) ||
+                (_screenName.IndexOf(SCREEN_UNLOCK_GAME) != -1) ||
                 (_screenName.IndexOf(SCREEN_CHANGE_NETWORK) != -1) ||
                 (_screenName.IndexOf(SCREEN_INFORMATION) != -1) ||
                 (_screenName.IndexOf(SCREEN_FIT_SCAN) != -1) ||
@@ -198,6 +203,16 @@ namespace YourCommonTools
                 m_inputField = m_container.Find("InputField").GetComponent<InputField>();
             }
 
+            if (m_container.Find("Button_Unlock") != null)
+            {
+                Button unlockButton = m_container.Find("Button_Unlock").GetComponent<Button>();
+                unlockButton.gameObject.GetComponent<Button>().onClick.AddListener(UnlockPressed);
+                if (unlockButton.gameObject.transform.Find("Text") != null)
+                {
+                    unlockButton.gameObject.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.unlock.game");
+                }
+            }
+
             if (listPages != null)
 			{
 				for (int i = 0; i < listPages.Count; i++)
@@ -218,11 +233,11 @@ namespace YourCommonTools
             UIEventController.Instance.DispatchUIEvent(EVENT_SCREEN_INFORMATION_DISPLAYED);
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		public override bool Destroy()
+        public override bool Destroy()
 		{
             if ((m_paramsAnimation != null) && (!m_animationDissappearTriggered))
             {
@@ -323,11 +338,23 @@ namespace YourCommonTools
 			ChangePage(-1);
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * UnlockPressed
+		 */
+        private void UnlockPressed()
+        {
+#if ENABLE_IAP
+            IAPController.Instance.BuyProductID(m_pagesInfo[0].EventData);
+            Destroy();
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Chage the information page
 		 */
-		private void ChangePage(int _value)
+        private void ChangePage(int _value)
 		{
 			m_currentPage += _value;
 			if (m_currentPage < 0) m_currentPage = 0;
@@ -479,7 +506,7 @@ namespace YourCommonTools
 			}
 			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_WAIT)
 			{
-				if ((m_nameOfScreen == SCREEN_WAIT) || (m_nameOfScreen == SCREEN_BIG_WAIT))
+				if ((m_nameOfScreen == SCREEN_WAIT) || (m_nameOfScreen == SCREEN_BIG_WAIT) || (m_nameOfScreen == SCREEN_IMAGE_WAIT))
 				{
 					Destroy();
 				}
