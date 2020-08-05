@@ -82,7 +82,7 @@ namespace YourCommonTools
                 m_enableGoToTarget = value;
                 if (!m_enableGoToTarget)
                 {
-                    RoombaMoveForward(0);
+                    DroneMoveForward(0);
                 }                
             }
         }
@@ -364,16 +364,16 @@ namespace YourCommonTools
                         case ROOMBA_STATES.TURNING:
                             if (m_turnDirectionRoomba)
                             {
-                                RoombaTurnLeft(1);
+                                DroneTurnLeft(1);
                             }
                             else
                             {
-                                RoombaTurnRight(1);
+                                DroneTurnRight(1);
                             }
                             break;
 
                         case ROOMBA_STATES.MOVING:
-                            RoombaMoveForward(1);
+                            DroneMoveForward(1);
                             break;
                     }
                 }
@@ -382,38 +382,74 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * RoombaTurnLeft
+		 * DroneTurnLeft
 		 */
-        public void RoombaTurnLeft(float _time)
+        public void DroneTurnLeft(float _time)
         {
             if (m_cws != null) m_cws.Send("turnLeft_time_" + _time + "_end");
         }
 
         // -------------------------------------------
         /* 
-		 * RoombaTurnRight
+		 * DroneTurnRight
 		 */
-        public void RoombaTurnRight(float _time)
+        public void DroneTurnRight(float _time)
         {
             if (m_cws != null) m_cws.Send("turnRight_time_" + _time + "_end");
         }
 
         // -------------------------------------------
         /* 
-		 * RoombaMoveForward
+		 * DroneMoveForward
 		 */
-        public void RoombaMoveForward(float _time)
+        public void DroneMoveForward(float _time)
         {
             if (m_cws != null) m_cws.Send("moveForward_time_" + _time + "_end");
         }
 
         // -------------------------------------------
         /* 
-		 * RoombaMoveForward
+		 * DroneMoveBackward
 		 */
-        public void RoombaMoveBackward(float _time)
+        public void DroneMoveBackward(float _time)
         {
             if (m_cws != null) m_cws.Send("moveBackward_time_" + _time + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DroneMoveAscend
+		 */
+        public void DroneMoveAscend(float _time)
+        {
+            if (m_cws != null) m_cws.Send("moveAscend_time_" + _time + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DroneMoveDescend
+		 */
+        public void DroneMoveDescend(float _time)
+        {
+            if (m_cws != null) m_cws.Send("moveDescend_time_" + _time + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DroneActionTakeOff
+		 */
+        public void DroneActionTakeOff(float _height)
+        {
+            if (m_cws != null) m_cws.Send("actionTakeOff_height_" + _height + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DroneActionLand
+		 */
+        public void DroneActionLand()
+        {
+            if (m_cws != null) m_cws.Send("actionLand");
         }
 
         // -------------------------------------------
@@ -429,7 +465,7 @@ namespace YourCommonTools
         /* 
 		 * RoombaCloseCommunication
 		 */
-        public void RoombaCloseCommunication()
+        public void DroneCloseCommunication()
         {
             if (m_cws != null) m_cws.Send("closeCommunication");
         }
