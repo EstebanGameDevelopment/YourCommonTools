@@ -29,6 +29,7 @@ namespace YourCommonTools
         // EVENTS
         // ----------------------------------------------
         public const string EVENT_IAP_INITIALIZED = "EVENT_IAP_INITIALIZED";
+        public const string EVENT_IAP_TRANSACTION_BEGIN = "EVENT_IAP_TRANSACTION_BEGIN";
         public const string EVENT_IAP_CONFIRMATION = "EVENT_IAP_CONFIRMATION";
 
 		// ----------------------------------------------
@@ -157,6 +158,7 @@ namespace YourCommonTools
 				if (product != null && product.availableToPurchase)
 				{
 					Debug.Log(string.Format("Purchasing product asychronously: '{0}'", product.definition.id));
+                    UIEventController.Instance.DelayUIEvent(EVENT_IAP_TRANSACTION_BEGIN, 0.01f);
 					m_StoreController.InitiatePurchase(product);
 				}
 				else
@@ -193,7 +195,7 @@ namespace YourCommonTools
 		public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
 		{
 			Debug.Log(string.Format("ProcessPurchase: SUCCESS. Product: '{0}'", args.purchasedProduct.definition.id));
-			UIEventController.Instance.DispatchUIEvent(EVENT_IAP_CONFIRMATION, true, args.purchasedProduct.definition.id);
+			UIEventController.Instance.DelayUIEvent(EVENT_IAP_CONFIRMATION, 0.1f, true, args.purchasedProduct.definition.id);
 			return PurchaseProcessingResult.Complete;
 		}
 
@@ -205,7 +207,7 @@ namespace YourCommonTools
 		public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 		{
 			Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
-			UIEventController.Instance.DispatchUIEvent(EVENT_IAP_CONFIRMATION, false, product.definition.id);
+			UIEventController.Instance.DelayUIEvent(EVENT_IAP_CONFIRMATION, 0.1f, false, product.definition.id);
 		}
 
 		// -------------------------------------------
