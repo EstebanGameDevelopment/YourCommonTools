@@ -42,6 +42,8 @@ namespace YourCommonTools
         private int m_layerScreen = 0;
         private string m_nameScreen = "";
 
+        private bool m_disableSelectable = false;
+
         public bool IsSelected
         {
             get { return m_selector.activeSelf; }
@@ -249,20 +251,35 @@ namespace YourCommonTools
 		 */
 		public void EnableSelector(bool _value)
 		{
-			if (m_selector != null)
-			{
-				m_selector.SetActive(_value);
-				if (_value)
-				{
-					if (this.gameObject.GetComponent<RectTransform>() != null)
-					{
-						Rect corners = Utilities.GetCornersRectTransform(this.gameObject.GetComponent<RectTransform>());
-						UIEventController.Instance.DispatchUIEvent(EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST, this.gameObject, corners);
-					}
-				}
-			}
-		}
+            if (!m_disableSelectable)
+            {
+                if (m_selector != null)
+                {
+                    m_selector.SetActive(_value);
+                    if (_value)
+                    {
+                        if (this.gameObject.GetComponent<RectTransform>() != null)
+                        {
+                            Rect corners = Utilities.GetCornersRectTransform(this.gameObject.GetComponent<RectTransform>());
+                            UIEventController.Instance.DispatchUIEvent(EVENT_CHECK_ELEMENT_CORNER_OUT_OF_LIST, this.gameObject, corners);
+                        }
+                    }
+                }
+            }
+        }
 
+        // -------------------------------------------
+        /* 
+		 * Will enable the selector component
+		 */
+        public void DisableSelectable()
+        {
+            if (m_selector != null)
+            {
+                m_selector.SetActive(false);
+                m_disableSelectable = true;
+            }
+        }
 
         // -------------------------------------------
         /* 
