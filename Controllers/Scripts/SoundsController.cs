@@ -58,9 +58,9 @@ namespace YourCommonTools
 		// ----------------------------------------------
 		private AudioSource m_audio1;
 		private AudioSource m_audio2;
-		private bool m_enabled = false;
-		private bool m_enableFX = false;
-		private bool m_enableMelodies = false;
+		private bool m_enabled = true;
+		private bool m_enableFX = true;
+		private bool m_enableMelodies = true;
 		private bool m_hasBeenInitialized = false;
         private int m_requestAudioData = 0;
         private string m_microphoneDeviceName = "";
