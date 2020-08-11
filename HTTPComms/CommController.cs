@@ -159,11 +159,27 @@ namespace YourCommonTools
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * RequestHeader
+		 */
+        public void RequestHeader(string _event, List<ItemMultiTextEntry> _headers, bool _isBinaryResponse, params object[] _list)
+        {
+            if (m_state != STATE_IDLE)
+            {
+                QueuedRequest(_event, _headers, _isBinaryResponse, _list);
+                return;
+            }
+
+            RequestReal(_event, _headers, _isBinaryResponse, _list);
+        }
+
+
+        // -------------------------------------------
+        /* 
 		 * Request
 		 */
-		public void Request(string _event, bool _isBinaryResponse, params object[] _list)
+        public void Request(string _event, bool _isBinaryResponse, params object[] _list)
 		{
             if (m_state != STATE_IDLE)
 			{
@@ -171,7 +187,7 @@ namespace YourCommonTools
 				return;
 			}
 
-            RequestReal(_event, _isBinaryResponse, _list);
+            RequestReal(_event, null, _isBinaryResponse, _list);
 		}
 
 		// -------------------------------------------
@@ -186,7 +202,7 @@ namespace YourCommonTools
 				return;
 			}
 
-			RequestReal(_event, _isBinaryResponse, _list);
+			RequestReal(_event, null, _isBinaryResponse, _list);
 		}
 
 		// -------------------------------------------
@@ -200,14 +216,14 @@ namespace YourCommonTools
 				return;
 			}
 
-			RequestReal(_event, _isBinaryResponse, _list);
+			RequestReal(_event, null, _isBinaryResponse, _list);
 		}
 
 		// -------------------------------------------
 		/* 
 		 * RequestReal
 		 */
-		private void RequestReal(string _event, bool _isBinaryResponse, params object[] _list)
+		private void RequestReal(string _event, List<ItemMultiTextEntry> _headers, bool _isBinaryResponse, params object[] _list)
 		{
             m_event = _event;
 			m_commRequest = (IHTTPComms)Activator.CreateInstance(Type.GetType(m_event));
@@ -222,6 +238,17 @@ namespace YourCommonTools
 			if (m_commRequest.Method == BaseDataHTTP.METHOD_GET)
 			{
                 UnityWebRequest www = UnityWebRequest.Get(m_commRequest.UrlRequest + data);
+                if (_headers != null)
+                {
+                    for (int i = 0; i < _headers.Count; i++)
+                    {
+                        if (_headers[i].Items.Count > 1)
+                        {
+                            www.SetRequestHeader(_headers[i].Items[0], _headers[i].Items[1]);
+                        }
+                    }
+                }
+                
 
                 if (_isBinaryResponse)
 				{
@@ -253,7 +280,7 @@ namespace YourCommonTools
 		 */
 		public void DelayRequest(string _nameEvent, bool _isBinaryResponse, float _time, params object[] _list)
 		{
-			m_listTimedEvents.Add(new CommEventData(_nameEvent, _isBinaryResponse, _time, _list));
+			m_listTimedEvents.Add(new CommEventData(_nameEvent, null, _isBinaryResponse, _time, _list));
 		}
 
 		// -------------------------------------------
@@ -262,16 +289,25 @@ namespace YourCommonTools
 		 */
 		public void QueuedRequest(string _nameEvent, bool _isBinaryResponse, params object[] _list)
 		{
-            m_listQueuedEvents.Add(new CommEventData(_nameEvent, _isBinaryResponse, 0, _list));
+            m_listQueuedEvents.Add(new CommEventData(_nameEvent, null, _isBinaryResponse, 0, _list));
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * QueuedRequest
+		 */
+        public void QueuedRequest(string _nameEvent, List<ItemMultiTextEntry> _headers, bool _isBinaryResponse, params object[] _list)
+        {
+            m_listQueuedEvents.Add(new CommEventData(_nameEvent, _headers, _isBinaryResponse, 0, _list));
+        }
+
+        // -------------------------------------------
+        /* 
 		 * InsertRequest
 		 */
-		public void InsertRequest(string _nameEvent, bool _isBinaryResponse, params object[] _list)
+        public void InsertRequest(string _nameEvent, bool _isBinaryResponse, params object[] _list)
 		{
-			m_priorityQueuedEvents.Insert(0, new CommEventData(_nameEvent, _isBinaryResponse, 0, _list));
+			m_priorityQueuedEvents.Insert(0, new CommEventData(_nameEvent, null, _isBinaryResponse, 0, _list));
 		}
 
 		// -------------------------------------------

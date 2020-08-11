@@ -19,12 +19,17 @@ namespace YourCommonTools
 		private bool m_isBinaryResponse;
 		private float m_time;
 		private object[] m_list;
+        private List<ItemMultiTextEntry> m_headers;
 
-		public string NameEvent
+        public string NameEvent
 		{
 			get { return m_nameEvent; }
 		}
-		public bool IsBinaryResponse
+        public List<ItemMultiTextEntry> Headers
+        {
+            get { return m_headers; }
+        }
+        public bool IsBinaryResponse
 		{
 			get { return m_isBinaryResponse; }
 			set { m_isBinaryResponse = value; }
@@ -43,10 +48,11 @@ namespace YourCommonTools
 		/* 
 		 * Constructor
 		 */
-		public CommEventData(string _nameEvent, bool _isBinaryResponse, float _time, params object[] _list)
+		public CommEventData(string _nameEvent, List<ItemMultiTextEntry> _headers, bool _isBinaryResponse, float _time, params object[] _list)
 		{
 			m_nameEvent = _nameEvent;
-			m_isBinaryResponse = _isBinaryResponse;
+            m_headers = _headers;
+            m_isBinaryResponse = _isBinaryResponse;
 			m_time = _time;
 			m_list = _list;
 		}
