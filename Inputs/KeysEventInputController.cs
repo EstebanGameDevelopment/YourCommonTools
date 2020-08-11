@@ -451,7 +451,7 @@ namespace YourCommonTools
                     bool buttonAWasTouched = false, buttonBWasTouched = false;
 
 #if ENABLE_GO
-                    if (OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger))
+                    if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
                     {
                         m_timerAcumOculusMenu += Time.deltaTime;
                         if (m_timerAcumOculusMenu > 1)
@@ -1003,7 +1003,7 @@ namespace YourCommonTools
          */
         private void KeyInputCancelManagement()
 		{
-			// DAYDREAM CONTROLLER
+            // DAYDREAM CONTROLLER
 #if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
 			if (m_isDaydreamActivated)
 			{
@@ -1011,13 +1011,16 @@ namespace YourCommonTools
 			}
 #endif
 
-			// CANCEL BUTTON
-			if (Input.GetKeyDown(KeyCode.Escape))
+            // CANCEL BUTTON
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape))
 			{
 				UIEventController.Instance.DispatchUIEvent(ACTION_CANCEL_BUTTON);
 			}
-			// BACK BUTTON
-			if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
+#endif
+
+            // BACK BUTTON
+            if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
 #if ENABLE_OCULUS && !ENABLE_QUEST
                 || OVRInput.GetDown(OVRInput.Button.Back)
 #endif
