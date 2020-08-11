@@ -1134,10 +1134,12 @@ namespace YourCommonTools
 		 */
         public virtual void Update()
 		{
-			if (Input.GetKeyDown(KeyCode.Escape))
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape))
 			{
 				UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON);
 			}
+#endif
 
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.Escape))
