@@ -24,6 +24,7 @@ namespace YourCommonTools
         // ----------------------------------------------	
         public const string EVENT_ASSETBUNDLE_ASSETS_LOADED     = "EVENT_ASSETBUNDLE_ASSETS_LOADED";
         public const string EVENT_ASSETBUNDLE_ASSETS_PROGRESS   = "EVENT_ASSETBUNDLE_ASSETS_PROGRESS";
+        public const string EVENT_ASSETBUNDLE_LEVEL_XML         = "EVENT_ASSETBUNDLE_LEVEL_XML";
 
         // ----------------------------------------------
         // SINGLETON
@@ -54,8 +55,18 @@ namespace YourCommonTools
         // ----------------------------------------------
         private AssetBundle m_assetBundle;
         private List<TimedEventData> listEvents = new List<TimedEventData>();
+        private string m_levelsXML = "";
 
         private Dictionary<string, Object> m_loadedObjects = new Dictionary<string, Object>();
+
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------
+        public string LevelsXML
+        {
+            get { return m_levelsXML; }
+            set { m_levelsXML = value; }
+        }
 
         // -------------------------------------------
         /* 
