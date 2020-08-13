@@ -41,7 +41,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
-        private float m_timeoutToCheck = 10;
+        private float m_timeoutToCheck = -1;
         private float m_timeoutLimit = 10;
         private bool m_isThereInternetConnection = true;
 
@@ -68,10 +68,13 @@ namespace YourCommonTools
         */
         void Update()
         {
-            m_timeoutToCheck -= Time.deltaTime;
-            if (m_timeoutToCheck < 0)
+            if (m_timeoutToCheck > 0)
             {
-                RequestConnection();
+                m_timeoutToCheck -= Time.deltaTime;
+                if (m_timeoutToCheck <= 0)
+                {
+                    RequestConnection();
+                }
             }
         }
 
@@ -79,10 +82,9 @@ namespace YourCommonTools
         /* 
 		 * RequestConnection
 		 */
-        public void RequestConnection()
+        public void RequestConnection(float _timeout = -1)
         {
-            Utilities.DebugLogError("RequestConnection::CHECKING...");
-            m_timeoutToCheck = m_timeoutLimit;
+            m_timeoutToCheck = _timeout;
             StartCoroutine(CheckGoogle());
         }
 
