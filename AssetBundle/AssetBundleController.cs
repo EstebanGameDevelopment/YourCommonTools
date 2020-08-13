@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace YourCommonTools
 {
@@ -125,7 +126,11 @@ namespace YourCommonTools
         {
             if (m_assetBundle == null)
             {
+#if UNITY_WEBGL
+                StartCoroutine(WebRequestAssetBundle(UnityWebRequestAssetBundle.GetAssetBundle(_url)));
+#else
                 StartCoroutine(DownloadAssetBundle(WWW.LoadFromCacheOrDownload(_url, _version)));
+#endif
                 // StartCoroutine(DownloadAssetBundle(new WWW(_url)));
                 return false;
             }
@@ -157,6 +162,24 @@ namespace YourCommonTools
                 yield return new WaitForSeconds(.1f);
             }
             m_assetBundle = _www.assetBundle;
+            Invoke("AllAssetsLoaded", 0.01f);
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Couroutine to load the asset bundle
+		 */
+        public IEnumerator WebRequestAssetBundle(UnityWebRequest _www)
+        {
+            yield return _www.SendWebRequest();
+            if (_www.isNetworkError || _www.isHttpError)
+            {
+                Debug.LogError(_www.error);
+            }
+            else
+            {
+                m_assetBundle = DownloadHandlerAssetBundle.GetContent(_www);
+            }            
             Invoke("AllAssetsLoaded", 0.01f);
         }
 

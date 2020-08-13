@@ -3,8 +3,10 @@ using UnityEngine;
 using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
+#if !UNITY_WEBGL
 using System.Net;
 using System.IO;
+#endif
 
 namespace YourCommonTools
 {
@@ -85,7 +87,11 @@ namespace YourCommonTools
         public void RequestConnection(float _timeout = -1)
         {
             m_timeoutToCheck = _timeout;
+#if !UNITY_WEBGL
             StartCoroutine(CheckGoogle());
+#else
+            BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_INTERNET_ACCESS_STATE, 0.1f, true);
+#endif
         }
 
         // -------------------------------------------
@@ -123,6 +129,9 @@ namespace YourCommonTools
 		 */
         public string GetHtmlFromUri(string resource)
         {
+#if UNITY_WEBGL
+            return "";
+#else
             string html = string.Empty;
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(resource);
             try
@@ -152,6 +161,7 @@ namespace YourCommonTools
                 return "";
             }
             return html;
+#endif
         }
     }
 }
