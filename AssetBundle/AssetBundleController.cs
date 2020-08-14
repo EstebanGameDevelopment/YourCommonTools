@@ -26,6 +26,7 @@ namespace YourCommonTools
         public const string EVENT_ASSETBUNDLE_ASSETS_LOADED     = "EVENT_ASSETBUNDLE_ASSETS_LOADED";
         public const string EVENT_ASSETBUNDLE_ASSETS_PROGRESS   = "EVENT_ASSETBUNDLE_ASSETS_PROGRESS";
         public const string EVENT_ASSETBUNDLE_LEVEL_XML         = "EVENT_ASSETBUNDLE_LEVEL_XML";
+        public const string EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS = "EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS";
 
         // ----------------------------------------------
         // SINGLETON
@@ -127,7 +128,9 @@ namespace YourCommonTools
             if (m_assetBundle == null)
             {
 #if UNITY_WEBGL
-                StartCoroutine(WebRequestAssetBundle(UnityWebRequestAssetBundle.GetAssetBundle(_url)));
+                DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS);
+                CachedAssetBundle cacheBundle = new CachedAssetBundle();
+                StartCoroutine(WebRequestAssetBundle(UnityWebRequestAssetBundle.GetAssetBundle(_url, cacheBundle)));
 #else
                 StartCoroutine(DownloadAssetBundle(WWW.LoadFromCacheOrDownload(_url, _version)));
 #endif
