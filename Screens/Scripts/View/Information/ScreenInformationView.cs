@@ -180,8 +180,9 @@ namespace YourCommonTools
 			if (m_container.Find("Text") != null)
 			{
 				m_textDescription = m_container.Find("Text").GetComponent<Text>();
-			}
-			if (m_container.Find("Title") != null)
+                if (m_textDescription.gameObject.GetComponent<Button>() != null) m_textDescription.gameObject.GetComponent<Button>().onClick.AddListener(ActionTextPressed);
+            }
+            if (m_container.Find("Title") != null)
 			{
 				m_title = m_container.Find("Title").GetComponent<Text>();
 			}
@@ -196,7 +197,8 @@ namespace YourCommonTools
             if (m_container.Find("Image") != null)
 			{
 				m_imageContent = m_container.Find("Image").GetComponent<Image>();
-			}
+                if (m_imageContent.gameObject.GetComponent<Button>() != null) m_imageContent.gameObject.GetComponent<Button>().onClick.AddListener(ActionImagePressed);
+            }
 
             if (m_container.Find("InputField") != null)
             {
@@ -269,6 +271,36 @@ namespace YourCommonTools
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject, this.gameObject.name);
 
             return false;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ActionImagePressed
+		 */
+        private void ActionImagePressed()
+        {
+            if (m_pagesInfo[m_currentPage].EventData.Length > 0)
+            {
+                if (m_pagesInfo[m_currentPage].EventData.IndexOf("http") != -1)
+                {
+                    Application.OpenURL(m_pagesInfo[m_currentPage].EventData);
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ActionTextPressed
+		 */
+        private void ActionTextPressed()
+        {
+            if (m_pagesInfo[m_currentPage].EventData.Length > 0)
+            {
+                if (m_pagesInfo[m_currentPage].EventData.IndexOf("http") != -1)
+                {
+                    Application.OpenURL(m_pagesInfo[m_currentPage].EventData);
+                }                
+            }
         }
 
         // -------------------------------------------

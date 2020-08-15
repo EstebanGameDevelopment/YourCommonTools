@@ -134,7 +134,6 @@ namespace YourCommonTools
 #else
                 StartCoroutine(DownloadAssetBundle(WWW.LoadFromCacheOrDownload(_url, _version)));
 #endif
-                // StartCoroutine(DownloadAssetBundle(new WWW(_url)));
                 return false;
             }
             else
