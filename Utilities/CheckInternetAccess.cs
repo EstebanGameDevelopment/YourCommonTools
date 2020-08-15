@@ -66,22 +66,6 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-        * Update
-        */
-        void Update()
-        {
-            if (m_timeoutToCheck > 0)
-            {
-                m_timeoutToCheck -= Time.deltaTime;
-                if (m_timeoutToCheck <= 0)
-                {
-                    RequestConnection();
-                }
-            }
-        }
-
-        // -------------------------------------------
-        /* 
 		 * RequestConnection
 		 */
         public void RequestConnection(float _timeout = -1)
