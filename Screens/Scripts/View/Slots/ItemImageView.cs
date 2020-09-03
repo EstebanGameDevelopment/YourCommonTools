@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.UI.Button;
 
 namespace YourCommonTools
 {
@@ -92,7 +91,7 @@ namespace YourCommonTools
         /* 
 		 * GetOnClick
 		 */
-        public ButtonClickedEvent GetOnClick()
+        public UnityEngine.UI.Button.ButtonClickedEvent GetOnClick()
         {
             return transform.GetComponent<Button>().onClick;
         }
