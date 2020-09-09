@@ -333,10 +333,7 @@ namespace YourCommonTools
             }
             if (_nameEvent == DroneKitAndroidController.EVENT_DRONEKITCONTROLLER_LANDED)
             {
-                if (m_errorProduced)
-                {
-                    DisarmDrone();
-                }
+                DisarmDrone();
             }
             // ROOMBA
             if (_nameEvent == EVENT_WEBSOCKET_REQUESTED_DIRECTION)
@@ -486,6 +483,24 @@ namespace YourCommonTools
         public void SetTargetAngle(float _angleDeg)
         {
             if (m_cws != null) m_cws.Send("setTarget_angle_" + _angleDeg + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * SetTargetGPS
+		 */
+        public void SetTargetGPS(float _angleDeg, double _latitude, double _longitude)
+        {
+            if (m_cws != null) m_cws.Send("setTarget_gps_" + _angleDeg + "," + _latitude + "," + _longitude + "_end");
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GoToGPSCoordinates
+		 */
+        public void GoToGPSCoordinates(double _latitude, double _longitude)
+        {
+            if (m_cws != null) m_cws.Send("goTo_GPS_" + _latitude + "," + _longitude + "_end");
         }
 
         // -------------------------------------------
