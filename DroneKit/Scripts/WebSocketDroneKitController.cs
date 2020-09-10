@@ -460,6 +460,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * StopAction
+		 */
+        public void StopAction()
+        {
+            if (m_cws != null) m_cws.Send("stopAction");
+        }
+
+        // -------------------------------------------
+        /* 
 		 * RoombaCloseCommunication
 		 */
         public void DroneCloseCommunication()
