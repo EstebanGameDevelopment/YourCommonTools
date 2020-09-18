@@ -624,8 +624,11 @@ namespace YourCommonTools
             }
             if (_go.GetComponent<Collider>() != null)
             {
-                if (_go.GetComponent<MeshCollider>()!=null) _go.GetComponent<MeshCollider>().convex = _trigger;
-                _go.GetComponent<Collider>().isTrigger = _trigger;
+                if (_go.GetComponent<ClassCollision>() == null)
+                {
+                    if (_go.GetComponent<MeshCollider>() != null) _go.GetComponent<MeshCollider>().convex = _trigger;
+                    _go.GetComponent<Collider>().isTrigger = _trigger;
+                }
             }
         }
 
@@ -641,7 +644,10 @@ namespace YourCommonTools
             }
             if (_go.GetComponent<BoxCollider>() != null)
             {
-                _go.GetComponent<BoxCollider>().isTrigger = _trigger;
+                if (_go.GetComponent<ClassCollision>() == null)
+                {
+                    _go.GetComponent<BoxCollider>().isTrigger = _trigger;
+                }
             }
         }
 
