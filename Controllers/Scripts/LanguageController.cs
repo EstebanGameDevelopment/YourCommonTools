@@ -45,13 +45,21 @@ namespace YourCommonTools
 		public TextAsset TextsXML;
 		public Hashtable m_texts = new Hashtable();
 
-		private string m_codeLanguage = "es";
-		private bool m_hasBeenInitialized = false;
+#if FORCE_ENGLISH
+        private string m_codeLanguage = "en";
+#else
+        private string m_codeLanguage = "es";
+#endif
+        private bool m_hasBeenInitialized = false;
 
 		public string CodeLanguage
 		{
-			get { return m_codeLanguage; }
-		}
+#if FORCE_ENGLISH
+        get { return "en"; }
+#else
+            get { return m_codeLanguage; }
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
@@ -79,7 +87,10 @@ namespace YourCommonTools
 		public void SetLanguage(string _codeLanguage)
 		{
 			m_codeLanguage = _codeLanguage;
-			PlayerPrefs.SetString(LANGUAGE_COOCKIE, m_codeLanguage);
+#if FORCE_ENGLISH
+            m_codeLanguage = "en";
+#endif
+            PlayerPrefs.SetString(LANGUAGE_COOCKIE, m_codeLanguage);
 		}
 
 		// -------------------------------------------
@@ -93,7 +104,7 @@ namespace YourCommonTools
 
 			m_codeLanguage = PlayerPrefs.GetString(LANGUAGE_COOCKIE, "null");
 
-			if (m_codeLanguage == "null")
+            if (m_codeLanguage == "null")
 			{
                 bool checkLanguageSystem = true;
                 if (_forceLanguage != null)
@@ -119,7 +130,7 @@ namespace YourCommonTools
             }
 			SetLanguage(m_codeLanguage);
 
-			XmlDocument xmlDoc = new XmlDocument();
+            XmlDocument xmlDoc = new XmlDocument();
 			xmlDoc.LoadXml(TextsXML.text);
 
 			XmlNodeList textsList = xmlDoc.GetElementsByTagName("text");
