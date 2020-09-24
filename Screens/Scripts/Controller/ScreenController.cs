@@ -44,6 +44,8 @@ namespace YourCommonTools
         public const string EVENT_SCREENCONTROLLER_ENABLE_PROCESS_EVENTS = "EVENT_SCREENCONTROLLER_ENABLE_PROCESS_EVENTS";
         public const string EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS = "EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS";
 
+        public const string EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME = "EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME";
+
         public const int TOTAL_LAYERS_SCREENS = 10;
 
         public const int ANIMATION_MOVEMENT = 0;
@@ -891,6 +893,15 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * RemoveScreenName
+		 */
+        public bool RemoveScreenName(string _screenName)
+        {
+            return m_stackScreenNames.Remove(_screenName);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * AddScreenNameToStack
 		 */
         public void ClearScreenNameStack()
@@ -1125,6 +1136,10 @@ namespace YourCommonTools
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN)
             {
                 m_eventSystem.SetActive((bool)_list[1]);
+            }
+            if (_nameEvent == EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME)
+            {
+                RemoveScreenName((string)_list[0]);
             }
         }
 
