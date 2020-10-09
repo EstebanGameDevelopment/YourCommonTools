@@ -65,6 +65,7 @@ namespace YourCommonTools
         // Buttons that can trigger pointer switching.
 
 #if ENABLE_WORLDSENSE
+        private const GvrControllerButton POINTER_TOUCHPAD_DAYDREAMCONTROLLER = GvrControllerButton.TouchPadButton;
         private const GvrControllerButton POINTER_ACTION_DOWN_DAYDREAMCONTROLLER = GvrControllerButton.TouchPadButton | GvrControllerButton.Trigger;
         private const GvrControllerButton APP_BUTTON_DAYDREAMCONTROLLER = GvrControllerButton.App;
 
@@ -293,6 +294,64 @@ namespace YourCommonTools
         }
 
         private bool m_oculusActionPressed = false;
+
+        // -------------------------------------------
+        /* 
+		 * GetVectorThumbstick
+		 */
+        public Vector2 GetVectorThumbstick()
+        {
+#if ENABLE_OCULUS && ENABLE_QUEST
+            return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+#elif ENABLE_OCULUS && ENABLE_GO
+            return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+#elif ENABLE_WORLDSENSE
+            return GetTouchVectorDaydreamController();
+#else
+            return Vector2.zero;
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetToucVectorDaydreamController
+        */
+        public Vector2 GetTouchVectorDaydreamController()
+        {
+            if (!EnableInteractions)
+            {
+                return Vector2.zero;
+            }
+
+#if ENABLE_WORLDSENSE
+            if (m_controllerPointers == null)
+            {
+                GvrTrackedController[] gvrTrackedControllers = GameObject.FindObjectsOfType<GvrTrackedController>();
+                if (gvrTrackedControllers.Length > 0)
+                {
+                    m_controllerPointers = new List<GameObject>();
+                    foreach (GvrTrackedController trackControl in gvrTrackedControllers)
+                    {
+                        m_controllerPointers.Add(trackControl.gameObject);
+                    }
+                }
+            }
+
+            if (m_controllerPointers != null)
+            {
+                if (m_controllerPointers.Count > 0 && m_controllerPointers[0] != null)
+                {
+                    GvrTrackedController trackedController1 = m_controllerPointers[0].GetComponent<GvrTrackedController>();
+                    foreach (var hand in AllHands)
+                    {
+                        GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
+                        return device.TouchPos;
+                    }
+                }
+            }
+#endif
+            return Vector2.zero;
+        }
 
 #if ENABLE_OCULUS
         private PinchInteractionTool m_rightHandTrigger = null;
