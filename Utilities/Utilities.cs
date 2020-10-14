@@ -2322,5 +2322,15 @@ namespace YourCommonTools
             _mRect.transform.SetParent(_parent);
         }
 
+        // ---------------------------------------------------
+        /**
+         AngleToNormal
+         */
+        public static Vector3 AngleToNormal(float _yaw)
+        {
+            Vector2 normal = new Vector2((float)Mathf.Sin(_yaw), (float)Mathf.Cos(_yaw));
+            normal.Normalize();
+            return normal;
+        }
     }
 }
