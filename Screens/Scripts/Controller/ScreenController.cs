@@ -502,9 +502,11 @@ namespace YourCommonTools
             foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
             {
                 List<GameObject> listNotToDestroy = new List<GameObject>();
-                while (screenPool.Value.Count > 0)
+                int iteratorPool = 0;
+                while ((screenPool.Value.Count > 0) && (iteratorPool < 50))
                 {
                     GameObject screen = screenPool.Value[0];
+                    iteratorPool++;
                     if (screen != null)
                     {
                         if (screen.GetComponent<IBasicView>() != null)
@@ -515,7 +517,7 @@ namespace YourCommonTools
                             }
                             else
                             {
-                                listNotToDestroy.Add(screen);
+                                if (!listNotToDestroy.Contains(screen)) listNotToDestroy.Add(screen);
                             }                            
                         }
                         if (screen != null)
