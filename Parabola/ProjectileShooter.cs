@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace YourCommonTools
 {
@@ -337,8 +338,15 @@ namespace YourCommonTools
                     float yUpdate = ComputeY(Mathf.Abs(GetOrigin().x - xUpdate));
                     Vector3 currentPosition = m_originSource + (m_direction * xUpdate);
                     currentPosition = new Vector3(currentPosition.x, yUpdate + m_originSource.y, currentPosition.z);
-                    m_ball.transform.position = currentPosition;
-                    if (totalTimeBallDone > 1.2f)
+                    try
+                    {
+                        m_ball.transform.position = currentPosition;
+                        if (totalTimeBallDone > 1.2f)
+                        {
+                            BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PROJECTILESHOOTER_DESTROY, this, m_ball);
+                            Destroy();
+                        }
+                    } catch (Exception err)
                     {
                         BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_PROJECTILESHOOTER_DESTROY, this, m_ball);
                         Destroy();
