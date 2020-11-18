@@ -174,7 +174,10 @@ namespace YourCommonTools
             else
             {
                 m_enabled = true;
-            }			
+            }
+#if UNITY_EDITOR
+            m_enabled = false;
+#endif
 
             BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
         }
