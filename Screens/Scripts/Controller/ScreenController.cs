@@ -141,7 +141,10 @@ namespace YourCommonTools
                 Debug.Log("YourVRUIScreenController::Start::First class to initialize for the whole system to work");
             }
 
-            m_eventSystem = GameObject.FindObjectOfType<EventSystem>().gameObject;
+            if (GameObject.FindObjectOfType<EventSystem>() != null)
+            {
+                m_eventSystem = GameObject.FindObjectOfType<EventSystem>().gameObject;
+            }
         }
 
         // -------------------------------------------
@@ -1137,7 +1140,10 @@ namespace YourCommonTools
             }
             if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANIMATION_SCREEN)
             {
-                m_eventSystem.SetActive((bool)_list[1]);
+                if (m_eventSystem != null)
+                {
+                    m_eventSystem.SetActive((bool)_list[1]);
+                }
             }
             if (_nameEvent == EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME)
             {
@@ -1161,7 +1167,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS
+#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE
                 SceneManager.LoadSceneAsync("EmptyScene");
 #endif
             }

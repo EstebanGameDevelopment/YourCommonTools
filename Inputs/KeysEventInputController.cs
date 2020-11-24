@@ -1,6 +1,10 @@
 #if ENABLE_OCULUS
 using OculusSampleFramework;
 #endif
+#if ENABLE_HTCVIVE
+using WaveVR_Log;
+using wvr;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -293,7 +297,41 @@ namespace YourCommonTools
             }
         }
 
-        private bool m_oculusActionPressed = false;
+        // -------------------------------------------
+        /* 
+		 * IsRightHanded
+		 */
+        public bool IsRightHanded()
+        {
+#if ENABLE_OCULUS && ENABLE_QUEST
+            return true;
+#elif ENABLE_OCULUS && ENABLE_GO
+            OVRPlugin.Handedness handedness = OVRPlugin.GetDominantHand();
+            if (handedness == OVRPlugin.Handedness.RightHanded)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+#elif ENABLE_HTCVIVE
+            return !WaveVR_Controller.IsLeftHanded;
+#else
+            return true;
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+		 * GetDominantDevice
+		 */
+#if ENABLE_HTCVIVE
+        public WVR_DeviceType GetDominantDevice()
+        {
+            return IsRightHanded() ? WVR_DeviceType.WVR_DeviceType_Controller_Right : WVR_DeviceType.WVR_DeviceType_Controller_Left;
+        }
+#endif
 
         // -------------------------------------------
         /* 
@@ -305,12 +343,23 @@ namespace YourCommonTools
             return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
 #elif ENABLE_OCULUS && ENABLE_GO
             return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+#elif ENABLE_HTCVIVE
+            return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
 #elif ENABLE_WORLDSENSE
             return GetTouchVectorDaydreamController();
 #else
             return Vector2.zero;
 #endif
         }
+
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // OCULUS
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
+        private bool m_vrActionPressed = false;
 
         // -------------------------------------------
         /* 
@@ -594,14 +643,14 @@ namespace YourCommonTools
 #endif
                             if (_isDown)
                             {
-                                m_oculusActionPressed = true;
+                                m_vrActionPressed = true;
                             }
                             else
                             {
-                                m_oculusActionPressed = false;
+                                m_vrActionPressed = false;
                             }
                             if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_oculusActionPressed;
+                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -616,14 +665,14 @@ namespace YourCommonTools
 #endif
                             if (_isDown)
                             {
-                                m_oculusActionPressed = false;
+                                m_vrActionPressed = false;
                             }
                             else
                             {
-                                m_oculusActionPressed = true;
+                                m_vrActionPressed = true;
                             }
                             if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_oculusActionPressed;
+                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -746,6 +795,12 @@ namespace YourCommonTools
             catch (Exception err) { }
             return false;
         }
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // WORLDSENSE
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
 
 
         // -------------------------------------------
@@ -932,10 +987,218 @@ namespace YourCommonTools
             return false;
         }
 
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // HTC
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
         // -------------------------------------------
         /* 
-		 * KeyInputActionButton
-		 */
+        * GetActionCurrentStateHTCViveController
+        */
+        public bool GetActionCurrentStateHTCViveController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Trigger)
+                        || WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#if UNITY_EDITOR
+                            || Input.GetKey(KeyCode.LeftControl)
+#endif
+                        )
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionHTCViveController
+        */
+        public bool GetActionHTCViveController(bool _isDown, string _eventDown = null, string _eventUp = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+                    // +++++ BUTTON CONTROLLERS (DOWN)
+                    try
+                    {
+                        if (WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger)
+                            || WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#if UNITY_EDITOR
+                            || Input.GetKeyDown(KeyCode.LeftControl)
+#endif
+                            )
+                        {
+                            if (_isDown)
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+                
+                    // +++++ BUTTON CONTROLLERS (UP)
+                    try
+                    {
+                        if (WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_Trigger)
+                            || WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#if UNITY_EDITOR
+                            || Input.GetKeyUp(KeyCode.LeftControl)
+#endif
+                            )
+                    {
+                        if (_isDown)
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuHTCViveController
+        */
+        public bool GetMenuHTCViveController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+            
+            try
+            {
+#if ENABLE_HTCVIVE
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+					if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+					return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetAppDownHTCViveController
+        */
+        public bool GetAppDownHTCViveController(string _event = null, bool _checkEvent = true)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+            if (CheckHTCControllerAppDown(true, _checkEvent))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * CheckHTCControllerAppDown
+        */
+        private bool CheckHTCControllerAppDown(bool _checkDown = true, bool _checkEvent = true)
+        {
+#if ENABLE_HTCVIVE
+            bool buttonMenuTouched = false;
+            if (_checkEvent)
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKeyDown(KeyCode.Delete);
+#else
+                if (_checkDown)
+                {
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Menu);
+                }
+                else
+                {
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Menu);
+                }
+#endif
+            }
+            else
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKey(KeyCode.Delete);
+#else
+                buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Menu);
+#endif
+            }
+            return buttonMenuTouched;
+#else
+            return false;
+#endif
+            }
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // KEYBOARD
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
+        // -------------------------------------------
+        /* 
+        * KeyInputActionButton
+        */
         private void KeyInputActionButton()
 		{
             if (!EnableActionButton) return;
@@ -956,12 +1219,21 @@ namespace YourCommonTools
             }
 #endif
 
-			if (m_enableActionOnMouseDown)
+#if ENABLE_HTCVIVE
+            if (WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_System))
+            {
+                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+            }
+#endif
+
+            if (m_enableActionOnMouseDown)
 			{
 #if ENABLE_WORLDSENSE && !UNITY_EDITOR
                 GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #elif ENABLE_OCULUS
                 GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_HTCVIVE
+                GetActionHTCViveController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #else
                 GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #endif
@@ -972,6 +1244,8 @@ namespace YourCommonTools
                 GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #elif ENABLE_OCULUS
                 GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_HTCVIVE
+                GetActionHTCViveController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #else
                 GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #endif

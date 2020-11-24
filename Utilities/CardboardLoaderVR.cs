@@ -20,9 +20,12 @@ namespace YourCommonTools
         public const string CARDBOARD_DEVICE_NAME = "Cardboard";
         public const string DAYDREAM_DEVICE_NAME = "Daydream";
         public const string OCULUS_DEVICE_NAME = "Oculus";
+        public const string HTCVIVE_DEVICE_NAME = "Mock HMD";
 
 #if ENABLE_OCULUS
         public string DefaultDeviceName = OCULUS_DEVICE_NAME;
+#elif ENABLE_HTCVIVE
+        public string DefaultDeviceName = HTCVIVE_DEVICE_NAME;
 #elif ENABLE_WORLDSENSE
         public string DefaultDeviceName = DAYDREAM_DEVICE_NAME;
 #else
@@ -93,6 +96,8 @@ namespace YourCommonTools
             return true;
 #elif ENABLE_OCULUS
             return true;
+#elif ENABLE_HTCVIVE
+            return false;
 #else
             if (m_hasBeenInited)
             {
@@ -134,6 +139,8 @@ namespace YourCommonTools
             InitializeCardboard();
 #elif ENABLE_OCULUS
             InitializeCardboard();
+#elif ENABLE_HTCVIVE
+            InitializeCardboard();
 #endif
 
             m_isCardboardEnabled = LoadEnableCardboard();
@@ -148,10 +155,13 @@ namespace YourCommonTools
         {
 #if ENABLE_WORLDSENSE
             ForceActivation = true;
-            DefaultDeviceName = "Daydream";
+            DefaultDeviceName = DAYDREAM_DEVICE_NAME;
 #elif ENABLE_OCULUS
             ForceActivation = true;
-            DefaultDeviceName = "Oculus";
+            DefaultDeviceName = OCULUS_DEVICE_NAME;
+#elif ENABLE_HTCVIVE
+            ForceActivation = false;
+            DefaultDeviceName = HTCVIVE_DEVICE_NAME;
 #endif
             if (LoadEnableCardboard() || ForceActivation)
             {
