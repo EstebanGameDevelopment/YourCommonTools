@@ -13,14 +13,13 @@ namespace YourCommonTools
 	 */
     public class HTCHandController : MonoBehaviour
     {
-        public float ShiftX = 1;
-        public float ShiftY = 1;
-        public float ShiftZ = 1;
+        public Vector3 Shift = Vector3.zero;
 
 #if ENABLE_HTCVIVE
         public WVR_DeviceType Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
         public GameObject ControlledObject;
         public GameObject HTCCamera;
+        public bool Is6DOF = false;
 
         // -------------------------------------------
         /* 
@@ -33,12 +32,12 @@ namespace YourCommonTools
                 if (WaveVR_Controller.IsLeftHanded)
                 {
                     Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
-                    ControlledObject.transform.localPosition = new Vector3(-ShiftX, -ShiftY, ShiftZ);
+                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(-Shift.x, -Shift.y, Shift.z);
                 }
                 else
                 {
                     Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    ControlledObject.transform.localPosition = new Vector3(ShiftX, -ShiftY, ShiftZ);
+                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(Shift.x, -Shift.y, Shift.z);
                 }
             }
         }
@@ -51,7 +50,15 @@ namespace YourCommonTools
         {
             if (ControlledObject != null)
             {
-                this.transform.position = HTCCamera.transform.position;
+                if (!Is6DOF)
+                {
+                    Vector3 fwd = HTCCamera.transform.forward.normalized * 0.3f;
+                    this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z);
+                }
+                else
+                {
+                    ControlledObject.transform.position = WaveVR_Controller.Input(Device).transform.pos;
+                }
                 ControlledObject.transform.localRotation = WaveVR_Controller.Input(Device).transform.rot;
             }
         }
