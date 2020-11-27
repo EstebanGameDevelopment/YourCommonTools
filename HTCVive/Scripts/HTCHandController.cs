@@ -15,11 +15,12 @@ namespace YourCommonTools
     {
         public Vector3 Shift = Vector3.zero;
 
-#if ENABLE_HTCVIVE
-        public WVR_DeviceType Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
         public GameObject ControlledObject;
         public GameObject HTCCamera;
         public bool Is6DOF = false;
+
+#if ENABLE_HTCVIVE
+        public WVR_DeviceType Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
 
         // -------------------------------------------
         /* 

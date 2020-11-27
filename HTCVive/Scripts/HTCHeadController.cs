@@ -13,9 +13,9 @@ namespace YourCommonTools
 	 */
     public class HTCHeadController : MonoBehaviour
     {
-#if ENABLE_HTCVIVE
         public GameObject ControlledHead;
 
+#if ENABLE_HTCVIVE
         // -------------------------------------------
         /* 
 		 * Update
