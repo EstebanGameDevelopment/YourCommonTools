@@ -334,7 +334,8 @@ namespace YourCommonTools
                 return false;
             }
 #elif ENABLE_HTCVIVE
-            return !WaveVR_Controller.IsLeftHanded;
+            // return !WaveVR_Controller.IsLeftHanded;
+            return true;
 #else
             return true;
 #endif

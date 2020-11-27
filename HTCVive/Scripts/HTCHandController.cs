@@ -31,13 +31,13 @@ namespace YourCommonTools
             {
                 if (WaveVR_Controller.IsLeftHanded)
                 {
-                    Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
-                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(-Shift.x, -Shift.y, Shift.z);
+                    Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
+                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
                 }
                 else
                 {
                     Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(Shift.x, -Shift.y, Shift.z);
+                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
                 }
             }
         }
@@ -52,8 +52,16 @@ namespace YourCommonTools
             {
                 if (!Is6DOF)
                 {
-                    Vector3 fwd = HTCCamera.transform.forward.normalized * 0.3f;
-                    this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z);
+                    Vector3 fwd = HTCCamera.transform.forward.normalized * 0.2f;
+                    Vector3 rgt = HTCCamera.transform.right * 0.2f;
+                    if (WaveVR_Controller.IsLeftHanded)
+                    {
+                        this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z) - new Vector3(rgt.x, 0, rgt.z);
+                    }
+                    else
+                    {
+                        this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z) + new Vector3(rgt.x, 0, rgt.z);
+                    }
                 }
                 else
                 {
