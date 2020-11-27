@@ -102,6 +102,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------
+        private bool m_hasBeenInited = false;
         private int m_currentDirection = -1;
 		private bool m_enableActionOnMouseDown = true;
 		private bool m_isDaydreamActivated = false;
@@ -151,17 +152,34 @@ namespace YourCommonTools
 		 */
         public void Initialization()
 		{
-		}
+#if ENABLE_HTCVIVE
+            if (!m_hasBeenInited)
+            {
+                WaveVR_Utils.Event.Listen(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
+                WaveVR_Utils.Event.Listen(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
+            }
+#endif
+            m_hasBeenInited = true;
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Destroy all references
 		 */
-		public void Destroy()
+        public void Destroy()
 		{
-			Destroy(_instance.gameObject);
+#if ENABLE_HTCVIVE
+            if (m_hasBeenInited)
+            {
+                WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
+                WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
+            }
+#endif
+
+            Destroy(_instance.gameObject);
 			_instance = null;
-		}
+            m_hasBeenInited = false;
+        }
 
 		// -------------------------------------------
 		/* 
@@ -1129,6 +1147,38 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+        * GetMenuDownHTCViveController
+        */
+        public bool GetMenuDownHTCViveController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
         * GetAppDownHTCViveController
         */
         public bool GetAppDownHTCViveController(string _event = null, bool _checkEvent = true)
@@ -1189,6 +1239,15 @@ namespace YourCommonTools
 #endif
             }
 
+        // -------------------------------------------
+        /* 
+        * OnRecentered
+        */
+        private void OnRecentered(params object[] args)
+        {
+            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+        }
+
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
         // KEYBOARD
@@ -1214,13 +1273,6 @@ namespace YourCommonTools
 
 #if ENABLE_OCULUS
             if (OVRInput.GetControllerWasRecentered())
-            {
-                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
-            }
-#endif
-
-#if ENABLE_HTCVIVE
-            if (WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_System))
             {
                 UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
             }
