@@ -13,7 +13,6 @@ namespace YourCommonTools
     {
         enum ROOMBA_STATES { IDLE = 0, TURNING, MOVING};
 
-#if ENABLE_WEBSOCKET_DRONEKIT
         public const string EVENT_WEBSOCKET_REQUESTED_DIRECTION = "EVENT_WEBSOCKET_REQUESTED_DIRECTION";
         public const string EVENT_WEBSOCKET_TARGET_ANGLE_SUCCESS = "EVENT_WEBSOCKET_TARGET_ANGLE_SUCCESS";
 
@@ -46,8 +45,10 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
+#if ENABLE_WEBSOCKET_DRONEKIT
         private Uri m_urlConnectionWebSocket;
         private WebSocket m_cws = null;
+#endif
         private bool m_errorProduced = false;
         private float m_timerToReturn = 1000;
         private bool m_hasTakenOff = false;
@@ -82,11 +83,14 @@ namespace YourCommonTools
                 m_enableGoToTarget = value;
                 if (!m_enableGoToTarget)
                 {
+#if ENABLE_WEBSOCKET_DRONEKIT
                     DroneMoveForward(0);
+#endif
                 }                
             }
         }
 
+#if ENABLE_WEBSOCKET_DRONEKIT
         // -------------------------------------------
         /* 
 		 * Connect
