@@ -13,7 +13,7 @@ namespace YourCommonTools
 	 */
     public class HTCHandController : MonoBehaviour
     {
-        public Vector3 Shift = Vector3.zero;
+        public Vector3 Shift = new Vector3(0.25f, 0.5f, 0.15f);
 
         public GameObject ControlledObject;
         public GameObject HTCCamera;
