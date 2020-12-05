@@ -17,6 +17,7 @@ namespace YourCommonTools
 
         public GameObject ControlledObject;
         public GameObject HTCCamera;
+        public GameObject LaserPointer;
         public bool Is6DOF = false;
 
 #if ENABLE_HTCVIVE
