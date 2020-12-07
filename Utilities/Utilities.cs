@@ -672,12 +672,27 @@ namespace YourCommonTools
 			}
 		}
 
-
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
-		public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer)
+        public static void SetImageVisiblity(GameObject _go, bool _visibility)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetImageVisiblity(child.gameObject, _visibility);
+            }
+            if (_go.GetComponent<Image>() != null)
+            {
+                _go.GetComponent<Image>().enabled = _visibility;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer)
 		{
 			foreach (Transform child in _go.transform)
 			{

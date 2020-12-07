@@ -356,16 +356,72 @@ namespace YourCommonTools
         /* 
 		 * GetVectorThumbstick
 		 */
-        public Vector2 GetVectorThumbstick()
+        public Vector2 GetVectorThumbstick(bool _considerPressed = false)
         {
 #if ENABLE_OCULUS && ENABLE_QUEST
-            return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+            if (_considerPressed)
+            {
+                if (OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch))
+                {
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+            }
 #elif ENABLE_OCULUS && ENABLE_GO
-            return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+            if (_considerPressed)
+            {
+                if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
+                {
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+            }
 #elif ENABLE_HTCVIVE
-            return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+            if (_considerPressed)
+            {
+                if (WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Touchpad))
+                {
+                    return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+            }
 #elif ENABLE_WORLDSENSE
-            return GetTouchVectorDaydreamController();
+            if (_considerPressed)
+            {
+                if (GetActionDaydreamController(true))
+                {
+                    return GetTouchVectorDaydreamController();
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return GetTouchVectorDaydreamController();
+            }
 #else
             return Vector2.zero;
 #endif
