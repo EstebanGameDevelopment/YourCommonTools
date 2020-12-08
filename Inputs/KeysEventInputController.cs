@@ -409,7 +409,7 @@ namespace YourCommonTools
 #elif ENABLE_WORLDSENSE
             if (_considerPressed)
             {
-                if (GetActionDaydreamController(true))
+                if (GetActionCurrentStateDaydreamController())
                 {
                     return GetTouchVectorDaydreamController();
                 }

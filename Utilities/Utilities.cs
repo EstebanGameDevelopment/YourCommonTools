@@ -2347,5 +2347,23 @@ namespace YourCommonTools
             normal.Normalize();
             return normal;
         }
+
+        // -------------------------------------------
+        /* 
+		 * We apply a material on all the hirarquy of objects
+		 */
+        public static void SetActiveRecursively(GameObject _go, bool _enabled)
+        {
+            foreach (Transform child in _go.transform)
+            {
+                SetActiveRecursively(child.gameObject, _enabled);
+            }
+            if (_go != null)
+            {
+                _go.SetActive(_enabled);
+            }
+        }
+
+        
     }
 }
