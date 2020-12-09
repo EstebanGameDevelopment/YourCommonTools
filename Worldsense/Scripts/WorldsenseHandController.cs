@@ -24,19 +24,24 @@ namespace YourCommonTools
         {
             if (ControlledObject != null)
             {
+#if ENABLE_WORLDSENSE
                 if (WorldsenseHandReference.Instance != null)
                 {
                     ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
                 }                    
+#else
+                Utilities.SetActiveRecursively(ControlledObject, false);
+#endif
             }
         }
 
         // -------------------------------------------
         /* 
-		 * Update
-		 */
+        * Update
+        */
         void Update()
         {
+#if ENABLE_WORLDSENSE
             if (ControlledObject != null)
             {
                 if (WorldsenseHandReference.Instance != null)
@@ -55,6 +60,7 @@ namespace YourCommonTools
                     ControlledObject.transform.localRotation = WorldsenseHandReference.Instance.transform.rotation;
                 }
             }
+#endif
         }
     }
 }
