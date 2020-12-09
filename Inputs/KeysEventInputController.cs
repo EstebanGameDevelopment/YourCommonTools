@@ -336,6 +336,8 @@ namespace YourCommonTools
 #elif ENABLE_HTCVIVE
             // return !WaveVR_Controller.IsLeftHanded;
             return true;
+#elif ENABLE_WORLDSENSE
+            return IsRightHandWorldsense();
 #else
             return true;
 #endif
@@ -877,6 +879,43 @@ namespace YourCommonTools
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
 
+        // -------------------------------------------
+        /* 
+        * IsRightHandWorldsense
+        */
+        public bool IsRightHandWorldsense()
+        {
+#if ENABLE_WORLDSENSE
+            if (m_controllerPointers == null)
+            {
+                GvrTrackedController[] gvrTrackedControllers = GameObject.FindObjectsOfType<GvrTrackedController>();
+                if (gvrTrackedControllers.Length > 0)
+                {
+                    m_controllerPointers = new List<GameObject>();
+                    foreach (GvrTrackedController trackControl in gvrTrackedControllers)
+                    {
+                        m_controllerPointers.Add(trackControl.gameObject);
+                    }
+                }
+            }
+
+            if (m_controllerPointers != null)
+            {
+                if (m_controllerPointers.Count > 0 && m_controllerPointers[0] != null)
+                {
+                    foreach (GvrControllerHand hand in AllHands)
+                    {
+                        GvrControllerInputDevice device = GvrControllerInput.GetDevice(hand);
+                        if ((hand == GvrControllerHand.Right) && device.IsDominantHand)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+#endif
+            return true;
+        }
 
         // -------------------------------------------
         /* 
