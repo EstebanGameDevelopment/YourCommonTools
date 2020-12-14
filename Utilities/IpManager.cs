@@ -7,6 +7,20 @@ namespace YourCommonTools
 {
     public class IpManager
     {
+        public static string GetPrefixIP(ADDRESSFAM Addfam)
+        {
+            string ip = GetIP(Addfam);
+            int index = ip.LastIndexOf('.') + 1;
+            return ip.Substring(0, index);
+        }
+
+        public static string GetExtensionIP(ADDRESSFAM Addfam)
+        {
+            string ip = GetIP(Addfam);
+            int index = ip.LastIndexOf('.') + 1;
+            return ip.Substring(index, ip.Length - index);
+        }
+
         public static string GetIP(ADDRESSFAM Addfam)
         {
             //Return null if ADDRESSFAM is Ipv6 but Os does not support it
