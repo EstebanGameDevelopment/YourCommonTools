@@ -1125,7 +1125,9 @@ namespace YourCommonTools
                 try
                 {
                     if (WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Trigger)
+#if ENABLE_PARTY_2018
                         || WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#endif
 #if UNITY_EDITOR
                             || Input.GetKey(KeyCode.LeftControl)
 #endif
@@ -1137,8 +1139,8 @@ namespace YourCommonTools
                 }
                 catch (Exception err) { }
 #endif
-            }
-            catch (Exception err) { }
+                }
+                catch (Exception err) { }
             return false;
         }
 
@@ -1160,7 +1162,9 @@ namespace YourCommonTools
                     try
                     {
                         if (WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger)
+#if ENABLE_PARTY_2018
                             || WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#endif
 #if UNITY_EDITOR
                             || Input.GetKeyDown(KeyCode.LeftControl)
 #endif
@@ -1184,7 +1188,9 @@ namespace YourCommonTools
                     try
                     {
                         if (WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_Trigger)
+#if ENABLE_PARTY_2018
                             || WaveVR_Controller.Input(GetDominantDevice()).GetPressUp(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger)
+#endif
 #if UNITY_EDITOR
                             || Input.GetKeyUp(KeyCode.LeftControl)
 #endif
@@ -1204,8 +1210,8 @@ namespace YourCommonTools
                     }
                     catch (Exception err) { }
 #endif
-            }
-            catch (Exception err) { }
+                }
+                catch (Exception err) { }
             return false;
         }
 
@@ -1350,6 +1356,17 @@ namespace YourCommonTools
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
 
+        private bool m_addedRecenterListener = false;
+
+        // -------------------------------------------
+        /* 
+        * DetectedRecentered
+        */
+        private void DetectedRecentered()
+        {
+            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+        }
+
         // -------------------------------------------
         /* 
         * KeyInputActionButton
@@ -1368,10 +1385,18 @@ namespace YourCommonTools
 #endif
 
 #if ENABLE_OCULUS
+#if ENABLE_PARTY_2018
             if (OVRInput.GetControllerWasRecentered())
             {
                 UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
             }
+#else
+            if (!m_addedRecenterListener)
+            {
+                m_addedRecenterListener = true;
+                OVRManager.display.RecenteredPose += DetectedRecentered;
+            }
+#endif
 #endif
 
             if (m_enableActionOnMouseDown)
@@ -1399,7 +1424,6 @@ namespace YourCommonTools
 #endif
 			}
         }
-
 
         // -------------------------------------------
         /* 
