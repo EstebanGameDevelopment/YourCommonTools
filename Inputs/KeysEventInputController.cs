@@ -176,6 +176,13 @@ namespace YourCommonTools
             }
 #endif
 
+#if ENABLE_OCULUS && !ENABLE_PARTY_2018
+            if (m_addedRecenterListener)
+            {
+                OVRManager.display.RecenteredPose -= DetectedRecentered;
+            }
+#endif
+
             Destroy(_instance.gameObject);
 			_instance = null;
             m_hasBeenInited = false;
