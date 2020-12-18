@@ -658,22 +658,13 @@ namespace YourCommonTools
                     bool buttonAWasTouched = false, buttonBWasTouched = false;
 
 #if ENABLE_GO
-                    if (OVRInput.Get(OVRInput.Button.PrimaryTouchpad))
+                    if (_checkDown)
                     {
-                        m_timerAcumOculusMenu += Time.deltaTime;
-                        if (m_timerAcumOculusMenu > 1)
-                        {
-                            buttonAWasTouched = true;
-                        }
-                        else
-                        {
-                            buttonAWasTouched = false;
-                        }
+                        buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.PrimaryTouchpad);
                     }
                     else
                     {
-                        m_timerAcumOculusMenu = 0;
-                        buttonAWasTouched = false;
+                        buttonAWasTouched = OVRInput.Get(OVRInput.Button.PrimaryTouchpad);
                     }
 #else
                     if (_checkEvent)
