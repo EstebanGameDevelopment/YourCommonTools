@@ -847,13 +847,20 @@ namespace YourCommonTools
             {
                 return false;
             }
-            
             try
             {
 #if ENABLE_OCULUS
                     bool isTeleportHandRight = false;
 #if ENABLE_GO
-                    isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryTouchpad);
+                    Vector2 pressMenu = OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
+                    if (pressMenu.sqrMagnitude < 0.6f)
+                    {
+                        isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryTouchpad);
+                    }
+                    else
+                    {
+                        isTeleportHandRight = false;
+                    }
 #else
                     // RIGHT STICK
                     isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.LTouch);
