@@ -2364,6 +2364,27 @@ namespace YourCommonTools
             }
         }
 
-        
+        // -------------------------------------------
+        /* 
+		 * Rotate a point around another
+		 */
+        public static Vector2 RotatePoint(Vector2 _pointToRotate, Vector2 _centerPoint, double _angleInDegrees)
+        {
+            double angleInRadians = _angleInDegrees * (Math.PI / 180);
+            double cosTheta = Math.Cos(angleInRadians);
+            double sinTheta = Math.Sin(angleInRadians);
+            return new Vector2
+            {
+                x =
+                    (float)
+                    (cosTheta * (_pointToRotate.x - _centerPoint.x) -
+                    sinTheta * (_pointToRotate.y - _centerPoint.y) + _centerPoint.x),
+                y =
+                    (float)
+                    (sinTheta * (_pointToRotate.x - _centerPoint.x) +
+                    cosTheta * (_pointToRotate.y - _centerPoint.y) + _centerPoint.y)
+            };
+        }
+
     }
 }
