@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+#if ENABLE_PARTY_2018
 using UnityEngine.VR;
+#endif
 using UnityEngine.EventSystems;
 
 namespace YourCommonTools
