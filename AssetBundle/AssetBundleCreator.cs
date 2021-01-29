@@ -23,6 +23,18 @@ namespace YourCommonTools
         {
             BuildPipeline.BuildAssetBundles("AssetsBundles", BuildAssetBundleOptions.None, BuildTarget.WebGL);
         }
+
+        [MenuItem("Assets/Build Asset Bundle Windows")]
+        static void BuildBundlesWindows()
+        {
+            BuildPipeline.BuildAssetBundles("AssetsBundles", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
+        }
+
+        [MenuItem("Assets/Build Asset Bundle MacOS")]
+        static void BuildBundlesMacOS()
+        {
+            BuildPipeline.BuildAssetBundles("AssetsBundles", BuildAssetBundleOptions.None, BuildTarget.StandaloneOSX);
+        }
     }
 }
 #endif
