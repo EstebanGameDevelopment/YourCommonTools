@@ -78,7 +78,7 @@ namespace YourCommonTools
 		/* 
 		 * Initialitzation
 		 */
-		public void Init(params string[] _iaps)
+		public void Init(params List<object>[] _iaps)
 		{
 #if ENABLE_IAP
 			if (m_StoreController == null)
@@ -95,7 +95,11 @@ namespace YourCommonTools
 
 				for (int i = 0; i < _iaps.Length; i++)
 				{
-					builder.AddProduct(_iaps[i], ProductType.Consumable);
+					List<object> item = _iaps[i];
+					if (item.Count == 2)
+                    {
+						builder.AddProduct((string)item[0], (ProductType)item[1]);
+					}					
 				}
 
 				UnityPurchasing.Initialize(this, builder);
