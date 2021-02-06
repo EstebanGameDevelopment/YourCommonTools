@@ -28,6 +28,8 @@ namespace YourCommonTools
         public const string EVENT_ASSETBUNDLE_LEVEL_XML         = "EVENT_ASSETBUNDLE_LEVEL_XML";
         public const string EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS = "EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS";
 
+        public const string COOCKIE_LOADED_ASSETBUNDLE = "COOCKIE_LOADED_ASSETBUNDLE";
+
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
@@ -147,8 +149,18 @@ namespace YourCommonTools
         /* 
 		 * AllAssetsLoaded
 		 */
+        public bool CheckAssetsCached()
+        {
+            return PlayerPrefs.GetInt(COOCKIE_LOADED_ASSETBUNDLE, -1) == 1;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * AllAssetsLoaded
+		 */
         public void AllAssetsLoaded()
         {
+            PlayerPrefs.SetInt(COOCKIE_LOADED_ASSETBUNDLE, 1);
             DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_LOADED);
         }
 
