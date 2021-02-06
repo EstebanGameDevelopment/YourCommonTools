@@ -101,18 +101,18 @@ namespace YourCommonTools
         /* 
 		* InterpolatePosition
 		*/
-        public void Interpolate(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
+        public void Interpolate(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false, bool _loop = false)
         {
-            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
+            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished, _loop));
         }
 
         // -------------------------------------------
         /* 
 		* InterpolatePosition
 		*/
-        public void InterpolatePosition(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false)
+        public void InterpolatePosition(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false, bool _loop = false)
 		{
-            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished));
+            m_inteporlateQueue.Add(new InterpolatePositionData(_actor, _actor.transform.position, _goal, _time, 0, _setTargetWhenFinished, _loop));
 		}
        
         // -------------------------------------------

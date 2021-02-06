@@ -34,11 +34,12 @@ namespace YourCommonTools
         private bool m_activated;
         private bool m_setTargetWhenFinished;
         private bool m_firstRun = true;
+		private bool m_loop = false;
 
-        // -----------------------------------------
-        // GETTERS/SETTERS
-        // -----------------------------------------
-        public GameObject GameActor
+		// -----------------------------------------
+		// GETTERS/SETTERS
+		// -----------------------------------------
+		public GameObject GameActor
 		{
 			get { return m_gameActor; }
 		}
@@ -71,15 +72,16 @@ namespace YourCommonTools
         /* 
 		 * Constructor
 		 */
-        public InterpolatePositionData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished)
+        public InterpolatePositionData(GameObject _actor, Vector3 _origin, Vector3 _goal, float _totalTime, float _timeDone, bool _setTargetWhenFinished, bool _loop = false)
 		{
 			m_gameActor = _actor;
             m_activated = true;
+			m_loop = _loop;
             m_setTargetWhenFinished = _setTargetWhenFinished;
 
             ResetData(m_gameActor.transform, _goal, _totalTime, _timeDone);
 
-            BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
+			BasicSystemEventController.Instance.BasicSystemEvent += new BasicSystemEventHandler(OnBasicSystemEvent);
 		}
 
         // -------------------------------------------
@@ -141,8 +143,17 @@ namespace YourCommonTools
                     {
                         m_gameActor.transform.position = m_goal;
                     }
-					BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
-					return true;
+					if (m_loop)
+                    {
+						m_gameActor.transform.position = m_origin;
+						ResetData(m_gameActor.transform, m_goal, m_totalTime, 0);
+					}
+					else
+                    {
+						BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_INTERPOLATE_COMPLETED, m_gameActor);
+						return true;
+					}
+					return false;
 				}
 			}
 		}
