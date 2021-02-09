@@ -104,6 +104,7 @@ namespace YourCommonTools
                 {
                     m_loadingFinished = true;
                     m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading.game");
+                    AssetbundleController.Instance.ClearAssetBundleEvents();
                     Invoke("LoadGameScene", 0.2f);
                 }
             }
@@ -113,6 +114,16 @@ namespace YourCommonTools
                 {
                     m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.download.progress") + " " + ((int)(100 * (float)_list[0])) + "%";
                 }
+            }
+            if (_nameEvent == AssetbundleController.EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS)
+            {
+                int dots = (int)_list[0];
+                string dotprogress = "";
+                for (int i = 0; i < dots; i++) dotprogress += ".";
+                m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.downloading.assets.bundle") + " " + dotprogress;
+
+                int newDots = (dots + 1) % 4;
+                AssetbundleController.Instance.DelayBasicSystemEvent(AssetbundleController.EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS, 1, newDots);
             }
         }
 

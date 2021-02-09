@@ -25,6 +25,7 @@ namespace YourCommonTools
         // ----------------------------------------------	
         public const string EVENT_ASSETBUNDLE_ASSETS_LOADED     = "EVENT_ASSETBUNDLE_ASSETS_LOADED";
         public const string EVENT_ASSETBUNDLE_ASSETS_PROGRESS   = "EVENT_ASSETBUNDLE_ASSETS_PROGRESS";
+        public const string EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS = "EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS";
         public const string EVENT_ASSETBUNDLE_LEVEL_XML         = "EVENT_ASSETBUNDLE_LEVEL_XML";
         public const string EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS = "EVENT_ASSETBUNDLE_ONE_TIME_LOADING_ASSETS";
 
@@ -185,6 +186,7 @@ namespace YourCommonTools
 		 */
         public IEnumerator WebRequestAssetBundle(UnityWebRequest _www)
         {
+            DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS, 0);
             yield return _www.SendWebRequest();
             if (_www.isNetworkError || _www.isHttpError)
             {
@@ -293,6 +295,32 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * ClearAssetBundleEvents
+		 */
+        public void ClearAssetBundleEvents(string _nameEvent = "")
+        {
+            if (_nameEvent.Length == 0)
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    listEvents[i].Time = -1000;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < listEvents.Count; i++)
+                {
+                    TimedEventData eventData = listEvents[i];
+                    if (eventData.NameEvent == _nameEvent)
+                    {
+                        eventData.Time = -1000;
+                    }
+                }
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * Will process the queue of delayed events 
 		 */
         void Update()
@@ -301,16 +329,25 @@ namespace YourCommonTools
             for (int i = 0; i < listEvents.Count; i++)
             {
                 TimedEventData eventData = listEvents[i];
-                eventData.Time -= Time.deltaTime;
-                if (eventData.Time <= 0)
+                if (eventData.Time == -1000)
                 {
-                    if ((eventData != null) && (AssetBundleEvent != null))
-                    {
-                        AssetBundleEvent(eventData.NameEvent, eventData.List);
-                        eventData.Destroy();
-                    }
+                    eventData.Destroy();
                     listEvents.RemoveAt(i);
                     break;
+                }
+                else
+                {
+                    eventData.Time -= Time.deltaTime;
+                    if (eventData.Time <= 0)
+                    {
+                        if ((eventData != null) && (AssetBundleEvent != null))
+                        {
+                            AssetBundleEvent(eventData.NameEvent, eventData.List);
+                            eventData.Destroy();
+                        }
+                        listEvents.RemoveAt(i);
+                        break;
+                    }
                 }
             }
         }
