@@ -112,7 +112,15 @@ namespace YourCommonTools
             {
                 if (!m_loadingFinished)
                 {
-                    m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.download.progress") + " " + ((int)(100 * (float)_list[0])) + "%";
+                    float realProgress = ((90 * (float)_list[0]) / 90);
+                    if ((realProgress >= 0) && (realProgress <= 1))
+                    {
+                        m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.download.progress") + " " + ((int)(100 * realProgress)) + "%";
+                    }
+                    else
+                    {
+                        m_container.Find("Info").GetComponent<Text>().text = "";
+                    }                    
                 }
             }
             if (_nameEvent == AssetbundleController.EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS)
