@@ -94,8 +94,8 @@ namespace YourCommonTools
 			}
 			m_selector.layer = LayerMask.NameToLayer("UI");
 
-			if (GetComponent<Collider>() == null)
-			{
+			if ((GetComponent<Collider>() == null) && (GetComponent<Collider2D>() == null))
+            {
 				this.gameObject.AddComponent<BoxCollider>();
                 if ((GetComponent<RectTransform>().rect.width > 0) && (GetComponent<RectTransform>().rect.height > 0))
                 {

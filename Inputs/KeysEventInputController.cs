@@ -716,6 +716,7 @@ namespace YourCommonTools
 #else
                         if (CheckOculusControllerOrHandActionDown(true)) {
 #endif
+
                             if (_isDown)
                             {
                                 m_vrActionPressed = true;
