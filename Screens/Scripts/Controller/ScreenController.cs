@@ -46,6 +46,7 @@ namespace YourCommonTools
 
         public const string EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME = "EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME";
         public const string EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES = "EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES";
+        public const string EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES = "EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES";
 
         public const int TOTAL_LAYERS_SCREENS = 10;
 
@@ -1183,6 +1184,12 @@ namespace YourCommonTools
             if (_nameEvent == EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES)
             {
                 ClearScreenNameStack();
+            }
+            if (_nameEvent == EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES)
+            {
+                string nameScreen = (string)_list[0];
+                int layerScreen = (int)_list[1];
+                m_stackScreenNames.Add(new ItemMultiObjectEntry(nameScreen, layerScreen));
             }
         }
 
