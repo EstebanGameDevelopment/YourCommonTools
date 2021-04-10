@@ -19,6 +19,7 @@ namespace YourCommonTools
     {
         public const string BUTTON_PRESSED_DOWN = "BUTTON_PRESSED_DOWN";
         public const string BUTTON_RELEASE_UP   = "BUTTON_RELEASE_UP";
+        public const string BUTTON_EXITED_UP   = "BUTTON_EXITED_UP";
 
         public int Id;
 
@@ -59,7 +60,7 @@ namespace YourCommonTools
         {
             base.OnPointerExit(eventData);
 
-            // UIEventController.Instance.DispatchUIEvent(BUTTON_RELEASE_UP, this.gameObject);
+            UIEventController.Instance.DispatchUIEvent(BUTTON_EXITED_UP, this.gameObject, eventData);
         }
 
         public ButtonClickedEvent GetOnClick()

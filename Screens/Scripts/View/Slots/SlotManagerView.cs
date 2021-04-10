@@ -239,8 +239,7 @@ namespace YourCommonTools
 			}
 			if (m_gameObjects.Count == 0)
 			{
-				if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
-				if (m_textLoading != null) m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.no.records");
+				DisplayNoRecords();
 			}
 			else
 			{
@@ -249,6 +248,23 @@ namespace YourCommonTools
 			}
 
             UIEventController.Instance.DispatchUIEvent(EVENT_SLOTMANAGER_NEW_PAGE_LOADED, this.gameObject);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * DisplayNoRecords
+		 */
+		public void DisplayNoRecords()
+        {
+			if (LoadingIcon != null) m_imageLoading = LoadingIcon.transform;
+			if (LoadingText != null) m_textLoading = LoadingText.transform;
+			if (ButtonNext != null) m_buttonNext = ButtonNext.transform;
+			if (ButtonPrevious != null) m_buttonPrevious = ButtonPrevious.transform;
+
+			if (m_imageLoading != null) m_imageLoading.gameObject.SetActive(true);
+			if (m_textLoading != null) m_textLoading.GetComponent<Text>().text = LanguageController.Instance.GetText("message.no.records");
+			if (m_buttonNext != null) m_buttonNext.gameObject.SetActive(false);
+			if (m_buttonPrevious != null) m_buttonPrevious.gameObject.SetActive(false);
 		}
 
 		// -------------------------------------------
