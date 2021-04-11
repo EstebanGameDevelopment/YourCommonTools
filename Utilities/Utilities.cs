@@ -2386,5 +2386,65 @@ namespace YourCommonTools
             };
         }
 
-    }
+		// -------------------------------------------
+		/* 
+		 * Return the rect container
+		 */
+		public static Rect GetWorldCornersRectTransform(RectTransform _rectTransform)
+		{
+			Vector3[] corners = new Vector3[4];
+			_rectTransform.GetWorldCorners(corners);
+			Rect rec = new Rect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
+			return rec;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * IsPositionInsideRectTransform
+		 */
+		public static bool IsWorldPositionInsideRectTransform(Vector2 _position, RectTransform _rectTransform)
+		{
+			Rect screenBounds = GetWorldCornersRectTransform(_rectTransform);
+
+			if (screenBounds.Contains(_position))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		// -------------------------------------------
+		/* 
+		 * Return the rect container
+		 */
+		public static Rect GetLocalCornersRectTransform(RectTransform _rectTransform)
+		{
+			Vector3[] corners = new Vector3[4];
+			_rectTransform.GetLocalCorners(corners);
+			Rect rec = new Rect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
+			return rec;
+		}
+
+		// -------------------------------------------
+		/* 
+		 * IsLocalPositionInsideRectTransform
+		 */
+		public static bool IsLocalPositionInsideRectTransform(Vector2 _position, RectTransform _rectTransform)
+		{
+			Rect screenBounds = GetLocalCornersRectTransform(_rectTransform);
+
+			if (screenBounds.Contains(_position))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+	}
 }
