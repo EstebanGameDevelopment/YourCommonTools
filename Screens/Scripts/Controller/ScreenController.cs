@@ -1222,6 +1222,7 @@ namespace YourCommonTools
 		 */
         public void DebugLogStackNameScreens(string _newScreen)
         {
+#if UNITY_EDITOR
             string stackedNames = "";
             for (int i = 0; i < m_stackScreenNames.Count; i++)
             {
@@ -1242,6 +1243,7 @@ namespace YourCommonTools
             {
                 Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::STACKED NAMES[" + stackedNames + "]");
             }
+#endif
         }
     }
 }
