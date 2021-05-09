@@ -1,5 +1,6 @@
 #if ENABLE_OCULUS
 using OculusSampleFramework;
+#endif
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -7,6 +8,7 @@ namespace YourCommonTools
 {
 	public class OculusVibrationController : MonoBehaviour
 	{
+#if ENABLE_OCULUS
         // ----------------------------------------------
         // SINGLETON
         // ----------------------------------------------	
@@ -93,6 +95,7 @@ namespace YourCommonTools
                 OVRHaptics.RightChannel.Preempt(clip);
             }
         }
+#endif
     }
 }
-#endif
+
