@@ -208,9 +208,12 @@ namespace YourCommonTools
             }            
 #endif
 
-            Destroy(_instance.gameObject);
-			_instance = null;
-            m_hasBeenInited = false;
+            if (_instance != null)
+            {
+                Destroy(_instance.gameObject);
+                _instance = null;
+                m_hasBeenInited = false;
+            }
         }
 
 		// -------------------------------------------

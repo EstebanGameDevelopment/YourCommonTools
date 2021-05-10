@@ -30,7 +30,6 @@ namespace YourCommonTools
         // MEMBERS
         public GameObject _rayToolViewGO = null;
         public GameObject _fingerTipPokeToolViewGO = null;
-        // public int _fingerToFollowGO = (int)OVRPlugin.HandFinger.Index;
         public int _fingerToFollowGO = 1;
 
 #if ENABLE_OCULUS
@@ -66,6 +65,8 @@ namespace YourCommonTools
 
         private float m_timeAcumDetectStablePinch = 0;
         private bool m_pressedStablePinch = false;
+
+        private Vector3 m_rotationAcumulated = Vector3.zero;
 
         public override ToolInputState ToolInputState
 		{
@@ -151,6 +152,11 @@ namespace YourCommonTools
 
                 if (_fingerTipPokeToolView != null) _fingerTipPokeToolView.EnableState = handTrackingState;
                 if (_rayToolView != null) _rayToolView.EnableState = handTrackingState;
+            }
+            if (_nameEvent == OculusHandsManager.EVENT_OCULUSHANDMANAGER_ROTATION_CAMERA_APPLIED)
+            {
+                Vector3 rotationApplied = (Vector3)_list[0];
+                m_rotationAcumulated += rotationApplied;
             }
         }
 
@@ -261,7 +267,7 @@ namespace YourCommonTools
             // push tool back so that it's centered on transform/bone
             Vector3 toolPosition = trackedPosition + sphereRadiusOffset;
             transform.position = toolPosition;
-            transform.rotation = pointer.rotation;
+            transform.rotation = Quaternion.Euler(m_rotationAcumulated.x, m_rotationAcumulated.y, m_rotationAcumulated.z) * pointer.rotation;
             InteractionPosition = trackedPosition;
 
             UpdateAverageVelocity();

@@ -157,8 +157,15 @@ namespace YourCommonTools
 		 */
         public bool IsRaycastController()
         {
-            return ((YourVRUIScreenController.Instance.LaserLeftPointer == m_raycastLineLeft.gameObject)
-                    || (YourVRUIScreenController.Instance.LaserRightPointer == m_raycastLineRight.gameObject));
+            if ((m_raycastLineLeft == null) || (m_raycastLineRight == null))
+            {
+                return true;
+            }
+            else
+            {
+                return ((YourVRUIScreenController.Instance.LaserLeftPointer == m_raycastLineLeft.gameObject)
+                        || (YourVRUIScreenController.Instance.LaserRightPointer == m_raycastLineRight.gameObject));
+            }
         }
 
         // -------------------------------------------

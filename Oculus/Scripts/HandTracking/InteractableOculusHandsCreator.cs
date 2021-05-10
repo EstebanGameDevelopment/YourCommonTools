@@ -1,5 +1,6 @@
 #if ENABLE_OCULUS
 using OculusSampleFramework;
+using System;
 #endif
 using System.Collections;
 using System.Collections.Generic;
@@ -19,9 +20,18 @@ namespace YourCommonTools
 #if ENABLE_OCULUS
 		private bool m_initedLeft = false;
 		private bool m_initedRight = false;
+		private bool m_initedGeneral = false;
+
+		private List<Transform> m_toolInstances = new List<Transform>();
 
 		private void Start()
 		{
+			if (!m_initedGeneral)
+            {
+				m_initedGeneral = true;
+				OculusEventObserver.Instance.OculusEvent += new OculusEventHandler(OnOculusEvent);
+			}
+
 			if (LeftHandTools != null && LeftHandTools.Length > 0 && !m_initedLeft)
 			{
 				m_initedLeft = true;
@@ -35,7 +45,12 @@ namespace YourCommonTools
 			}
 		}
 
-		private IEnumerator AttachToolsToHands(Transform[] toolObjects, bool isRightHand)
+		void OnDestroy()
+        {
+			OculusEventObserver.Instance.OculusEvent -= OnOculusEvent;
+		}
+
+        private IEnumerator AttachToolsToHands(Transform[] toolObjects, bool isRightHand)
 		{
 			HandsManager handsManagerObj = null;
 			while ((handsManagerObj = HandsManager.Instance) == null || !handsManagerObj.IsInitialized())
@@ -63,16 +78,29 @@ namespace YourCommonTools
 			}
 		}
 
+		private void OnOculusEvent(string _nameEvent, object[] _list)
+		{
+			if (_nameEvent == OculusHandsManager.EVENT_OCULUSHANDMANAGER_ROTATION_CAMERA_APPLIED)
+            {
+				Vector3 rotationApplied = (Vector3)_list[0];
+				foreach (Transform tool in m_toolInstances)
+                {
+					tool.Rotate(rotationApplied);
+				}
+			}
+		}
+
 		private void AttachToolToHandTransform(Transform tool, bool isRightHanded)
 		{
 			var newTool = Instantiate(tool).transform;
-			newTool.SetParent(CameraRig, true);
+			newTool.SetParent(CameraRig, false);
 			newTool.localPosition = Vector3.zero;
 			PinchInteractionTool toolComp = newTool.GetComponent<PinchInteractionTool>();
 			toolComp.IsRightHandedTool = isRightHanded;
 			// Initialize only AFTER settings have been applied!
 			toolComp.Initialize();
 			newTool.GetComponentInChildren<FingerInteractionRadius>().Hand = (isRightHanded ? HAND.right : HAND.left);
+			m_toolInstances.Add(newTool);
 			// Debug.LogError("HANDS FULLY INITIALIZED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 #endif
