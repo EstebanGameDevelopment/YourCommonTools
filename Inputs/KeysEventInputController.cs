@@ -1,9 +1,11 @@
 #if ENABLE_OCULUS
 using OculusSampleFramework;
+using YourVRUI;
 #endif
 #if ENABLE_HTCVIVE
 using WaveVR_Log;
 using wvr;
+using YourVRUI;
 #endif
 using System;
 using System.Collections.Generic;
