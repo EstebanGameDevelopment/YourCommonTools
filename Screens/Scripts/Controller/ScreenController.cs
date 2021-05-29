@@ -61,6 +61,23 @@ namespace YourCommonTools
         public const int ANIMATION_FADE     = 2;
 
         // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static ScreenController _instanceBase;
+
+        public static ScreenController InstanceBase
+        {
+            get
+            {
+                if (!_instanceBase)
+                {
+                    _instanceBase = GameObject.FindObjectOfType(typeof(ScreenController)) as ScreenController;
+                }
+                return _instanceBase;
+            }
+        }
+
+        // ----------------------------------------------
         // PUBLIC MEMBERS
         // ----------------------------------------------	
         [Tooltip("It allows the debug of most common messages")]
@@ -158,6 +175,7 @@ namespace YourCommonTools
         public virtual void Destroy()
         {
             DestroyScreensPool();
+            _instanceBase = null;
         }
 
         // -------------------------------------------
@@ -886,6 +904,30 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * RemoveScreensUntilScreenName
+		 */
+        public int RemoveScreensUntilScreenName(string _screenName)
+        {
+            string output = "";
+            int counterDeleted = 0;
+            do
+            {
+                output = (string)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[0];
+                m_lastLayerUsed = (int)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[1];
+                if (output != _screenName)
+                {
+                    m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
+                }
+                else
+                {
+                    counterDeleted++;
+                }
+            } while (output != _screenName);
+            return counterDeleted;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * LookScreenInPool
 		 */
         public GameObject LookScreenInPool(string _screenName)
@@ -1223,7 +1265,6 @@ namespace YourCommonTools
         public void DebugLogStackNameScreens(string _newScreen)
         {
 #if UNITY_EDITOR
-            /*
             string stackedNames = "";
             for (int i = 0; i < m_stackScreenNames.Count; i++)
             {
@@ -1244,7 +1285,6 @@ namespace YourCommonTools
             {
                 Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::STACKED NAMES[" + stackedNames + "]");
             }
-            */
 #endif
         }
     }

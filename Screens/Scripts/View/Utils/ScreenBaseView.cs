@@ -892,10 +892,9 @@ namespace YourCommonTools
 		 */
         protected bool CheckActivatedNameStack()
         {
-            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
-            if (screenController != null)
+            if (ScreenController.InstanceBase != null)
             {
-                return screenController.ActivateNameStack;
+                return ScreenController.InstanceBase.ActivateNameStack;
             }
             return false;
         }
@@ -906,17 +905,16 @@ namespace YourCommonTools
 		 */
         protected virtual void GoBackPressed()
         {
-            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
-            if (screenController != null)
+            if (ScreenController.InstanceBase != null)
             {
-                if (screenController.ActivateNameStack)
+                if (ScreenController.InstanceBase.ActivateNameStack)
                 {
-                    screenController.PopScreenNameFromStack();
-                    string previousScreenName = screenController.PopScreenNameFromStack(false);
+                    ScreenController.InstanceBase.PopScreenNameFromStack();
+                    string previousScreenName = ScreenController.InstanceBase.PopScreenNameFromStack(false);
                     if (previousScreenName != null)
                     {
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_GO_BACK_EVENT);
-                        GameObject screenView = screenController.LookScreenInPool(previousScreenName);
+                        GameObject screenView = ScreenController.InstanceBase.LookScreenInPool(previousScreenName);
 #if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL, true, this.gameObject, previousScreenName);
 #else
