@@ -119,6 +119,8 @@ namespace YourCommonTools
 
         protected int m_lastLayerUsed = -1;
 
+        protected bool m_loadingRequestedConnection = false;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -141,6 +143,11 @@ namespace YourCommonTools
         public bool EnableProcessEvents
         {
             set { m_enableProcessEvents = value; }
+        }
+        public bool LoadingRequestedConnection
+        {
+            get { return m_loadingRequestedConnection; }
+            set { m_loadingRequestedConnection = value; }
         }
 
         // -------------------------------------------

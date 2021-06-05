@@ -89,7 +89,11 @@ namespace YourCommonTools
 		 */
         public void LoadGameScene()
         {
-            UIEventController.Instance.DispatchUIEvent(EVENT_SCREENLOADING_LOAD_OR_JOIN_GAME, false);
+            if (!ScreenController.InstanceBase.LoadingRequestedConnection)
+            {
+                ScreenController.InstanceBase.LoadingRequestedConnection = true;
+                UIEventController.Instance.DispatchUIEvent(EVENT_SCREENLOADING_LOAD_OR_JOIN_GAME, false);
+            }
         }
 
         // -------------------------------------------
