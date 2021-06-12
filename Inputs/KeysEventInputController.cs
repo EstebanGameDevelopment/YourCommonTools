@@ -14,6 +14,8 @@ using UnityEngine;
 namespace YourCommonTools
 {
 
+    public enum BASIC_DIRECTIONS { NONE = 0, LEFT = 1, RIGHT = 2, UP = 3, DOWN = 4 };
+
 	/******************************************
 	 * 
 	 * KeyEventInputController
@@ -47,6 +49,16 @@ namespace YourCommonTools
 		public const string ACTION_KEY_DOWN_RELEASED = "ACTION_KEY_DOWN_RELEASED";
 		public const string ACTION_KEY_LEFT_RELEASED = "ACTION_KEY_LEFT_RELEASED";
 		public const string ACTION_KEY_RIGHT_RELEASED = "ACTION_KEY_RIGHT_RELEASED";
+
+        public const string JOYSTICK_UP_PRESSED = "JOYSTICK_UP_PRESSED";
+        public const string JOYSTICK_DOWN_PRESSED = "JOYSTICK_DOWN_PRESSED";
+        public const string JOYSTICK_LEFT_PRESSED = "JOYSTICK_LEFT_PRESSED";
+        public const string JOYSTICK_RIGHT_PRESSED = "JOYSTICK_RIGHT_PRESSED";
+
+        public const string JOYSTICK_UP_RELEASED = "JOYSTICK_UP_RELEASED";
+        public const string JOYSTICK_DOWN_RELEASED = "JOYSTICK_DOWN_RELEASED";
+        public const string JOYSTICK_LEFT_RELEASED = "JOYSTICK_LEFT_RELEASED";
+        public const string JOYSTICK_RIGHT_RELEASED = "JOYSTICK_RIGHT_RELEASED";
 
         public const string ACTION_RECENTER = "ACTION_RECENTER";
 
@@ -173,6 +185,7 @@ namespace YourCommonTools
             }
 #endif
 
+            
             m_hasBeenInited = true;
         }
 
@@ -1584,6 +1597,8 @@ namespace YourCommonTools
 
         private bool m_discardNextActionButton = false;
 
+        private BASIC_DIRECTIONS m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+
         // -------------------------------------------
         /* 
 		 * OnOculusEvent
@@ -1711,6 +1726,63 @@ namespace YourCommonTools
             {
                 m_buttonTwoUp = true;
                 m_buttonTwoStay = false;
+            }
+            if (_nameEvent == OculusControllerInputs.EVENT_OCULUSINPUTCONTROLLER_THUMBSTICK_ACTIVATION)
+            {
+                HAND hand = (HAND)_list[0];
+                Transform handTransform = (Transform)_list[1];
+                Vector2 handVector = (Vector2)_list[2];
+                if (Mathf.Abs(handVector.x) > Mathf.Abs(handVector.y))
+                {
+                    if (handVector.x < 0)
+                    {
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.LEFT;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_LEFT_PRESSED);
+                    }
+                    else
+                    {
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.RIGHT;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_RIGHT_PRESSED);
+                    }
+                }
+                else
+                {
+                    if (handVector.y < 0)
+                    {
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.DOWN;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_DOWN_PRESSED);
+                    }
+                    else
+                    {
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.UP;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_UP_PRESSED);
+                    }
+                }
+            }
+            if (_nameEvent == OculusControllerInputs.EVENT_OCULUSINPUTCONTROLLER_THUMBSTICK_DEACTIVATION)
+            {
+                HAND hand = (HAND)_list[0];
+                Transform handTransform = (Transform)_list[1];
+                Vector2 handVector = (Vector2)_list[2];
+                switch (m_previousDirectionJoystick)
+                {
+                    case BASIC_DIRECTIONS.LEFT:
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_LEFT_RELEASED);
+                        break;
+                    case BASIC_DIRECTIONS.RIGHT:
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_RIGHT_RELEASED);
+                        break;
+                    case BASIC_DIRECTIONS.UP:
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_UP_RELEASED);
+                        break;
+                    case BASIC_DIRECTIONS.DOWN:
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_DOWN_RELEASED);
+                        break;
+                }
             }
         }
 #endif

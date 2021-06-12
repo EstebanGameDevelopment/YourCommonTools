@@ -33,6 +33,8 @@ namespace YourCommonTools
 		private int m_lastSibling = 0;
 		private int m_currentSibling = 0;
 
+		private bool m_isHorizontalMovement = false;
+
 		public GameObject BaseObject
 		{
 			get { return m_baseObject; }
@@ -85,9 +87,13 @@ namespace YourCommonTools
 		{
 			m_baseObject = _gameObject;
 			m_scrollRectObject = m_baseObject.GetComponent<ScrollRect>();
-			m_rectTransformObject = m_baseObject.GetComponent<RectTransform>();
+			m_rectTransformObject = m_baseObject.GetComponent<RectTransform>();			
 			m_horizontalGrid = _gameObject.GetComponentInChildren<HorizontalLayoutGroup>();
 			m_verticalGrid = _gameObject.GetComponentInChildren<VerticalLayoutGroup>();
+			if ((m_horizontalGrid == null) && (m_verticalGrid == null))
+            {
+				m_isHorizontalMovement = !m_scrollRectObject.vertical;
+			}
 
 			if (m_horizontalGrid)
 			{
@@ -105,7 +111,7 @@ namespace YourCommonTools
 		 */
 		public bool IsVerticalGrid()
 		{
-			return m_verticalGrid != null;
+			return (m_verticalGrid != null) || ((m_verticalGrid == null) && !m_isHorizontalMovement);
 		}
 
 		// -------------------------------------------
@@ -114,7 +120,7 @@ namespace YourCommonTools
 		 */
 		public bool IsHorizontalGrid()
 		{
-			return m_horizontalGrid != null;
+			return (m_horizontalGrid != null) || ((m_horizontalGrid == null) && m_isHorizontalMovement);
 		}
 
 	}

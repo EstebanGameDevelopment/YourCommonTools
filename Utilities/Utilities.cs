@@ -1728,6 +1728,11 @@ namespace YourCommonTools
 		 */
 		private static int CountCornersVisibleFrom(ScrollRectVR _container, RectTransform _rectTransform)
 		{
+			if (_container == null) return 0;
+			if (_container.VerticalGrid == null) return 0;
+			if ((_container.IsVerticalGrid()) && (_container.VerticalGrid == null)) return 0;
+			if ((_container.IsHorizontalGrid()) && (_container.HorizontalGrid == null)) return 0;
+
 			Rect screenBounds = new Rect(_container.RectTransformObject.localPosition.x, _container.RectTransformObject.localPosition.y,
 										 _container.RectTransformObject.sizeDelta.x, _container.RectTransformObject.sizeDelta.y);
 			Vector2[] objectCorners = new Vector2[4];
