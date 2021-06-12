@@ -197,13 +197,22 @@ namespace YourCommonTools
 		 */
 		public void Destroy()
 		{
-			if (m_audio1 != null) Destroy(m_audio1);
-			if (m_audio2 != null) Destroy(m_audio2);
+            if (Instance != null)
+            {
+                if (m_audio1 != null) Destroy(m_audio1);
+                if (m_audio2 != null) Destroy(m_audio2);
 
-            m_audio1Playing = null;
-            m_audio2Playing = null;
+                m_audio1Playing = null;
+                m_audio2Playing = null;
 
-            BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+                BasicSystemEventController.Instance.BasicSystemEvent -= OnBasicSystemEvent;
+
+                if (_instance.gameObject != null)
+                {
+                    GameObject.Destroy(_instance.gameObject);
+                }
+                _instance = null;
+            }
         }
 
         // -------------------------------------------
