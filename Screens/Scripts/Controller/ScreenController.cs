@@ -407,7 +407,10 @@ namespace YourCommonTools
             }
             else
             {
-                Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
+                if (this.gameObject != null)
+                {
+                    Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
+                }                
             }
         }
 

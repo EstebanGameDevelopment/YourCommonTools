@@ -97,19 +97,13 @@ namespace YourCommonTools
         // ----------------------------------------------	
         private static KeysEventInputController _instance;
 
-		public static KeysEventInputController Instance
+        public static KeysEventInputController Instance
 		{
 			get
 			{
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType(typeof(KeysEventInputController)) as KeysEventInputController;
-					if (!_instance)
-					{
-						GameObject container = new GameObject();
-						container.name = "KeysEventInputController";
-                        _instance = container.AddComponent(typeof(KeysEventInputController)) as KeysEventInputController;
-					}
 				}
 				return _instance;
 			}
@@ -204,27 +198,27 @@ namespace YourCommonTools
 		 */
         public void Destroy()
 		{
-#if ENABLE_HTCVIVE
-            if (m_hasBeenInited)
+            if (Instance != null)
             {
-                WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
-                WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
-            }
+#if ENABLE_HTCVIVE
+                if (m_hasBeenInited)
+                {
+                    WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
+                    WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
+                }
 #endif
 
 #if ENABLE_OCULUS && !ENABLE_PARTY_2018
-            if (m_addedRecenterListener)
-            {
-                OVRManager.display.RecenteredPose -= DetectedRecentered;
-            }
-            if (m_hasBeenInited)
-            {
-                OculusEventObserver.Instance.OculusEvent -= OnOculusEvent;
-            }            
+                if (m_addedRecenterListener)
+                {
+                    OVRManager.display.RecenteredPose -= DetectedRecentered;
+                }
+                if (m_hasBeenInited)
+                {
+                    if (OculusEventObserver.Instance != null) OculusEventObserver.Instance.OculusEvent -= OnOculusEvent;
+                }            
 #endif
 
-            if (_instance != null)
-            {
                 Destroy(_instance.gameObject);
                 _instance = null;
                 m_hasBeenInited = false;
