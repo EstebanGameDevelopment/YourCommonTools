@@ -376,7 +376,7 @@ namespace YourCommonTools
                         }
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
                         currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
-                        if (currentScreen.GetComponent<ScreenInformationView>() == null)
+                        if ((currentScreen.GetComponent<ScreenInformationView>() == null) && (currentScreen.GetComponent<ScreenLoadingView>() == null))
                         {
                             AddScreenNameToStack(_nameScreen, _previousAction, _layer);
                         }                        
