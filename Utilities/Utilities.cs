@@ -692,7 +692,7 @@ namespace YourCommonTools
         /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
-        public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer)
+        public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer, params LayerMask[] _namesLayerIgnore)
 		{
 			foreach (Transform child in _go.transform)
 			{
@@ -700,6 +700,14 @@ namespace YourCommonTools
 			}
 			if (_go != null)
 			{
+				for (int i = 0; i < _namesLayerIgnore.Length; i++)
+                {
+					int layerIgnore = _namesLayerIgnore[i];
+					if (_go.layer == layerIgnore)
+                    {
+						return;
+                    }
+				}
 				_go.layer = _layer;
 			}
 		}
