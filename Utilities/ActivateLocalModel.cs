@@ -24,7 +24,7 @@ namespace YourCommonTools
             {
                 Models[i].SetActive(false);
             }
-            Models[_index].SetActive(true);
+            if ((_index>=0) && (_index< Models.Length)) Models[_index].SetActive(true);
         }
 	}
 }
