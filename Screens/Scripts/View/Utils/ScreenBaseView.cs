@@ -27,8 +27,6 @@ namespace YourCommonTools
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY      = "EVENT_SCREENBASE_ANIMATION_SLIDE_APPLY";
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER    = "EVENT_SCREENBASE_ANIMATION_SLIDE_RECOVER";
         public const string EVENT_SCREENBASE_ANIMATION_SLIDE_RESET      = "EVENT_SCREENBASE_ANIMATION_SLIDE_RESET";
-        public const string EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL = "EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL";
-        public const string EVENT_SCREENBASE_RESPONSE_SCREENVIEW_IN_POOL = "EVENT_SCREENBASE_RESPONSE_SCREENVIEW_IN_POOL";
 
         public const string EVENT_SCREENBASE_BLOCK_INTERACTION = "EVENT_SCREENBASE_BLOCK_INTERACTION";
 
@@ -163,7 +161,7 @@ namespace YourCommonTools
 		 */
         public virtual void SetActivation(bool _activation)
 		{
-            m_hasFocus = _activation;
+			m_hasFocus = _activation;
 			this.gameObject.SetActive(_activation);
 		}
 
@@ -655,34 +653,6 @@ namespace YourCommonTools
                 }
             }
 
-            if (_nameEvent == EVENT_SCREENBASE_RESPONSE_SCREENVIEW_IN_POOL)
-            {
-                bool isVRScreen = (bool)_list[0];
-                GameObject originGO = (GameObject)_list[1];
-                if (originGO == this.gameObject)
-                {
-                    GameObject screenView = (GameObject)_list[2];
-                    string previousScreenName = (string)_list[3];
-                    ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
-                    if (screenView != null)
-                    {
-                        screenView.GetComponent<IBasicView>().SetActivation(true);
-                        Destroy();
-                    }
-                    else
-                    {
-                        if (screenController.AlphaAnimationNameStack == -1)
-                        {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
-                        }
-                        else
-                        {
-                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, screenController.AlphaAnimationNameStack }, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
-                        }
-                    }
-                }
-            }
-
             if (!this.gameObject.activeSelf) return;
 			if (m_selectors == null) return;
 			if (m_selectors.Count == 0) return;
@@ -892,9 +862,10 @@ namespace YourCommonTools
 		 */
         protected bool CheckActivatedNameStack()
         {
-            if (ScreenController.InstanceBase != null)
+            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
+            if (screenController != null)
             {
-                return ScreenController.InstanceBase.ActivateNameStack;
+                return screenController.ActivateNameStack;
             }
             return false;
         }
@@ -905,21 +876,24 @@ namespace YourCommonTools
 		 */
         protected virtual void GoBackPressed()
         {
-            if (ScreenController.InstanceBase != null)
+            ScreenController screenController = GameObject.FindObjectOfType<ScreenController>();
+            if (screenController != null)
             {
-                if (ScreenController.InstanceBase.ActivateNameStack)
+                if (screenController.ActivateNameStack)
                 {
-                    ScreenController.InstanceBase.PopScreenNameFromStack();
-                    string previousScreenName = ScreenController.InstanceBase.PopScreenNameFromStack(false);
+                    screenController.PopScreenNameFromStack();
+                    string previousScreenName = screenController.PopScreenNameFromStack();
                     if (previousScreenName != null)
                     {
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_GO_BACK_EVENT);
-                        GameObject screenView = ScreenController.InstanceBase.LookScreenInPool(previousScreenName);
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
-                        UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL, true, this.gameObject, previousScreenName);
-#else
-                        UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL, false, this.gameObject, previousScreenName);
-#endif
+                        if (screenController.AlphaAnimationNameStack == -1)
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                        }
+                        else
+                        {
+                            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, -1, new List<object> { ScreenController.ANIMATION_ALPHA, 0f, 1f, screenController.AlphaAnimationNameStack }, previousScreenName, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, null);
+                        }
                     }                    
                 }
             }

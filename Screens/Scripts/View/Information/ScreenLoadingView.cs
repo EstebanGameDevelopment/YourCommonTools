@@ -89,11 +89,7 @@ namespace YourCommonTools
 		 */
         public void LoadGameScene()
         {
-            if (!ScreenController.InstanceBase.LoadingRequestedConnection)
-            {
-                ScreenController.InstanceBase.LoadingRequestedConnection = true;
-                UIEventController.Instance.DispatchUIEvent(EVENT_SCREENLOADING_LOAD_OR_JOIN_GAME, false);
-            }
+            UIEventController.Instance.DispatchUIEvent(EVENT_SCREENLOADING_LOAD_OR_JOIN_GAME, false);
         }
 
         // -------------------------------------------
@@ -108,7 +104,6 @@ namespace YourCommonTools
                 {
                     m_loadingFinished = true;
                     m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.loading.game");
-                    AssetbundleController.Instance.ClearAssetBundleEvents();
                     Invoke("LoadGameScene", 0.2f);
                 }
             }
@@ -116,26 +111,8 @@ namespace YourCommonTools
             {
                 if (!m_loadingFinished)
                 {
-                    float realProgress = ((90 * (float)_list[0]) / 90);
-                    if ((realProgress >= 0) && (realProgress <= 1))
-                    {
-                        m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.download.progress") + " " + ((int)(100 * realProgress)) + "%";
-                    }
-                    else
-                    {
-                        m_container.Find("Info").GetComponent<Text>().text = "";
-                    }                    
+                    m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.download.progress") + " " + ((int)(100 * (float)_list[0])) + "%";
                 }
-            }
-            if (_nameEvent == AssetbundleController.EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS)
-            {
-                int dots = (int)_list[0];
-                string dotprogress = "";
-                for (int i = 0; i < dots; i++) dotprogress += ".";
-                m_container.Find("Info").GetComponent<Text>().text = LanguageController.Instance.GetText("message.downloading.assets.bundle") + " " + dotprogress;
-
-                int newDots = (dots + 1) % 4;
-                AssetbundleController.Instance.DelayBasicSystemEvent(AssetbundleController.EVENT_ASSETBUNDLE_ASSETS_UNKNOW_PROGRESS, 1, newDots);
             }
         }
 

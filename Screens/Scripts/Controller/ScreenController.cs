@@ -45,8 +45,6 @@ namespace YourCommonTools
         public const string EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS = "EVENT_SCREENCONTROLLER_DISABLE_ALL_PROCESS_EVENTS";
 
         public const string EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME = "EVENT_SCREENCONTROLLER_REMOVE_SCREEN_NAME";
-        public const string EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES = "EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES";
-        public const string EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES = "EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES";
 
         public const int TOTAL_LAYERS_SCREENS = 10;
 
@@ -59,23 +57,6 @@ namespace YourCommonTools
         public const int ANIMATION_ALPHA    = 1;
 
         public const int ANIMATION_FADE     = 2;
-
-        // ----------------------------------------------
-        // SINGLETON
-        // ----------------------------------------------	
-        private static ScreenController _instanceBase;
-
-        public static ScreenController InstanceBase
-        {
-            get
-            {
-                if (!_instanceBase)
-                {
-                    _instanceBase = GameObject.FindObjectOfType(typeof(ScreenController)) as ScreenController;
-                }
-                return _instanceBase;
-            }
-        }
 
         // ----------------------------------------------
         // PUBLIC MEMBERS
@@ -115,11 +96,7 @@ namespace YourCommonTools
 
         protected bool m_enableProcessEvents = true;
 
-        protected List<ItemMultiObjectEntry> m_stackScreenNames = new List<ItemMultiObjectEntry>();
-
-        protected int m_lastLayerUsed = -1;
-
-        protected bool m_loadingRequestedConnection = false;
+        protected List<string> m_stackScreenNames = new List<string>();
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -143,11 +120,6 @@ namespace YourCommonTools
         public bool EnableProcessEvents
         {
             set { m_enableProcessEvents = value; }
-        }
-        public bool LoadingRequestedConnection
-        {
-            get { return m_loadingRequestedConnection; }
-            set { m_loadingRequestedConnection = value; }
         }
 
         // -------------------------------------------
@@ -182,7 +154,6 @@ namespace YourCommonTools
         public virtual void Destroy()
         {
             DestroyScreensPool();
-            _instanceBase = null;
         }
 
         // -------------------------------------------
@@ -317,21 +288,15 @@ namespace YourCommonTools
                 Debug.Log("EVENT_SCREENMANAGER_OPEN_SCREEN::Creating the screen[" + _nameScreen + "]");
             }
 
-            if (m_lastLayerUsed == -1)
-            {
-                m_lastLayerUsed = finalLayer;
-            }
-
             // PREVIOUS ACTION
             switch (_previousAction)
             {
                 case UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN:
-                    // Debug.LogError("HIDE_CURRENT_SCREEN::m_lastLayerUsed[" + m_lastLayerUsed + "] WITH TOTAL SCREENS["+ m_screensPool[m_lastLayerUsed].Count + "]");
-                    if (m_screensPool[m_lastLayerUsed].Count > 0)
+                    if (m_screensPool[finalLayer].Count > 0)
                     {
-                        for (int k = 0; k < m_screensPool[m_lastLayerUsed].Count; k++)
+                        for (int k = 0; k < m_screensPool[finalLayer].Count; k++)
                         {
-                            m_screensPool[m_lastLayerUsed][k].GetComponent<IBasicView>().SetActivation(false);
+                            m_screensPool[finalLayer][k].SetActive(false);
                         }
                     }
                     break;
@@ -341,7 +306,7 @@ namespace YourCommonTools
                     {
                         for (int i = 0; i < screenPool.Value.Count; i++)
                         {
-                            screenPool.Value[i].GetComponent<IBasicView>().SetActivation(false);
+                            screenPool.Value[i].SetActive(false);
                         }
                     }
                     break;
@@ -350,7 +315,7 @@ namespace YourCommonTools
                     break;
 
                 case UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN:
-                    if (m_screensPool[m_lastLayerUsed].Count > 0)
+                    if (m_screensPool[finalLayer].Count > 0)
                     {
                         DestroyGameObjectSingleScreen(m_screensPool[finalLayer][m_screensPool[finalLayer].Count - 1], true);
                     }
@@ -376,10 +341,7 @@ namespace YourCommonTools
                         }
                         currentScreen.GetComponent<IBasicView>().Initialize(_list);
                         currentScreen.GetComponent<IBasicView>().NameOfScreen = _nameScreen;
-                        if ((currentScreen.GetComponent<ScreenInformationView>() == null) && (currentScreen.GetComponent<ScreenLoadingView>() == null))
-                        {
-                            AddScreenNameToStack(_nameScreen, _previousAction, _layer);
-                        }                        
+                        AddScreenNameToStack(_nameScreen, _previousAction);
                         break;
                     }
                 }
@@ -387,11 +349,6 @@ namespace YourCommonTools
 
             if (currentScreen != null)
             {
-                if (currentScreen.GetComponent<ScreenInformationView>() == null)
-                {
-                    m_lastLayerUsed = finalLayer;
-                }
-
                 m_screensPool[finalLayer].Add(currentScreen);
                 currentScreen.GetComponent<IBasicView>().Layer = _layer;
 
@@ -407,13 +364,7 @@ namespace YourCommonTools
             }
             else
             {
-                if (this != null)
-                {
-                    if (this.gameObject != null)
-                    {
-                        Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
-                    }
-                }
+                Debug.LogError("ScreenController[" + this.gameObject.name + "]::SCREEN NAME[" + _nameScreen + "] DOESN'T EXIST FOR THIS MANAGER");
             }
         }
 
@@ -875,23 +826,54 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * DebugLogStackNameScreens
+		 */
+        public void DebugLogStackNameScreens(string _newScreen)
+        {
+            string stackedNames = "";
+            for (int i = 0; i < m_stackScreenNames.Count; i++)
+            {
+                if (i == 0)
+                {
+                    stackedNames = m_stackScreenNames[i];
+                }
+                else
+                {
+                    stackedNames += "," + m_stackScreenNames[i];
+                }                
+            }
+            if (_newScreen.Length > 0)
+            {
+                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::new screen[" + _newScreen + "]::STACKED NAMES[" + stackedNames + "]");
+            }
+            else
+            {
+                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::STACKED NAMES[" + stackedNames + "]");
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * AddScreenNameToStack
 		 */
-        public void AddScreenNameToStack(string _nameScreen, UIScreenTypePreviousAction _previousAction, int _layerScreen)
+        public void AddScreenNameToStack(string _nameScreen, UIScreenTypePreviousAction _previousAction)
         {
-            bool addScreenName = true;
-            if (m_stackScreenNames.Count > 0)
+            if ((_previousAction == UIScreenTypePreviousAction.DESTROY_CURRENT_SCREEN) || (_previousAction == UIScreenTypePreviousAction.DESTROY_ALL_SCREENS))
             {
-                if ((string)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[0] == _nameScreen)
+                bool addScreenName = true;
+                if (m_stackScreenNames.Count > 0)
                 {
-                    addScreenName = false;
+                    if (m_stackScreenNames[m_stackScreenNames.Count - 1] == _nameScreen)
+                    {
+                        addScreenName = false;
+                    }
                 }
-            }
 
-            if (addScreenName)
-            {
-                m_stackScreenNames.Add(new ItemMultiObjectEntry(_nameScreen, _layerScreen));
-                DebugLogStackNameScreens(_nameScreen);
+                if (addScreenName)
+                {
+                    m_stackScreenNames.Add(_nameScreen);
+                    // DebugLogStackNameScreens(_nameScreen);
+                }
             }
         }
 
@@ -899,7 +881,7 @@ namespace YourCommonTools
         /* 
 		 * PopScreenNameFromStack
 		 */
-        public string PopScreenNameFromStack(bool _remove = true)
+        public string PopScreenNameFromStack()
         {
             if (m_stackScreenNames.Count == 0)
             {
@@ -907,61 +889,11 @@ namespace YourCommonTools
             }
             else
             {
-                string output = (string)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[0];
-                m_lastLayerUsed = (int)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[1];
-                if (_remove) m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
-                DebugLogStackNameScreens("");
+                string output = m_stackScreenNames[m_stackScreenNames.Count - 1];
+                m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
+                // DebugLogStackNameScreens("");
                 return output;
             }
-        }
-
-        // -------------------------------------------
-        /* 
-		 * RemoveScreensUntilScreenName
-		 */
-        public int RemoveScreensUntilScreenName(string _screenName)
-        {
-            string output = "";
-            int counterDeleted = 0;
-            do
-            {
-                output = (string)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[0];
-                m_lastLayerUsed = (int)m_stackScreenNames[m_stackScreenNames.Count - 1].Objects[1];
-                if (output != _screenName)
-                {
-                    m_stackScreenNames.RemoveAt(m_stackScreenNames.Count - 1);
-                }
-                else
-                {
-                    counterDeleted++;
-                }
-            } while (output != _screenName);
-            return counterDeleted;
-        }
-
-        // -------------------------------------------
-        /* 
-		 * LookScreenInPool
-		 */
-        public GameObject LookScreenInPool(string _screenName)
-        {
-            foreach (KeyValuePair<int, List<GameObject>> screenPool in m_screensPool)
-            {
-                if (screenPool.Value.Count > 0)
-                {
-                    for (int i = 0; i < screenPool.Value.Count; i++)
-                    {
-                        if (screenPool.Value[i].GetComponent<ScreenBaseView>() != null)
-                        {
-                            if (screenPool.Value[i].GetComponent<ScreenBaseView>().NameOfScreen == _screenName)
-                            {
-                                return screenPool.Value[i];
-                            }
-                        }
-                    }
-                }
-            }
-            return null;
         }
 
         // -------------------------------------------
@@ -970,14 +902,7 @@ namespace YourCommonTools
 		 */
         public bool RemoveScreenName(string _screenName)
         {
-            foreach (ItemMultiObjectEntry item in m_stackScreenNames)
-            {
-                if (((string)item.Objects[0]) == _screenName)
-                {
-                    return m_stackScreenNames.Remove(item);
-                }                
-            }
-            return false;
+            return m_stackScreenNames.Remove(_screenName);
         }
 
         // -------------------------------------------
@@ -987,7 +912,6 @@ namespace YourCommonTools
         public void ClearScreenNameStack()
         {
             m_stackScreenNames.Clear();
-            Debug.LogError("ScreenController::CLEARED ALL THE STACK OF SCREEN NAMES");
         }
 
         // -------------------------------------------
@@ -1225,27 +1149,6 @@ namespace YourCommonTools
             {
                 RemoveScreenName((string)_list[0]);
             }
-            if (_nameEvent == ScreenBaseView.EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL)
-            {
-                bool isVRScreen = (bool)_list[0];
-                if (!isVRScreen)
-                {
-                    GameObject originGO = (GameObject)_list[1];
-                    string previousScreenName = (string)_list[2];
-                    GameObject screenView = LookScreenInPool(previousScreenName);
-                    UIEventController.Instance.DispatchUIEvent(ScreenBaseView.EVENT_SCREENBASE_RESPONSE_SCREENVIEW_IN_POOL, isVRScreen, originGO, screenView, previousScreenName);
-                }
-            }
-            if (_nameEvent == EVENT_SCREENCONTROLLER_CLEAR_STACK_NAMES)
-            {
-                ClearScreenNameStack();
-            }
-            if (_nameEvent == EVENT_SCREENCONTROLLER_ADD_NAME_TO_STACKNAMES)
-            {
-                string nameScreen = (string)_list[0];
-                int layerScreen = (int)_list[1];
-                m_stackScreenNames.Add(new ItemMultiObjectEntry(nameScreen, layerScreen));
-            }
         }
 
         // -------------------------------------------
@@ -1267,36 +1170,6 @@ namespace YourCommonTools
 #if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE
                 SceneManager.LoadSceneAsync("EmptyScene");
 #endif
-            }
-#endif
-        }
-
-        // -------------------------------------------
-        /* 
-		 * DebugLogStackNameScreens
-		 */
-        public void DebugLogStackNameScreens(string _newScreen)
-        {
-#if UNITY_EDITOR
-            string stackedNames = "";
-            for (int i = 0; i < m_stackScreenNames.Count; i++)
-            {
-                if (i == 0)
-                {
-                    stackedNames = (string)m_stackScreenNames[i].Objects[0];
-                }
-                else
-                {
-                    stackedNames += "," + (string)m_stackScreenNames[i].Objects[0];
-                }                
-            }
-            if (_newScreen.Length > 0)
-            {
-                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::new screen[" + _newScreen + "]::STACKED NAMES[" + stackedNames + "]");
-            }
-            else
-            {
-                Debug.LogError("TOTAL STACK SCREENS[" + m_stackScreenNames.Count + "]::STACKED NAMES[" + stackedNames + "]");
             }
 #endif
         }

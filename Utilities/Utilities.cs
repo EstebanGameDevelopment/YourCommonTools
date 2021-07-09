@@ -692,7 +692,7 @@ namespace YourCommonTools
         /* 
 		 * We apply a material on all the hirarquy of objects
 		 */
-        public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer, params LayerMask[] _namesLayerIgnore)
+        public static void ApplyLayerOnGameObject(GameObject _go, LayerMask _layer)
 		{
 			foreach (Transform child in _go.transform)
 			{
@@ -700,14 +700,6 @@ namespace YourCommonTools
 			}
 			if (_go != null)
 			{
-				for (int i = 0; i < _namesLayerIgnore.Length; i++)
-                {
-					int layerIgnore = _namesLayerIgnore[i];
-					if (_go.layer == layerIgnore)
-                    {
-						return;
-                    }
-				}
 				_go.layer = _layer;
 			}
 		}
@@ -1736,11 +1728,6 @@ namespace YourCommonTools
 		 */
 		private static int CountCornersVisibleFrom(ScrollRectVR _container, RectTransform _rectTransform)
 		{
-			if (_container == null) return 0;
-			if (_container.VerticalGrid == null) return 0;
-			if ((_container.IsVerticalGrid()) && (_container.VerticalGrid == null)) return 0;
-			if ((_container.IsHorizontalGrid()) && (_container.HorizontalGrid == null)) return 0;
-
 			Rect screenBounds = new Rect(_container.RectTransformObject.localPosition.x, _container.RectTransformObject.localPosition.y,
 										 _container.RectTransformObject.sizeDelta.x, _container.RectTransformObject.sizeDelta.y);
 			Vector2[] objectCorners = new Vector2[4];
@@ -2399,65 +2386,5 @@ namespace YourCommonTools
             };
         }
 
-		// -------------------------------------------
-		/* 
-		 * Return the rect container
-		 */
-		public static Rect GetWorldCornersRectTransform(RectTransform _rectTransform)
-		{
-			Vector3[] corners = new Vector3[4];
-			_rectTransform.GetWorldCorners(corners);
-			Rect rec = new Rect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
-			return rec;
-		}
-
-		// -------------------------------------------
-		/* 
-		 * IsPositionInsideRectTransform
-		 */
-		public static bool IsWorldPositionInsideRectTransform(Vector2 _position, RectTransform _rectTransform)
-		{
-			Rect screenBounds = GetWorldCornersRectTransform(_rectTransform);
-
-			if (screenBounds.Contains(_position))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-		// -------------------------------------------
-		/* 
-		 * Return the rect container
-		 */
-		public static Rect GetLocalCornersRectTransform(RectTransform _rectTransform)
-		{
-			Vector3[] corners = new Vector3[4];
-			_rectTransform.GetLocalCorners(corners);
-			Rect rec = new Rect(corners[0].x, corners[0].y, corners[2].x - corners[0].x, corners[2].y - corners[0].y);
-			return rec;
-		}
-
-		// -------------------------------------------
-		/* 
-		 * IsLocalPositionInsideRectTransform
-		 */
-		public static bool IsLocalPositionInsideRectTransform(Vector2 _position, RectTransform _rectTransform)
-		{
-			Rect screenBounds = GetLocalCornersRectTransform(_rectTransform);
-
-			if (screenBounds.Contains(_position))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-
-	}
+    }
 }

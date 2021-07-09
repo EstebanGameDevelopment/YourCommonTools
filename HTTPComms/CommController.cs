@@ -118,6 +118,15 @@ namespace YourCommonTools
 
 		// -------------------------------------------
 		/* 
+		 * Start
+		 */
+		void Start()
+		{
+			ChangeState(STATE_IDLE);
+		}
+
+		// -------------------------------------------
+		/* 
 		 * Init
 		 */
 		public void Init()

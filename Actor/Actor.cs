@@ -574,41 +574,24 @@ namespace YourCommonTools
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
 
-		private float m_timeUpdateAnimForDirector = 0;
-		public const float TIME_UPDATE_FORWARD = 0.2f;
-
-		// -------------------------------------------
-		/* 
-		 * TimeoutUpdateAnimationForDirector		
-		 */
-		protected void TimeoutUpdateAnimationForDirector(Vector3 _position, Vector3 _forward)
-        {
-			if ((m_emptyReferencePosition == null) && (m_emptyReferenceForward == null))
-			{
-				m_emptyReferencePosition = new GameObject();
-				m_emptyReferenceForward = new GameObject();
-				m_positionPlayer = _position;
-				m_forwardPlayer = _forward;
-			}
-
-			m_timeUpdateAnimForDirector += Time.deltaTime;
-			if (m_timeUpdateAnimForDirector > TIME_UPDATE_FORWARD)
-            {
-				m_timeUpdateAnimForDirector = 0;
-				AnimationCameraPlayerForDirector(_position, _forward, TIME_UPDATE_FORWARD);
-			}
-		}
-
         // -------------------------------------------
         /* 
 		 * AnimationCameraPlayerForDirector		
 		 */
         protected void AnimationCameraPlayerForDirector(Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
         {
+            if (m_emptyReferencePosition == null)
+            {
+                m_emptyReferencePosition = new GameObject();
+            }
             m_emptyReferencePosition.transform.position = Utilities.Clone(m_positionPlayer);
             InterpolatorController.Instance.Interpolate(m_emptyReferencePosition, _nextPosition, _timeToUpdateAnimation);
             m_positionPlayer = Utilities.Clone(_nextPosition);
 
+            if (m_emptyReferenceForward == null)
+            {
+                m_emptyReferenceForward = new GameObject();
+            }
             m_emptyReferenceForward.transform.position = Utilities.Clone(m_forwardPlayer);
             InterpolatorController.Instance.Interpolate(m_emptyReferenceForward, _nextForward, _timeToUpdateAnimation);
             m_forwardPlayer = Utilities.Clone(_nextForward);

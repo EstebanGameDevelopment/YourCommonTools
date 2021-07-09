@@ -76,11 +76,8 @@ namespace YourCommonTools
 		 */
 		public void Destroy()
 		{
-			if (Instance != null)
-            {
-				Destroy(_instance.gameObject);
-				_instance = null;
-			}
+			Destroy(_instance.gameObject);
+			_instance = null;
 		}
 
 		// -------------------------------------------
