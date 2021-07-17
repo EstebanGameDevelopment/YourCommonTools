@@ -79,6 +79,7 @@ namespace YourCommonTools
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------	
+        public const string EVENT_SCREEN_UPDATE_TEXT_TITLE	        = "EVENT_SCREEN_UPDATE_TEXT_TITLE";
         public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
         public const string EVENT_SCREEN_UPDATE_TEXTS_BUTTONS       = "EVENT_SCREEN_UPDATE_TEXTS_BUTTONS";
         public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
@@ -517,6 +518,10 @@ namespace YourCommonTools
 			{
 				OkPressed();
 			}
+            if (_nameEvent == EVENT_SCREEN_UPDATE_TEXT_TITLE)
+            {
+                if (m_title != null) m_title.text = (string)_list[0];
+            }
 			if (_nameEvent == EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION)
 			{
 				if (m_textDescription != null) m_textDescription.text = (string)_list[0];
