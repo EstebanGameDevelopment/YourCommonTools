@@ -47,13 +47,7 @@ namespace YourCommonTools
 		protected bool m_initializationCommon = false;
         private bool m_hasBeenDestroyed = false;
 
-        protected Vector3 m_positionPlayer;
-        protected Vector3 m_forwardPlayer;
-        protected GameObject m_emptyReferencePosition;
-        protected GameObject m_emptyReferenceForward;
-        protected float m_timeForward = 0;
-
-        protected GameObject m_shotgunPlayer;
+		protected GameObject m_shotgunPlayer;
         protected GameObject m_emptyShotgunPosition;
         protected GameObject m_emptyShotgunForward;
         protected Vector3 m_positionShotgun;
@@ -120,49 +114,12 @@ namespace YourCommonTools
 			get { return m_applyGravity; }
 			set { m_applyGravity = value; }
 		}
-        public Vector3 RealPosition
-        {
-            get
-            {
-                if (m_emptyReferencePosition != null)
-                {
-                    return m_emptyReferencePosition.transform.position;
-                }
-                else
-                {
-                    return Vector3.zero;
-                }
-            }
-        }
-        public Vector3 RealForward
-        {
-            get
-            {
-                if (m_emptyReferenceForward != null)
-                {
-                    return m_emptyReferenceForward.transform.position;
-                }
-                else
-                {
-                    return Vector3.zero;
-                }
-            }
-        }
-        public Vector3 ForwardPlayer
-        {
-            set { m_forwardPlayer = value; }
-        }
-        public Vector3 PositionPlayer
-        {
-            set { m_positionPlayer = value; }
-        }
-        
 
-        // -------------------------------------------
-        /* 
+		// -------------------------------------------
+		/* 
 		 * Initialization of the element
 		 */
-        public virtual void Start()
+		public virtual void Start()
         {
         }
 
@@ -573,29 +530,6 @@ namespace YourCommonTools
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Init(areaDetection.ToArray(), _material);
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
-
-        // -------------------------------------------
-        /* 
-		 * AnimationCameraPlayerForDirector		
-		 */
-        protected void AnimationCameraPlayerForDirector(Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
-        {
-            if (m_emptyReferencePosition == null)
-            {
-                m_emptyReferencePosition = new GameObject();
-            }
-            m_emptyReferencePosition.transform.position = Utilities.Clone(m_positionPlayer);
-            InterpolatorController.Instance.Interpolate(m_emptyReferencePosition, _nextPosition, _timeToUpdateAnimation);
-            m_positionPlayer = Utilities.Clone(_nextPosition);
-
-            if (m_emptyReferenceForward == null)
-            {
-                m_emptyReferenceForward = new GameObject();
-            }
-            m_emptyReferenceForward.transform.position = Utilities.Clone(m_forwardPlayer);
-            InterpolatorController.Instance.Interpolate(m_emptyReferenceForward, _nextForward, _timeToUpdateAnimation);
-            m_forwardPlayer = Utilities.Clone(_nextForward);
-        }
 
         // -------------------------------------------
         /* 
