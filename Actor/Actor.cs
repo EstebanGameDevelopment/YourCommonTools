@@ -133,8 +133,13 @@ namespace YourCommonTools
             m_hasBeenDestroyed = true;
 
             if (m_planeAreaVisionDetection != null) GameObject.Destroy(m_planeAreaVisionDetection);
+			if (m_model != null)
+			{
+				GameObject.Destroy(m_model);
+				m_model = null;
+			}
 
-            return false;
+			return false;
         }
 
         // -------------------------------------------
