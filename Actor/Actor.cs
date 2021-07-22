@@ -47,12 +47,6 @@ namespace YourCommonTools
 		protected bool m_initializationCommon = false;
         private bool m_hasBeenDestroyed = false;
 
-        protected Vector3 m_positionPlayer;
-        protected Vector3 m_forwardPlayer;
-        protected GameObject m_emptyReferencePosition;
-        protected GameObject m_emptyReferenceForward;
-        protected float m_timeForward = 0;
-
         protected GameObject m_shotgunPlayer;
         protected GameObject m_emptyShotgunPosition;
         protected GameObject m_emptyShotgunForward;
@@ -120,42 +114,6 @@ namespace YourCommonTools
 			get { return m_applyGravity; }
 			set { m_applyGravity = value; }
 		}
-        public Vector3 RealPosition
-        {
-            get
-            {
-                if (m_emptyReferencePosition != null)
-                {
-                    return m_emptyReferencePosition.transform.position;
-                }
-                else
-                {
-                    return Vector3.zero;
-                }
-            }
-        }
-        public Vector3 RealForward
-        {
-            get
-            {
-                if (m_emptyReferenceForward != null)
-                {
-                    return m_emptyReferenceForward.transform.position;
-                }
-                else
-                {
-                    return Vector3.zero;
-                }
-            }
-        }
-        public Vector3 ForwardPlayer
-        {
-            set { m_forwardPlayer = value; }
-        }
-        public Vector3 PositionPlayer
-        {
-            set { m_positionPlayer = value; }
-        }
         
 
         // -------------------------------------------
@@ -176,6 +134,12 @@ namespace YourCommonTools
             m_hasBeenDestroyed = true;
 
             if (m_planeAreaVisionDetection != null) GameObject.Destroy(m_planeAreaVisionDetection);
+			if (m_model != null)
+			{
+				GameObject.Destroy(m_model);
+				m_model = null;
+			}
+
 
             return false;
         }
@@ -573,46 +537,6 @@ namespace YourCommonTools
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Init(areaDetection.ToArray(), _material);
 			_planeAreaVision.GetComponent<PlaneFromPoly>().Logic(new Vector3(posOrigin.x, posOrigin.y, posOrigin.z), posOrigin.y);
 		}
-
-		private float m_timeUpdateAnimForDirector = 0;
-		public const float TIME_UPDATE_FORWARD = 0.2f;
-
-		// -------------------------------------------
-		/* 
-		 * TimeoutUpdateAnimationForDirector		
-		 */
-		protected void TimeoutUpdateAnimationForDirector(Vector3 _position, Vector3 _forward)
-        {
-			if ((m_emptyReferencePosition == null) && (m_emptyReferenceForward == null))
-			{
-				m_emptyReferencePosition = new GameObject();
-				m_emptyReferenceForward = new GameObject();
-				m_positionPlayer = _position;
-				m_forwardPlayer = _forward;
-			}
-
-			m_timeUpdateAnimForDirector += Time.deltaTime;
-			if (m_timeUpdateAnimForDirector > TIME_UPDATE_FORWARD)
-            {
-				m_timeUpdateAnimForDirector = 0;
-				AnimationCameraPlayerForDirector(_position, _forward, TIME_UPDATE_FORWARD);
-			}
-		}
-
-        // -------------------------------------------
-        /* 
-		 * AnimationCameraPlayerForDirector		
-		 */
-        protected void AnimationCameraPlayerForDirector(Vector3 _nextPosition, Vector3 _nextForward, float _timeToUpdateAnimation)
-        {
-            m_emptyReferencePosition.transform.position = Utilities.Clone(m_positionPlayer);
-            InterpolatorController.Instance.Interpolate(m_emptyReferencePosition, _nextPosition, _timeToUpdateAnimation);
-            m_positionPlayer = Utilities.Clone(_nextPosition);
-
-            m_emptyReferenceForward.transform.position = Utilities.Clone(m_forwardPlayer);
-            InterpolatorController.Instance.Interpolate(m_emptyReferenceForward, _nextForward, _timeToUpdateAnimation);
-            m_forwardPlayer = Utilities.Clone(_nextForward);
-        }
 
         // -------------------------------------------
         /* 
