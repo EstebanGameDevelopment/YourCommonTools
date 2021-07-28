@@ -5,6 +5,9 @@ using OculusSampleFramework;
 using WaveVR_Log;
 using wvr;
 #endif
+#if ENABLE_PICONEO
+using Pvr_UnitySDKAPI;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -158,6 +161,8 @@ namespace YourCommonTools
                 WaveVR_Utils.Event.Listen(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
                 WaveVR_Utils.Event.Listen(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
             }
+#elif ENABLE_PICONEO
+
 #endif
             m_hasBeenInited = true;
         }
@@ -174,6 +179,10 @@ namespace YourCommonTools
                 WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess.ToString(), OnRecentered);
                 WaveVR_Utils.Event.Remove(wvr.WVR_EventType.WVR_EventType_RecenterSuccess3DoF.ToString(), OnRecentered);
             }
+#endif
+
+#if ENABLE_PICONEO
+
 #endif
 
 #if ENABLE_OCULUS && !ENABLE_PARTY_2018
@@ -343,6 +352,8 @@ namespace YourCommonTools
 #elif ENABLE_HTCVIVE
             // return !WaveVR_Controller.IsLeftHanded;
             return true;
+#elif ENABLE_PICONEO
+            return true;
 #elif ENABLE_WORLDSENSE
             return IsRightHandWorldsense();
 #else
@@ -352,12 +363,19 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * GetDominantDevice
-		 */
+         * GetDominantDevice
+         */
 #if ENABLE_HTCVIVE
         public WVR_DeviceType GetDominantDevice()
         {
             return IsRightHanded() ? WVR_DeviceType.WVR_DeviceType_Controller_Right : WVR_DeviceType.WVR_DeviceType_Controller_Left;
+        }
+#endif
+
+#if ENABLE_PICONEO
+        public int GetDominantDevice()
+        {
+            return Controller.UPvr_GetMainHandNess();
         }
 #endif
 
@@ -414,6 +432,22 @@ namespace YourCommonTools
             else
             {
                 return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+            }
+#elif ENABLE_PICONEO
+            if (_considerPressed)
+            {
+                if (Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.TOUCHPAD))
+                {
+                    return Controller.UPvr_GetAxis2D(GetDominantDevice());
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return Controller.UPvr_GetAxis2D(GetDominantDevice());
             }
 #elif ENABLE_WORLDSENSE
             if (_considerPressed)
@@ -1357,6 +1391,246 @@ namespace YourCommonTools
 
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
+        // PICONEO
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
+        // -------------------------------------------
+        /* 
+        * GetActionCurrentStatePicoNeoController
+        */
+        public bool GetActionCurrentStatePicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                        || Input.GetKey(KeyCode.LeftControl)
+#endif
+                        )
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionPicoNeoController
+        */
+        public bool GetActionPicoNeoController(bool _isDown, string _eventDown = null, string _eventUp = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+                    // +++++ BUTTON CONTROLLERS (DOWN)
+                    try
+                    {
+                        if (Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                            || Input.GetKeyDown(KeyCode.LeftControl)
+#endif
+                            )
+                        {
+                            if (_isDown)
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+                
+                    // +++++ BUTTON CONTROLLERS (UP)
+                    try
+                    {
+                        if (Controller.UPvr_GetKeyUp(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                            || Input.GetKeyUp(KeyCode.LeftControl)
+#endif
+                            )
+                    {
+                        if (_isDown)
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuPicoNeoController
+        */
+        public bool GetMenuPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.APP);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+					if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+					return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuDownPicoNeoController
+        */
+        public bool GetMenuDownPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetAppDownPicoNeoController
+        */
+        public bool GetAppDownPicoNeoController(string _event = null, bool _checkEvent = true)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+            if (CheckPicoNeoControllerAppDown(true, _checkEvent))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * CheckPicoNeoControllerAppDown
+        */
+        private bool CheckPicoNeoControllerAppDown(bool _checkDown = true, bool _checkEvent = true)
+        {
+#if ENABLE_PICONEO
+            bool buttonMenuTouched = false;
+            if (_checkEvent)
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKeyDown(KeyCode.Delete);
+#else
+                if (_checkDown)
+                {
+                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
+                }
+                else
+                {
+                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.APP);
+                }
+#endif
+            }
+            else
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKey(KeyCode.Delete);
+#else
+                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
+#endif
+            }
+            return buttonMenuTouched;
+#else
+            return false;
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+        * OnPicoNeoRecentered
+        */
+        private void OnPicoNeoRecentered(params object[] args)
+        {
+            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+        }
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
         // KEYBOARD
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
@@ -1412,6 +1686,8 @@ namespace YourCommonTools
                 GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #elif ENABLE_HTCVIVE
                 GetActionHTCViveController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_PICONEO
+                GetActionPicoNeoController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #else
                 GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
 #endif
@@ -1424,6 +1700,8 @@ namespace YourCommonTools
                 GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #elif ENABLE_HTCVIVE
                 GetActionHTCViveController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_PICONEO
+                GetActionPicoNeoController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #else
                 GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
 #endif

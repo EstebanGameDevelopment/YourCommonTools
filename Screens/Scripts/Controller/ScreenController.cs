@@ -162,7 +162,9 @@ namespace YourCommonTools
 		 */
         void OnApplicationFocus(bool hasFocus)
         {
+#if !ENABLE_PICONEO
             UIEventController.Instance.DispatchUIEvent(EVENT_APP_LOST_FOCUS, hasFocus);
+#endif
         }
 
         // -------------------------------------------
@@ -171,7 +173,9 @@ namespace YourCommonTools
          */
         void OnApplicationPause(bool pauseStatus)
         {
+#if !ENABLE_PICONEO
             UIEventController.Instance.DispatchUIEvent(EVENT_APP_PAUSED, pauseStatus);
+#endif
         }
 
         // -------------------------------------------
@@ -1167,7 +1171,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE
+#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE && !ENABLE_PICONEO
                 SceneManager.LoadSceneAsync("EmptyScene");
 #endif
             }
