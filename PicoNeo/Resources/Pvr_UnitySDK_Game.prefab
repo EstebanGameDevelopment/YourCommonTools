@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbbf63a3bd0b8204cbb9023b44e0e548, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControlledObject: {fileID: 0}
+  ControlledObject: {fileID: 7173979171426595626}
   PicoNeoCamera: {fileID: 7339727469243326560}
   PicoNeoLeftController: {fileID: 7173979171523254354}
   PicoNeoRightController: {fileID: 7173979171742513605}

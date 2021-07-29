@@ -45,12 +45,12 @@ namespace YourCommonTools
                 if (Controller.UPvr_GetMainHandNess() == 0)
                 {
                     m_handTypeSelected = 0;
-                    m_currentController = PicoNeoRightController;
+                    m_currentController = PicoNeoLeftController;
                 }
                 else
                 {
                     m_handTypeSelected = 1;
-                    m_currentController = PicoNeoLeftController;
+                    m_currentController = PicoNeoRightController;
                 }
             }
         }

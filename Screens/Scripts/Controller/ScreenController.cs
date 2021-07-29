@@ -162,9 +162,7 @@ namespace YourCommonTools
 		 */
         void OnApplicationFocus(bool hasFocus)
         {
-#if !ENABLE_PICONEO
             UIEventController.Instance.DispatchUIEvent(EVENT_APP_LOST_FOCUS, hasFocus);
-#endif
         }
 
         // -------------------------------------------
@@ -173,9 +171,7 @@ namespace YourCommonTools
          */
         void OnApplicationPause(bool pauseStatus)
         {
-#if !ENABLE_PICONEO
             UIEventController.Instance.DispatchUIEvent(EVENT_APP_PAUSED, pauseStatus);
-#endif
         }
 
         // -------------------------------------------
