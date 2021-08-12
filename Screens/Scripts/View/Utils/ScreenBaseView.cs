@@ -915,7 +915,7 @@ namespace YourCommonTools
                     {
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_GO_BACK_EVENT);
                         GameObject screenView = ScreenController.InstanceBase.LookScreenInPool(previousScreenName);
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
+#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE || ENABLE_PICONEO
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL, true, this.gameObject, previousScreenName);
 #else
                         UIEventController.Instance.DispatchUIEvent(EVENT_SCREENBASE_REQUEST_SCREENVIEW_IN_POOL, false, this.gameObject, previousScreenName);

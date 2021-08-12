@@ -7,6 +7,9 @@ using WaveVR_Log;
 using wvr;
 using YourVRUI;
 #endif
+#if ENABLE_PICONEO
+using Pvr_UnitySDKAPI;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -382,6 +385,8 @@ namespace YourCommonTools
             return true;
 #elif ENABLE_WORLDSENSE
             return IsRightHandWorldsense();
+#elif ENABLE_PICONEO
+            return true;
 #else
             return true;
 #endif
@@ -395,6 +400,13 @@ namespace YourCommonTools
         public WVR_DeviceType GetDominantDevice()
         {
             return IsRightHanded() ? WVR_DeviceType.WVR_DeviceType_Controller_Right : WVR_DeviceType.WVR_DeviceType_Controller_Left;
+        }
+#endif
+
+#if ENABLE_PICONEO
+        public int GetDominantDevice()
+        {
+            return PicoNeoHandController.Instance.HandTypeSelected;
         }
 #endif
 
@@ -456,6 +468,22 @@ namespace YourCommonTools
             else
             {
                 return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+            }
+#elif ENABLE_PICONEO
+            if (_considerPressed)
+            {
+                if (Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.TOUCHPAD))
+                {
+                    return Controller.UPvr_GetAxis2D(GetDominantDevice());
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return Controller.UPvr_GetAxis2D(GetDominantDevice());
             }
 #elif ENABLE_WORLDSENSE
             if (_considerPressed)
@@ -1364,210 +1392,9 @@ namespace YourCommonTools
 
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
-        // KEYBOARD
+        // OCULUS EXTRA
         // *****************************************************************************************************************************************************************
         // *****************************************************************************************************************************************************************
-
-        private bool m_addedRecenterListener = false;
-
-        // -------------------------------------------
-        /* 
-        * DetectedRecentered
-        */
-        private void DetectedRecentered()
-        {
-            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
-        }
-
-        // -------------------------------------------
-        /* 
-        * KeyInputActionButton
-        */
-        private void KeyInputActionButton()
-		{
-            if (!EnableActionButton) return;
-
-#if ENABLE_WORLDSENSE
-            m_isDaydreamActivated = true;
-
-            if (GvrControllerInput.Recentered)
-            {
-                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
-            }
-#endif
-
-#if ENABLE_OCULUS
-#if ENABLE_PARTY_2018
-            if (OVRInput.GetControllerWasRecentered())
-            {
-                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
-            }
-#else
-            if (!m_addedRecenterListener)
-            {
-                m_addedRecenterListener = true;
-                OVRManager.display.RecenteredPose += DetectedRecentered;
-            }
-#endif
-#endif
-
-            if (m_enableActionOnMouseDown)
-			{
-#if ENABLE_WORLDSENSE && !UNITY_EDITOR
-                GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-#elif ENABLE_OCULUS
-                GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-#elif ENABLE_HTCVIVE
-                GetActionHTCViveController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-#else
-                GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
-#endif
-            }
-			else
-			{
-#if ENABLE_WORLDSENSE && !UNITY_EDITOR
-                GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-#elif ENABLE_OCULUS
-                GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-#elif ENABLE_HTCVIVE
-                GetActionHTCViveController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-#else
-                GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
-#endif
-            }
-        }
-
-        // -------------------------------------------
-        /* 
-         * KeyInputCancelManagement
-         */
-        private void KeyInputCancelManagement()
-		{
-            // DAYDREAM CONTROLLER
-#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
-			if (m_isDaydreamActivated)
-			{
-
-			}
-#endif
-
-            // CANCEL BUTTON
-#if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.Escape))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_CANCEL_BUTTON);
-			}
-#endif
-
-            // BACK BUTTON
-            if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
-#if ENABLE_OCULUS && !ENABLE_QUEST
-                || OVRInput.GetDown(OVRInput.Button.Back)
-#endif
-                )
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_BACK_BUTTON);
-			}
-		}
-
-		// -------------------------------------------
-		/* 
-		 * KeyInputDirectionsManagement
-		 */
-		private void KeyInputDirectionsManagement()
-		{
-			// ARROWS KEYPAD
-			if (Input.GetKeyDown(KeyCode.LeftArrow))
-			{
-				m_currentDirection = DIRECTION_LEFT;
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_LEFT_PRESSED);
-			}
-			if (Input.GetKeyDown(KeyCode.RightArrow))
-			{
-				m_currentDirection = DIRECTION_RIGHT;
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_RIGHT_PRESSED);
-			}
-			if (Input.GetKeyDown(KeyCode.UpArrow))
-			{
-				m_currentDirection = DIRECTION_DOWN;
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_UP_PRESSED);
-			}
-			if (Input.GetKeyDown(KeyCode.DownArrow))
-			{
-				m_currentDirection = DIRECTION_UP;
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_DOWN_PRESSED);
-			}
-
-			// ARROW KEYS UP
-			if (Input.GetKeyUp(KeyCode.LeftArrow))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_LEFT_RELEASED);
-			}
-			if (Input.GetKeyUp(KeyCode.RightArrow))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_RIGHT_RELEASED);
-			}
-			if (Input.GetKeyUp(KeyCode.UpArrow))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_UP_RELEASED);
-			}
-			if (Input.GetKeyUp(KeyCode.DownArrow))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_KEY_DOWN_RELEASED);
-			}
-		}
-
-		// -------------------------------------------
-		/* 
-		 * KeyInputExtraManagement
-		 */
-		private void KeyInputExtraManagement()
-		{
-			// ACTION_SECONDARY_BUTTON
-			if (Input.GetKeyDown(KeyCode.LeftShift) || (Input.GetKeyDown(KeyCode.Joystick1Button2)))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_SECONDARY_BUTTON_DOWN);
-			}
-
-			// INVENTORY BUTTON
-			if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button6))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_INVENTORY_VERTICAL);
-			}
-			// INVENTORY BUTTON
-			if (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button7))
-			{
-				UIEventController.Instance.DispatchUIEvent(ACTION_INVENTORY_HORIZONTAL);
-			}
-		}
-
-        // -------------------------------------------
-        /* 
-		 * KeyInputManagment
-		 */
-        private void KeyInputManagment()
-		{
-			// ACTION BUTTON MANAGEMENT
-			KeyInputActionButton();
-
-            // CANCEL BUTTON MANAGEMENT
-            KeyInputCancelManagement();
-
-			// DIRECTIONS MANAGEMENT
-			KeyInputDirectionsManagement();
-
-			// EXTRA BUTTONS
-			KeyInputExtraManagement();
-		}
-
-		// -------------------------------------------
-		/* 
-		 * Update
-		 */
-		void Update()
-		{
-            KeyInputManagment();
-        }
 
 #if ENABLE_OCULUS
         private bool m_isHandTrackingMode = false;
@@ -1780,5 +1607,489 @@ namespace YourCommonTools
             }
         }
 #endif
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // PICONEO
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
+        // -------------------------------------------
+        /* 
+        * GetActionCurrentStatePicoNeoController
+        */
+        public bool GetActionCurrentStatePicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+                // +++++ TOUCH CONTROLLERS (PRESSED)
+                try
+                {
+                    if (Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                        || Input.GetKey(KeyCode.LeftControl)
+#endif
+                        )
+                    {
+                        if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                        return true;
+                    }
+                }
+                catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetActionPicoNeoController
+        */
+        public bool GetActionPicoNeoController(bool _isDown, string _eventDown = null, string _eventUp = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+                    // +++++ BUTTON CONTROLLERS (DOWN)
+                    try
+                    {
+                        if (Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                            || Input.GetKeyDown(KeyCode.LeftControl)
+#endif
+                            )
+                        {
+                            if (_isDown)
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+                
+                    // +++++ BUTTON CONTROLLERS (UP)
+                    try
+                    {
+                        if (Controller.UPvr_GetKeyUp(GetDominantDevice(), Pvr_KeyCode.TRIGGER)
+#if UNITY_EDITOR
+                            || Input.GetKeyUp(KeyCode.LeftControl)
+#endif
+                            )
+                    {
+                        if (_isDown)
+                            {
+                                m_vrActionPressed = false;
+                            }
+                            else
+                            {
+                                m_vrActionPressed = true;
+                            }
+                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                            return m_vrActionPressed;
+                        }
+                    }
+                    catch (Exception err) { }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuPicoNeoController
+        */
+        public bool GetMenuPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Y);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+					if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+					return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetTeleportPicoNeoController
+        */
+        public bool GetTeleportPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKey(KeyCode.LeftControl);
+#else
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.X);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuDownPicoNeoController
+        */
+        public bool GetMenuDownPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
+#else
+                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetAppDownPicoNeoController
+        */
+        public bool GetAppDownPicoNeoController(string _event = null, bool _checkEvent = true)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+            if (CheckPicoNeoControllerAppDown(true, _checkEvent))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * CheckPicoNeoControllerAppDown
+        */
+        private bool CheckPicoNeoControllerAppDown(bool _checkDown = true, bool _checkEvent = true)
+        {
+#if ENABLE_PICONEO
+            bool buttonMenuTouched = false;
+            if (_checkEvent)
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKeyDown(KeyCode.Delete);
+#else
+                if (_checkDown)
+                {
+                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+                }
+                else
+                {
+                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Y);
+                }
+#endif
+            }
+            else
+            {
+#if UNITY_EDITOR
+                buttonMenuTouched = Input.GetKey(KeyCode.Delete);
+#else
+                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+#endif
+            }
+            return buttonMenuTouched;
+#else
+            return false;
+#endif
+        }
+
+        // -------------------------------------------
+        /* 
+        * OnPicoNeoRecentered
+        */
+        private void OnPicoNeoRecentered(params object[] args)
+        {
+            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+        }
+
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+        // COMMON
+        // *****************************************************************************************************************************************************************
+        // *****************************************************************************************************************************************************************
+
+        private bool m_addedRecenterListener = false;
+
+        // -------------------------------------------
+        /* 
+        * DetectedRecentered
+        */
+        private void DetectedRecentered()
+        {
+            UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+        }
+
+        // -------------------------------------------
+        /* 
+        * KeyInputActionButton
+        */
+        private void KeyInputActionButton()
+        {
+            if (!EnableActionButton) return;
+
+#if ENABLE_WORLDSENSE
+            m_isDaydreamActivated = true;
+
+            if (GvrControllerInput.Recentered)
+            {
+                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+            }
+#endif
+
+#if ENABLE_OCULUS
+#if ENABLE_PARTY_2018
+            if (OVRInput.GetControllerWasRecentered())
+            {
+                UIEventController.Instance.DispatchUIEvent(KeysEventInputController.ACTION_RECENTER);
+            }
+#else
+            if (!m_addedRecenterListener)
+            {
+                m_addedRecenterListener = true;
+                OVRManager.display.RecenteredPose += DetectedRecentered;
+            }
+#endif
+#endif
+
+            if (m_enableActionOnMouseDown)
+            {
+#if ENABLE_WORLDSENSE && !UNITY_EDITOR
+                GetActionDaydreamController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_OCULUS
+                GetActionOculusController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_HTCVIVE
+                GetActionHTCViveController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#elif ENABLE_PICONEO
+                GetActionPicoNeoController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#else
+                GetActionDefaultController(true, ACTION_BUTTON_DOWN, ACTION_BUTTON_UP);
+#endif
+            }
+            else
+            {
+#if ENABLE_WORLDSENSE && !UNITY_EDITOR
+                GetActionDaydreamController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_OCULUS
+                GetActionOculusController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_HTCVIVE
+                GetActionHTCViveController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#elif ENABLE_PICONEO
+                GetActionPicoNeoController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#else
+                GetActionDefaultController(false, ACTION_SET_ANCHOR_POSITION, ACTION_BUTTON_DOWN);
+#endif
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+         * KeyInputCancelManagement
+         */
+        private void KeyInputCancelManagement()
+        {
+            // DAYDREAM CONTROLLER
+#if ENABLE_GOOGLEVR && (UNITY_ANDROID || UNITY_EDITOR)
+			if (m_isDaydreamActivated)
+			{
+
+			}
+#endif
+
+            // CANCEL BUTTON
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_CANCEL_BUTTON);
+            }
+#endif
+
+            // BACK BUTTON
+            if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Joystick1Button1)
+#if ENABLE_OCULUS && !ENABLE_QUEST
+                || OVRInput.GetDown(OVRInput.Button.Back)
+#endif
+                )
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_BACK_BUTTON);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * KeyInputDirectionsManagement
+		 */
+        private void KeyInputDirectionsManagement()
+        {
+            // ARROWS KEYPAD
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                m_currentDirection = DIRECTION_LEFT;
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_LEFT_PRESSED);
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                m_currentDirection = DIRECTION_RIGHT;
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_RIGHT_PRESSED);
+            }
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                m_currentDirection = DIRECTION_DOWN;
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_UP_PRESSED);
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                m_currentDirection = DIRECTION_UP;
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_DOWN_PRESSED);
+            }
+
+            // ARROW KEYS UP
+            if (Input.GetKeyUp(KeyCode.LeftArrow))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_LEFT_RELEASED);
+            }
+            if (Input.GetKeyUp(KeyCode.RightArrow))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_RIGHT_RELEASED);
+            }
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_UP_RELEASED);
+            }
+            if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_KEY_DOWN_RELEASED);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * KeyInputExtraManagement
+		 */
+        private void KeyInputExtraManagement()
+        {
+            // ACTION_SECONDARY_BUTTON
+            if (Input.GetKeyDown(KeyCode.LeftShift) || (Input.GetKeyDown(KeyCode.Joystick1Button2)))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_SECONDARY_BUTTON_DOWN);
+            }
+
+            // INVENTORY BUTTON
+            if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button6))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_INVENTORY_VERTICAL);
+            }
+            // INVENTORY BUTTON
+            if (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button7))
+            {
+                UIEventController.Instance.DispatchUIEvent(ACTION_INVENTORY_HORIZONTAL);
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * KeyInputManagment
+		 */
+        private void KeyInputManagment()
+        {
+            // ACTION BUTTON MANAGEMENT
+            KeyInputActionButton();
+
+            // CANCEL BUTTON MANAGEMENT
+            KeyInputCancelManagement();
+
+            // DIRECTIONS MANAGEMENT
+            KeyInputDirectionsManagement();
+
+            // EXTRA BUTTONS
+            KeyInputExtraManagement();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * Update
+		 */
+        void Update()
+        {
+            KeyInputManagment();
+        }
+
     }
 }

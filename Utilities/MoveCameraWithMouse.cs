@@ -113,7 +113,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             if (CameraLocal != null)
             {
-#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE
+#if ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE || ENABLE_PICONEO
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
                     MoveCamera();

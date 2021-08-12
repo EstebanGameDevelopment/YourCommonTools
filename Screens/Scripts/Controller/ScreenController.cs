@@ -1264,7 +1264,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE
+#if !ENABLE_WORLDSENSE && !ENABLE_OCULUS && !ENABLE_HTCVIVE && !ENABLE_PICONEO
                 SceneManager.LoadSceneAsync("EmptyScene");
 #endif
             }

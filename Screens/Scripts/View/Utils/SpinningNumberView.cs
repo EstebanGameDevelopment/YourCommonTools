@@ -174,7 +174,7 @@ namespace YourCommonTools
          */
         private void OnUIEvent(string _nameEvent, params object[] _list)
 		{
-#if (ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE)
+#if (ENABLE_OCULUS || ENABLE_WORLDSENSE || ENABLE_HTCVIVE || ENABLE_PICONEO)
             if (_nameEvent == EVENT_SPINNINGNUMBER_INPUTFIELD_UPDATED)
             {
                 InputField targetInput = (InputField)_list[0];
