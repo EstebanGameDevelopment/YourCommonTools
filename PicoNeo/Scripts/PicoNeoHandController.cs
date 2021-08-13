@@ -2,6 +2,9 @@ using UnityEngine;
 #if ENABLE_PICONEO
 using Pvr_UnitySDKAPI;
 #endif
+#if ENABLE_YOURVRUI
+using YourVRUI;
+#endif
 
 namespace YourCommonTools
 {
@@ -132,6 +135,9 @@ namespace YourCommonTools
         private void SetMainLaserPoint(GameObject _laserPointer)
         {
             LaserPointer = _laserPointer;
+#if ENABLE_YOURVRUI
+            YourVRUIScreenController.Instance.LaserPointer = _laserPointer;
+#endif
             UIEventController.Instance.DispatchUIEvent(EVENT_PICONEOHANDCONTROLLER_UPDATE_LASER, LaserPointer);
         }
 
