@@ -743,7 +743,7 @@ namespace YourCommonTools
         /* 
         * GetAppButtonDownOculusController
         */
-        public bool GetAppButtonDownOculusController(string _event = null, bool _checkEvent = true)
+        public bool GetAppButtonDownOculusController(string _event = null, bool _checkEvent = true, bool _consume = true)
         {
             if (!EnableInteractions)
             {
@@ -757,14 +757,17 @@ namespace YourCommonTools
                 if ((m_isHandTrackingMode && m_oculusHandButtonDown && (m_oculusHandHandUsed == HAND.left)) ||
                     (!m_isHandTrackingMode && (m_buttonOneDown || m_buttonTwoDown)))
                 {
-                    if (m_isHandTrackingMode)
+                    if (_consume)
                     {
-                        m_oculusHandButtonDown = false;
-                    }
-                    else
-                    {
-                        m_buttonOneDown = false;
-                        m_buttonTwoDown = false;
+                        if (m_isHandTrackingMode)
+                        {
+                            m_oculusHandButtonDown = false;
+                        }
+                        else
+                        {
+                            m_buttonOneDown = false;
+                            m_buttonTwoDown = false;
+                        }
                     }
 
                     if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
