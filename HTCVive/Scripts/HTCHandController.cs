@@ -34,12 +34,26 @@ namespace YourCommonTools
                 if (WaveVR_Controller.IsLeftHanded)
                 {
                     Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
+                    if (!Is6DOF)
+                    {
+                        ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
+                    }
+                    else
+                    {
+                        this.transform.parent = null;
+                    }
                 }
                 else
                 {
                     Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    if (!Is6DOF) ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
+                    if (!Is6DOF)
+                    {
+                        ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
+                    }
+                    else
+                    {
+                        this.transform.parent = null;
+                    }
                 }
             }
         }
@@ -52,22 +66,23 @@ namespace YourCommonTools
         {
             if (ControlledObject != null)
             {
+                Vector3 fwd = HTCCamera.transform.forward.normalized * 0.2f;
+                Vector3 rgt = HTCCamera.transform.right * 0.2f;
+                Vector3 camPos = HTCCamera.transform.position;
                 if (!Is6DOF)
                 {
-                    Vector3 fwd = HTCCamera.transform.forward.normalized * 0.2f;
-                    Vector3 rgt = HTCCamera.transform.right * 0.2f;
                     if (WaveVR_Controller.IsLeftHanded)
                     {
-                        this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z) - new Vector3(rgt.x, 0, rgt.z);
+                        this.transform.position = camPos + new Vector3(fwd.x, 0, fwd.z) - new Vector3(rgt.x, 0, rgt.z);
                     }
                     else
                     {
-                        this.transform.position = HTCCamera.transform.position + new Vector3(fwd.x, 0, fwd.z) + new Vector3(rgt.x, 0, rgt.z);
+                        this.transform.position = camPos + new Vector3(fwd.x, 0, fwd.z) + new Vector3(rgt.x, 0, rgt.z);
                     }
                 }
                 else
                 {
-                    ControlledObject.transform.position = WaveVR_Controller.Input(Device).transform.pos;
+                    this.transform.position = camPos - WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_HMD).transform.pos + WaveVR_Controller.Input(Device).transform.pos;
                 }
                 ControlledObject.transform.localRotation = WaveVR_Controller.Input(Device).transform.rot;
             }
