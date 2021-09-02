@@ -1,6 +1,7 @@
 using UnityEngine;
 #if ENABLE_HTCVIVE
-using wvr;
+using Wave.Essence;
+using Wave.Native;
 #endif
 
 namespace YourCommonTools
@@ -24,8 +25,11 @@ namespace YourCommonTools
         {
             if (ControlledHead != null)
             {
-                ControlledHead.transform.position = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_HMD).transform.pos;
-                ControlledHead.transform.localRotation = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_HMD).transform.rot;
+                var vec = WaveEssence.Instance.GetCurrentControllerPositionOffset(WVR_DeviceType.WVR_DeviceType_Camera);
+                var rot = WaveEssence.Instance.GetCurrentControllerRotationOffset(WVR_DeviceType.WVR_DeviceType_Camera);
+
+                ControlledHead.transform.position = vec;
+                ControlledHead.transform.localRotation = rot;
             }
         }
 #endif
