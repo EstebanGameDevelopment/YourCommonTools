@@ -1300,7 +1300,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = WXRDevice.ButtonPress(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Grip);
+                bool isTeleportHandRight = WXRDevice.ButtonPress(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_A);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1314,6 +1314,39 @@ namespace YourCommonTools
             catch (Exception err) { }
             return false;
         }
+
+        // -------------------------------------------
+        /* 
+        * GetTeleportHTCViveController
+        */
+        public bool GetTeleportHTCViveController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+#if UNITY_EDITOR
+                bool isTeleportHandRight = Input.GetKey(KeyCode.LeftControl);
+#else
+                bool isTeleportHandRight = WXRDevice.ButtonHold(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Grip);
+#endif
+
+                // MANAGE RIGHT TOUCHED/DOWN
+                if (isTeleportHandRight)
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
 
         // -------------------------------------------
         /* 
