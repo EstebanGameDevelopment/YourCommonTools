@@ -138,7 +138,7 @@ namespace YourCommonTools
 #if ENABLE_YOURVRUI
             YourVRUIScreenController.Instance.LaserPointer = _laserPointer;
 #endif
-            UIEventController.Instance.DispatchUIEvent(EVENT_PICONEOHANDCONTROLLER_UPDATE_LASER, LaserPointer);
+            UIEventController.Instance.DispatchUIEvent(EVENT_PICONEOHANDCONTROLLER_UPDATE_LASER, LaserPointer, (m_handTypeSelected == 1));
         }
 
         // -------------------------------------------
