@@ -9,6 +9,7 @@ using YourVRUI;
 #endif
 #if ENABLE_PICONEO
 using Pvr_UnitySDKAPI;
+using YourVRUI;
 #endif
 using System;
 using System.Collections.Generic;
@@ -129,6 +130,8 @@ namespace YourCommonTools
         private bool m_enableActionButton = true;
         private bool m_enableInteractions = true;
 
+        private bool m_ignoreNextAction = false;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -158,6 +161,11 @@ namespace YourCommonTools
         {
             get { return m_enableInteractions; }
             set { m_enableInteractions = value; }
+        }
+        public bool IgnoreNextAction
+        {
+            get { return m_ignoreNextAction; }
+            set { m_ignoreNextAction = value; }
         }
         
         // -------------------------------------------
@@ -621,34 +629,50 @@ namespace YourCommonTools
             m_oculusActionButtonDown = false;
             if (resultDown)
             {
-                if (_isDown)
+                if (!m_ignoreNextAction)
                 {
-                    m_vrActionPressed = true;
+                    if (_isDown)
+                    {
+                        m_vrActionPressed = true;
+                    }
+                    else
+                    {
+                        m_vrActionPressed = false;
+                    }
+                    // Debug.LogError("DISPATCHING EVENT::m_vrActionPressed["+ m_vrActionPressed + "]::_eventDown=" + _eventDown);
+                    if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                    return m_vrActionPressed;
                 }
                 else
                 {
-                    m_vrActionPressed = false;
+                    m_ignoreNextAction = false;
+                    return false;
                 }
-                // Debug.LogError("DISPATCHING EVENT::m_vrActionPressed["+ m_vrActionPressed + "]::_eventDown=" + _eventDown);
-                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                return m_vrActionPressed;
             }
             // UP
             bool resultUp = m_oculusActionButtonUp;
             m_oculusActionButtonUp = false;
             if (resultUp)
             {
-                if (_isDown)
+                if (!m_ignoreNextAction)
                 {
-                    m_vrActionPressed = false;
+                    if (_isDown)
+                    {
+                        m_vrActionPressed = false;
+                    }
+                    else
+                    {
+                        m_vrActionPressed = true;
+                    }
+                    // Debug.LogError("DISPATCHING EVENT::m_vrActionPressed[" + m_vrActionPressed + "]::_eventUp=" + _eventUp);
+                    if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                    return m_vrActionPressed;
                 }
                 else
                 {
-                    m_vrActionPressed = true;
+                    m_ignoreNextAction = false;
+                    return false;
                 }
-                // Debug.LogError("DISPATCHING EVENT::m_vrActionPressed[" + m_vrActionPressed + "]::_eventUp=" + _eventUp);
-                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                return m_vrActionPressed;
             }
 #else
                     // +++++ BUTTON CONTROLLERS (DOWN)
@@ -1209,16 +1233,24 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (_isDown)
+                            if (!m_ignoreNextAction)
                             {
-                                m_vrActionPressed = true;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = false;
+                                m_ignoreNextAction = false;
+                                return false;
                             }
-                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -1232,22 +1264,30 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                        if (_isDown)
+                            if (!m_ignoreNextAction)
                             {
-                                m_vrActionPressed = false;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = true;
+                                m_ignoreNextAction = false;
+                                return false;
                             }
-                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
 #endif
-                }
-                catch (Exception err) { }
+            }
+            catch (Exception err) { }
             return false;
         }
 
@@ -1701,16 +1741,24 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (_isDown)
+                            if (!m_ignoreNextAction)
                             {
-                                m_vrActionPressed = true;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = false;
+                                m_ignoreNextAction = false;
+                                return false;
                             }
-                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -1724,16 +1772,24 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                        if (_isDown)
+                            if (!m_ignoreNextAction)
                             {
-                                m_vrActionPressed = false;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = true;
+                                m_ignoreNextAction = false;
+                                return false;
                             }
-                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
