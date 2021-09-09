@@ -130,7 +130,7 @@ namespace YourCommonTools
         private bool m_enableActionButton = true;
         private bool m_enableInteractions = true;
 
-        private bool m_ignoreNextAction = false;
+        private int m_ignoreNextAction = 0;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -164,8 +164,8 @@ namespace YourCommonTools
         }
         public bool IgnoreNextAction
         {
-            get { return m_ignoreNextAction; }
-            set { m_ignoreNextAction = value; }
+            get { return m_ignoreNextAction > 0; }
+            set { m_ignoreNextAction = (value?2:0); }
         }
         
         // -------------------------------------------
@@ -629,7 +629,7 @@ namespace YourCommonTools
             m_oculusActionButtonDown = false;
             if (resultDown)
             {
-                if (!m_ignoreNextAction)
+                if (m_ignoreNextAction <= 0)
                 {
                     if (_isDown)
                     {
@@ -645,7 +645,7 @@ namespace YourCommonTools
                 }
                 else
                 {
-                    m_ignoreNextAction = false;
+                    m_ignoreNextAction--;
                     return false;
                 }
             }
@@ -654,7 +654,7 @@ namespace YourCommonTools
             m_oculusActionButtonUp = false;
             if (resultUp)
             {
-                if (!m_ignoreNextAction)
+                if (m_ignoreNextAction <= 0)
                 {
                     if (_isDown)
                     {
@@ -670,7 +670,7 @@ namespace YourCommonTools
                 }
                 else
                 {
-                    m_ignoreNextAction = false;
+                    m_ignoreNextAction--;
                     return false;
                 }
             }
@@ -1233,7 +1233,7 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (!m_ignoreNextAction)
+                            if (m_ignoreNextAction <= 0)
                             {
                                 if (_isDown)
                                 {
@@ -1248,7 +1248,7 @@ namespace YourCommonTools
                             }
                             else
                             {
-                                m_ignoreNextAction = false;
+                                m_ignoreNextAction--;
                                 return false;
                             }
                         }
@@ -1264,7 +1264,7 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                            if (!m_ignoreNextAction)
+                            if (m_ignoreNextAction <= 0)
                             {
                                 if (_isDown)
                                 {
@@ -1279,7 +1279,7 @@ namespace YourCommonTools
                             }
                             else
                             {
-                                m_ignoreNextAction = false;
+                                m_ignoreNextAction--;
                                 return false;
                             }
                         }
@@ -1741,7 +1741,7 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (!m_ignoreNextAction)
+                            if (m_ignoreNextAction <= 0)
                             {
                                 if (_isDown)
                                 {
@@ -1756,7 +1756,7 @@ namespace YourCommonTools
                             }
                             else
                             {
-                                m_ignoreNextAction = false;
+                                m_ignoreNextAction--;
                                 return false;
                             }
                         }
@@ -1772,7 +1772,7 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                            if (!m_ignoreNextAction)
+                            if (m_ignoreNextAction <= 0)
                             {
                                 if (_isDown)
                                 {
@@ -1787,7 +1787,7 @@ namespace YourCommonTools
                             }
                             else
                             {
-                                m_ignoreNextAction = false;
+                                m_ignoreNextAction--;
                                 return false;
                             }
                         }
