@@ -881,7 +881,7 @@ namespace YourCommonTools
                     }
 #else
 #if !ENABLE_PARTY_2018
-                isTeleportHandRight = (m_oculusHandBeingPressed && (m_oculusHandHandUsed == HAND.right));
+                isTeleportHandRight = m_oculusHandBeingPressed;
 #else
                 // RIGHT STICK
                 isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.LTouch);
