@@ -1816,7 +1816,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Y);
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.X);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1842,13 +1842,14 @@ namespace YourCommonTools
                 return false;
             }
 
+            
             try
             {
 #if ENABLE_PICONEO
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKey(KeyCode.LeftControl);
 #else
-                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.X);
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Right) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Left);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1880,7 +1881,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.X);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1935,11 +1936,11 @@ namespace YourCommonTools
 #else
                 if (_checkDown)
                 {
-                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
                 }
                 else
                 {
-                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.Y);
+                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.APP);
                 }
 #endif
             }
@@ -1948,7 +1949,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 buttonMenuTouched = Input.GetKey(KeyCode.Delete);
 #else
-                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.Y);
+                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
 #endif
             }
             return buttonMenuTouched;
