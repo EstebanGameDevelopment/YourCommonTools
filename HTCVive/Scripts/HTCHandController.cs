@@ -19,6 +19,7 @@ namespace YourCommonTools
         public GameObject HTCCamera;
         public GameObject LaserPointer;
         public bool Is6DOF = false;
+        public bool IsRightHand = true;
 
 #if ENABLE_HTCVIVE
         public WVR_DeviceType Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
@@ -31,28 +32,29 @@ namespace YourCommonTools
         {
             if (ControlledObject != null)
             {
-                if (WaveVR_Controller.IsLeftHanded)
+                if (Is6DOF)
                 {
-                    Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    if (!Is6DOF)
+                    this.transform.parent = null;            
+                    if (IsRightHand)
                     {
-                        ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
+                        Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
                     }
                     else
                     {
-                        this.transform.parent = null;
+                        Device = WVR_DeviceType.WVR_DeviceType_Controller_Left;
                     }
                 }
                 else
                 {
-                    Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
-                    if (!Is6DOF)
+                    if (WaveVR_Controller.IsLeftHanded)
                     {
+                        Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
                         ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
                     }
                     else
                     {
-                        this.transform.parent = null;
+                        Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
+                        ControlledObject.transform.localPosition = new Vector3(0, -Shift.y, 0);
                     }
                 }
             }
@@ -83,8 +85,13 @@ namespace YourCommonTools
                 else
                 {
                     this.transform.position = camPos - WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_HMD).transform.pos + WaveVR_Controller.Input(Device).transform.pos;
+#if DISABLE_ONLY_ONE_HAND
+                    this.transform.rotation = WaveVR_Controller.Input(Device).transform.rot;
+#endif
                 }
+#if !DISABLE_ONLY_ONE_HAND
                 ControlledObject.transform.localRotation = WaveVR_Controller.Input(Device).transform.rot;
+#endif
             }
         }
 #endif

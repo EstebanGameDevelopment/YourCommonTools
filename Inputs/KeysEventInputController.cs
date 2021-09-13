@@ -11,6 +11,9 @@ using Pvr_UnitySDKAPI;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if ENABLE_YOURVRUI
+using YourVRUI;
+#endif
 
 namespace YourCommonTools
 {
@@ -118,6 +121,8 @@ namespace YourCommonTools
         private bool m_enableActionButton = true;
         private bool m_enableInteractions = true;
 
+        private int m_ignoreNextUp = 0;
+
         // ----------------------------------------------
         // GETTERS/SETTERS
         // ----------------------------------------------	
@@ -147,6 +152,11 @@ namespace YourCommonTools
         {
             get { return m_enableInteractions; }
             set { m_enableInteractions = value; }
+        }
+        public bool IgnoreNextUp
+        {
+            get { return (m_ignoreNextUp>0?true:false); }
+            set { m_ignoreNextUp = (value?2:0); }
         }
         
         // -------------------------------------------
@@ -337,6 +347,9 @@ namespace YourCommonTools
 		 */
         public bool IsRightHanded()
         {
+#if !DISABLE_ONLY_ONE_HAND
+            return true;
+#else
 #if ENABLE_OCULUS && ENABLE_QUEST
             return true;
 #elif ENABLE_OCULUS && ENABLE_GO
@@ -350,14 +363,14 @@ namespace YourCommonTools
                 return false;
             }
 #elif ENABLE_HTCVIVE
-            // return !WaveVR_Controller.IsLeftHanded;
-            return true;
+            return LaserPointerSwitchController.Instance.IsRightHandSelected;
 #elif ENABLE_PICONEO
-            return true;
+            return LaserPointerSwitchController.Instance.IsRightHandSelected;
 #elif ENABLE_WORLDSENSE
             return IsRightHandWorldsense();
 #else
             return true;
+#endif
 #endif
         }
 
@@ -368,14 +381,22 @@ namespace YourCommonTools
 #if ENABLE_HTCVIVE
         public WVR_DeviceType GetDominantDevice()
         {
+#if !DISABLE_ONLY_ONE_HAND
+            return WVR_DeviceType.WVR_DeviceType_Controller_Right;
+#else
             return IsRightHanded() ? WVR_DeviceType.WVR_DeviceType_Controller_Right : WVR_DeviceType.WVR_DeviceType_Controller_Left;
+#endif
         }
 #endif
 
 #if ENABLE_PICONEO
         public int GetDominantDevice()
         {
-            return Controller.UPvr_GetMainHandNess();
+#if !DISABLE_ONLY_ONE_HAND
+            return 1;
+#else
+            return (LaserPointerSwitchController.Instance.IsRightHandSelected?1:0);
+#endif
         }
 #endif
 
@@ -393,13 +414,18 @@ namespace YourCommonTools
                     return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
                 }
                 else
+                if (OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch))
+                {
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.LTouch);
+                }
+                else
                 {
                     return Vector2.zero;
                 }
             }
             else
             {
-                return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch) + OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.LTouch);
             }
 #elif ENABLE_OCULUS && ENABLE_GO
             if (_considerPressed)
@@ -705,19 +731,16 @@ namespace YourCommonTools
                     {
                         if (_checkDown)
                         {
-                            try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                            try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch) || OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                         }
                         else
                         {
-                            try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                            try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                            try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch) || OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                         }
                     }
                     else
                     {
-                        try { buttonAWasTouched = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                        try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                        try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                     }
 #endif
 
@@ -750,16 +773,24 @@ namespace YourCommonTools
 #else
                         if (CheckOculusControllerOrHandActionDown(true)) {
 #endif
-                            if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = true;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = false;
-                            }
-                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_vrActionPressed;
+                                m_ignoreNextUp--;
+                                return false;
+                            }                            
                         }
                     }
                     catch (Exception err) { }
@@ -772,16 +803,24 @@ namespace YourCommonTools
 #else
                         if (CheckOculusControllerOrHandActionDown(false)) {
 #endif
-                            if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = false;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = true;
-                            }
-                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_vrActionPressed;
+                                m_ignoreNextUp--;
+                                return false;
+                            }                            
                         }
                     }
                     catch (Exception err) { }
@@ -848,6 +887,31 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+        * GetAppButtonDownOculusController
+        */
+        public bool GetAppButtonOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+            if (CheckOculusControllerOrHandAppDown(true, false))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
         * GetAppButtonUpOculusController
         */
         public bool GetAppButtonUpOculusController(string _event = null)
@@ -870,6 +934,128 @@ namespace YourCommonTools
             catch (Exception err) { }
             return false;
         }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuButtonDownOculusController
+        */
+        public bool GetMenuButtonDownOculusController(string _event = null, bool _checkEvent = true)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+            if (CheckOculusControllerMenuDown(true, true))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuButtonUpOculusController
+        */
+        public bool GetMenuButtonUpOculusController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+            if (CheckOculusControllerMenuDown(true, false))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
+        * GetMenuButtonDownOculusController
+        */
+        public bool GetMenuButtonOculusController(string _event = null, bool _checkEvent = true)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_OCULUS
+            if (CheckOculusControllerMenuDown(false, true))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+#if ENABLE_OCULUS
+        // -------------------------------------------
+        /* 
+        * CheckOculusControllerMenuDown
+        */
+        private bool CheckOculusControllerMenuDown(bool _checkEvent = true, bool _checkDown = true)
+        {
+			bool buttonBWasTouched = false;
+
+#if ENABLE_GO
+            if (_checkEvent)
+            {
+			    if (_checkDown)
+			    {
+				    buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.PrimaryTouchpad);
+			    }
+			    else
+			    {
+				    buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.PrimaryTouchpad);
+			    }
+            }
+            else
+            {
+                buttonBWasTouched = OVRInput.Get(OVRInput.Button.PrimaryTouchpad);
+            }
+#else
+            if (_checkEvent)
+            {
+			    if (_checkDown)
+			    {
+				    try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch) || OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+			    }
+			    else
+			    {
+				    try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch) || OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+			    }
+            }
+            else
+            {
+                try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.LTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+            }
+#endif
+
+			return buttonBWasTouched;
+        }
+#endif
 
         // -------------------------------------------
         /* 
@@ -1209,16 +1395,24 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = true;
-                            }
-                            else
-                            {
-                                m_vrActionPressed = false;
-                            }
-                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_vrActionPressed;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return m_vrActionPressed;
+                             }
+                             else
+                             {
+                                m_ignoreNextUp--;
+                                return false;
+                             }
                         }
                     }
                     catch (Exception err) { }
@@ -1235,22 +1429,30 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                        if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = false;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = true;
+                                m_ignoreNextUp--;
+                                return false;
                             }
-                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
 #endif
-                }
-                catch (Exception err) { }
+            }
+            catch (Exception err) { }
             return false;
         }
 
@@ -1303,7 +1505,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Grip);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1345,6 +1547,31 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+        * GetAppHTCViveController
+        */
+        public bool GetAppHTCViveController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_HTCVIVE
+            if (CheckHTCControllerAppDown(true, false))
+            {
+                if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                return true;
+            }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
         * CheckHTCControllerAppDown
         */
         private bool CheckHTCControllerAppDown(bool _checkDown = true, bool _checkEvent = true)
@@ -1358,11 +1585,11 @@ namespace YourCommonTools
 #else
                 if (_checkDown)
                 {
-                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Menu);
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
                 }
                 else
                 {
-                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Menu);
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
                 }
 #endif
             }
@@ -1452,16 +1679,24 @@ namespace YourCommonTools
 #endif
                             )
                         {
-                            if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = true;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = false;
+                                m_ignoreNextUp--;
+                                return false;
                             }
-                            if ((_eventDown != null) && (_eventDown.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventDown, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -1475,16 +1710,24 @@ namespace YourCommonTools
 #endif
                             )
                     {
-                        if (_isDown)
+                            if (m_ignoreNextUp <= 0)
                             {
-                                m_vrActionPressed = false;
+                                if (_isDown)
+                                {
+                                    m_vrActionPressed = false;
+                                }
+                                else
+                                {
+                                    m_vrActionPressed = true;
+                                }
+                                if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
+                                return m_vrActionPressed;
                             }
                             else
                             {
-                                m_vrActionPressed = true;
+                                m_ignoreNextUp--;
+                                return false;
                             }
-                            if ((_eventUp != null) && (_eventUp.Length > 0)) UIEventController.Instance.DelayUIEvent(_eventUp, 0.01f);
-                            return m_vrActionPressed;
                         }
                     }
                     catch (Exception err) { }
@@ -1511,7 +1754,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B);
+                bool isTeleportHandRight = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.X);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1543,7 +1786,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKeyDown(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B);
+                bool isTeleportHandRight = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.A) || Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.X);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1585,6 +1828,31 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+        * GetAppPicoNeoController
+        */
+        public bool GetAppPicoNeoController(string _event = null)
+        {
+            if (!EnableInteractions)
+            {
+                return false;
+            }
+
+            try
+            {
+#if ENABLE_PICONEO
+                if (CheckPicoNeoControllerAppDown(false, true))
+                {
+                    if ((_event != null) && (_event.Length > 0)) UIEventController.Instance.DelayUIEvent(_event, 0.01f);
+                    return true;
+                }
+#endif
+            }
+            catch (Exception err) { }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
         * CheckPicoNeoControllerAppDown
         */
         private bool CheckPicoNeoControllerAppDown(bool _checkDown = true, bool _checkEvent = true)
@@ -1598,11 +1866,11 @@ namespace YourCommonTools
 #else
                 if (_checkDown)
                 {
-                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B);
+                    buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
                 }
                 else
                 {
-                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.B);
+                    buttonMenuTouched = Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.APP);
                 }
 #endif
             }
@@ -1611,7 +1879,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 buttonMenuTouched = Input.GetKey(KeyCode.Delete);
 #else
-                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.B);
+                buttonMenuTouched = Controller.UPvr_GetKeyDown(GetDominantDevice(), Pvr_KeyCode.APP);
 #endif
             }
             return buttonMenuTouched;

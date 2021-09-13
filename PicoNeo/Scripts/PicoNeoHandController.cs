@@ -38,6 +38,7 @@ namespace YourCommonTools
 		 */
         private void Start()
         {
+#if !DISABLE_ONLY_ONE_HAND
             Controller.UPvr_SetHandNess(Pvr_Controller.UserHandNess.Right);
 
             if (ControlledObject != null)
@@ -53,6 +54,7 @@ namespace YourCommonTools
                     m_currentController = PicoNeoRightController;
                 }
             }
+#endif
         }
 
         // -------------------------------------------
@@ -61,13 +63,15 @@ namespace YourCommonTools
 		 */
         void Update()
         {
+#if !DISABLE_ONLY_ONE_HAND
             if (ControlledObject != null)
             {
                 ControlledObject.transform.position = m_currentController.transform.position;
                 ControlledObject.transform.rotation = m_currentController.transform.rotation;
             }
+#endif
         }
 #endif
+        }
     }
-}
 
