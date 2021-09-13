@@ -419,6 +419,13 @@ namespace YourCommonTools
         }
 #endif
 
+#if ENABLE_OCULUS
+        public bool GetDominantDevice()
+        {
+            return OculusHandsManager.InstanceManager.CurrentHandWithLaser == HAND.right;
+        }
+#endif
+
         // -------------------------------------------
         /* 
 		 * GetVectorThumbstick
@@ -430,9 +437,9 @@ namespace YourCommonTools
 #if ENABLE_PARTY_2018
             if (_considerPressed)
             {
-                if (OVRInput.Get(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch))
+                if (OVRInput.Get(OVRInput.Button.PrimaryThumbstick, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)))
                 {
-                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                    return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));
                 }
                 else
                 {
@@ -441,7 +448,7 @@ namespace YourCommonTools
             }
             else
             {
-                return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch);
+                return OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));
             }
 #else
             return OculusControllerInputs.Instance.GetInputThumbsticks(true);
@@ -543,11 +550,11 @@ namespace YourCommonTools
 #else
             if (_checkDown)
             {
-                return OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch) || OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
+                return OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));
             }
             else
             {
-                return OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch) || OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch);                        
+                return OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));                        
             }
 #endif
         }
@@ -561,7 +568,7 @@ namespace YourCommonTools
 #if ENABLE_GO
             return OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger);
 #else
-            return OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
+            return OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));
 #endif
         }
 
@@ -590,19 +597,19 @@ namespace YourCommonTools
             {
                 if (_checkDown)
                 {
-                    try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                    try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                    try { buttonAWasTouched = OVRInput.GetDown(OVRInput.Button.One, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                    try { buttonBWasTouched = OVRInput.GetDown(OVRInput.Button.Two, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                 }
                 else
                 {
-                    try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                    try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                    try { buttonAWasTouched = OVRInput.GetUp(OVRInput.Button.One, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                    try { buttonBWasTouched = OVRInput.GetUp(OVRInput.Button.Two, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
                 }
             }
             else
             {
-                try { buttonAWasTouched = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
-                try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.Two, OVRInput.Controller.RTouch); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
+                try { buttonAWasTouched = OVRInput.Get(OVRInput.Button.One, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.One"); }
+                try { buttonBWasTouched = OVRInput.Get(OVRInput.Button.Two, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch)); } catch (Exception err) { Debug.LogError("++++OVRInput.Touch.Two"); }
             }
 #endif
 
@@ -884,7 +891,7 @@ namespace YourCommonTools
                 isTeleportHandRight = m_oculusHandBeingPressed;
 #else
                 // RIGHT STICK
-                isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch) || OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.LTouch);
+                isTeleportHandRight = OVRInput.Get(OVRInput.Button.PrimaryHandTrigger, (GetDominantDevice()?OVRInput.Controller.RTouch:OVRInput.Controller.LTouch));
 #endif
 #endif
                 // MANAGE RIGHT TOUCHED/DOWN
