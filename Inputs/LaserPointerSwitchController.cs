@@ -22,10 +22,10 @@ namespace YourCommonTools
 	 */
     public class LaserPointerSwitchController : MonoBehaviour
 	{
-		// ----------------------------------------------
-		// SINGLETON
-		// ----------------------------------------------	
-		private static LaserPointerSwitchController _instance;
+        // ----------------------------------------------
+        // SINGLETON
+        // ----------------------------------------------	
+        private static LaserPointerSwitchController _instance;
 
 		public static LaserPointerSwitchController Instance
 		{
@@ -64,6 +64,7 @@ namespace YourCommonTools
                 if (YourVRUIScreenController.Instance.ContainerLaserRight != null)
                 {
                     YourVRUIScreenController.Instance.ContainerLaserRight.SetActive(true);
+                    YourVRUIScreenController.Instance.LaserPointer = null;
                     YourVRUIScreenController.Instance.LaserPointer = YourVRUIScreenController.Instance.ContainerLaserRight;
                     if (YourVRUIScreenController.Instance.ContainerLaserLeft != null)
                     {
@@ -87,6 +88,7 @@ namespace YourCommonTools
                 if (YourVRUIScreenController.Instance.ContainerLaserLeft != null)
                 {
                     YourVRUIScreenController.Instance.ContainerLaserLeft.SetActive(true);
+                    YourVRUIScreenController.Instance.LaserPointer = null;
                     YourVRUIScreenController.Instance.LaserPointer = YourVRUIScreenController.Instance.ContainerLaserLeft;
                     if (YourVRUIScreenController.Instance.ContainerLaserRight != null)
                     {
@@ -97,6 +99,17 @@ namespace YourCommonTools
                 }
             }
             return false;
+        }
+#endif
+
+#if ENABLE_HTCVIVE
+        public bool IsDeviceConnected(WVR_DeviceType type)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+		return Interop.WVR_IsDeviceConnected (type);
+#else
+            return true;
+#endif
         }
 #endif
 
@@ -126,9 +139,17 @@ namespace YourCommonTools
                 }
             }
 #elif ENABLE_HTCVIVE
-            if (WaveVR_Controller.Input(wvr.WVR_DeviceType.WVR_DeviceType_Controller_Right).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger)
+            // RIGHT CONTROLLER
+            bool triggerAnalogRight = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_Controller_Right).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger);
+#if ENABLE_PARTY_2018
+            bool triggerDigitalRight = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_Controller_Right).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger);
+#endif
+            if (triggerAnalogRight
+#if ENABLE_PARTY_2018
+            || triggerDigitalRight
+#endif
 #if UNITY_EDITOR
-                || Input.GetKeyDown(KeyCode.UpArrow)
+            || Input.GetKeyDown(KeyCode.UpArrow)
 #endif
             )
             {
@@ -137,18 +158,24 @@ namespace YourCommonTools
                     KeysEventInputController.Instance.IgnoreNextUp = true;
                 }
             }
-            else
-            {
-                if (WaveVR_Controller.Input(wvr.WVR_DeviceType.WVR_DeviceType_Controller_Left).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger)
-#if UNITY_EDITOR
-                || Input.GetKeyDown(KeyCode.DownArrow)
+            // LEFT CONTROLLER
+            bool triggerAnalogLeft = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_Controller_Left).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Trigger);
+#if ENABLE_PARTY_2018
+            bool triggerDigitalLeft = WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_Controller_Left).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Digital_Trigger);
 #endif
-                )
+
+            if (triggerAnalogLeft
+#if ENABLE_PARTY_2018
+            || triggerDigitalLeft
+#endif
+#if UNITY_EDITOR
+            || Input.GetKeyDown(KeyCode.DownArrow)
+#endif
+        )
+            {
+                if (SetPointerLeftLaser())
                 {
-                    if (SetPointerLeftLaser())
-                    {
-                        KeysEventInputController.Instance.IgnoreNextUp = true;
-                    }
+                    KeysEventInputController.Instance.IgnoreNextUp = true;
                 }
             }
 #elif ENABLE_PICONEO
@@ -171,8 +198,8 @@ namespace YourCommonTools
             }
 #endif
 #endif
-        }
+            }
 
-    }
+        }
 
 }

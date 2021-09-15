@@ -402,8 +402,33 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
-		 * GetVectorThumbstick
+		 * GetVectorTouchpadHTC
 		 */
+#if ENABLE_HTCVIVE
+        public Vector2 GetVectorTouchpadHTC(bool _considerPressed = false)
+        {
+            if (_considerPressed)
+            {
+                if (WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad))
+                {
+                    return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                }
+                else
+                {
+                    return Vector2.zero;
+                }
+            }
+            else
+            {
+                return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+            }
+        }
+#endif
+
+        // -------------------------------------------
+        /* 
+        * GetVectorThumbstick
+        */
         public Vector2 GetVectorThumbstick(bool _considerPressed = false)
         {
 #if ENABLE_OCULUS && ENABLE_QUEST
@@ -446,9 +471,9 @@ namespace YourCommonTools
 #elif ENABLE_HTCVIVE
             if (_considerPressed)
             {
-                if (WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Touchpad))
+                if (WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Thumbstick))
                 {
-                    return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                    return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Thumbstick);
                 }
                 else
                 {
@@ -457,7 +482,7 @@ namespace YourCommonTools
             }
             else
             {
-                return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                return WaveVR_Controller.Input(GetDominantDevice()).GetAxis(WVR_InputId.WVR_InputId_Alias1_Thumbstick);
             }
 #elif ENABLE_PICONEO
             if (_considerPressed)
@@ -1466,14 +1491,14 @@ namespace YourCommonTools
             {
                 return false;
             }
-            
+
             try
             {
 #if ENABLE_HTCVIVE
 #if UNITY_EDITOR
                 bool isTeleportHandRight = Input.GetKey(KeyCode.RightControl);
 #else
-                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                bool isTeleportHandRight = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Grip);
 #endif
 
                 // MANAGE RIGHT TOUCHED/DOWN
@@ -1585,11 +1610,11 @@ namespace YourCommonTools
 #else
                 if (_checkDown)
                 {
-                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Menu) || WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_System);
                 }
                 else
                 {
-                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                    buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Menu) || WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_System);
                 }
 #endif
             }
@@ -1598,7 +1623,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
                 buttonMenuTouched = Input.GetKey(KeyCode.Delete);
 #else
-                buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Menu);
+                buttonMenuTouched = WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_Menu) || WaveVR_Controller.Input(GetDominantDevice()).GetPress(WVR_InputId.WVR_InputId_Alias1_System);
 #endif
             }
             return buttonMenuTouched;

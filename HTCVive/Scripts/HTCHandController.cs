@@ -34,7 +34,9 @@ namespace YourCommonTools
             {
                 if (Is6DOF)
                 {
-                    this.transform.parent = null;            
+#if !DISABLE_ONLY_ONE_HAND
+                    this.transform.parent = null;
+#endif
                     if (IsRightHand)
                     {
                         Device = WVR_DeviceType.WVR_DeviceType_Controller_Right;
@@ -84,9 +86,8 @@ namespace YourCommonTools
                 }
                 else
                 {
+#if !DISABLE_ONLY_ONE_HAND
                     this.transform.position = camPos - WaveVR_Controller.Input(WVR_DeviceType.WVR_DeviceType_HMD).transform.pos + WaveVR_Controller.Input(Device).transform.pos;
-#if DISABLE_ONLY_ONE_HAND
-                    this.transform.rotation = WaveVR_Controller.Input(Device).transform.rot;
 #endif
                 }
 #if !DISABLE_ONLY_ONE_HAND
