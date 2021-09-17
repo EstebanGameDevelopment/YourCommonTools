@@ -27,7 +27,7 @@ namespace YourCommonTools
         [MenuItem("Assets/Build Asset Bundle Windows")]
         static void BuildBundlesWindows()
         {
-            BuildPipeline.BuildAssetBundles("AssetsBundles", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
+            BuildPipeline.BuildAssetBundles("AssetsBundles", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
         }
 
         [MenuItem("Assets/Build Asset Bundle MacOS")]
