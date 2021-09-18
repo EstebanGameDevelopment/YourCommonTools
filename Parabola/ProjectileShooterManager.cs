@@ -45,6 +45,19 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		 * ClearAll
+		 */
+        public void ClearAll()
+        {
+            for (int i = 0; i < m_projectileShooter.Count; i++)
+            {
+                m_projectileShooter[i].Destroy();
+            }
+            m_projectileShooter.Clear();
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OnDestroy
 		 */
         private void OnDestroy()
