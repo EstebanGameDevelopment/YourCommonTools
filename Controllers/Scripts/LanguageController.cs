@@ -22,6 +22,9 @@ namespace YourCommonTools
 		// ----------------------------------------------
 		private const string LANGUAGE_COOCKIE = "LANGUAGE_COOCKIE";
 
+		public const string CODE_SPANISH = "es";
+		public const string CODE_ENGLISH = "en";
+
 		// ----------------------------------------------
 		// SINGLETON
 		// ----------------------------------------------
@@ -46,9 +49,9 @@ namespace YourCommonTools
 		public Hashtable m_texts = new Hashtable();
 
 #if FORCE_ENGLISH
-        private string m_codeLanguage = "en";
+        private string m_codeLanguage = CODE_ENGLISH;
 #else
-        private string m_codeLanguage = "es";
+		private string m_codeLanguage = CODE_SPANISH;
 #endif
         private bool m_hasBeenInitialized = false;
 
@@ -120,11 +123,11 @@ namespace YourCommonTools
                 {
                     if (Application.systemLanguage == SystemLanguage.Spanish)
                     {
-                        m_codeLanguage = "es";
+                        m_codeLanguage = CODE_SPANISH;
                     }
                     else
                     {
-                        m_codeLanguage = "en";
+                        m_codeLanguage = CODE_ENGLISH;
                     }
                 }
             }
