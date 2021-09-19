@@ -1,3 +1,4 @@
+#if ENABLE_LOCATION_GPS
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
@@ -565,3 +566,4 @@ namespace YourCommonTools
 		public GoogleMapLocation[] locations;
 	}
 }
+#endif
