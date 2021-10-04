@@ -468,7 +468,7 @@ namespace YourCommonTools
             {
                 return OVRInput.Get(OVRInput.Axis2D.PrimaryTouchpad);
             }
-#elif ENABLE_HTCVIVE
+#elif ENABLE_HTCVIVE && ENABLE_HTC_THUMBSTICK
             if (_considerPressed)
             {
                 if (WaveVR_Controller.Input(GetDominantDevice()).GetPressDown(WVR_InputId.WVR_InputId_Alias1_Thumbstick))
