@@ -15,6 +15,13 @@ namespace YourCommonTools
 	 */
     public class ClassFinder : MonoBehaviour
 	{
-        public string Name;
+		public const string EVENT_CLASSFINDER_START = "EVENT_CLASSFINDER_START";
+
+		public string Name;
+
+		void Start()
+        {
+			BasicSystemEventController.Instance.DelayBasicSystemEvent(EVENT_CLASSFINDER_START, 0.1f, this);
+        }
 	}
 }
