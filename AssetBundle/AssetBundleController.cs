@@ -18,6 +18,8 @@ namespace YourCommonTools
 	 */
     public class AssetbundleController : MonoBehaviour
     {
+        public const bool DEBUG = true;
+
         public event AssetBundleEventHandler AssetBundleEvent;
 
         // ----------------------------------------------
@@ -127,6 +129,11 @@ namespace YourCommonTools
 		 */
         public bool LoadAssetBundle(string _url, int _version)
         {
+            if (DEBUG)
+            {
+                Debug.LogError("LoadAssetBundle::_url=" + _url);
+            }
+
             if (m_assetBundle == null)
             {
 #if UNITY_WEBGL
@@ -160,6 +167,10 @@ namespace YourCommonTools
 		 */
         public void AllAssetsLoaded()
         {
+            if (DEBUG)
+            {
+                Debug.LogError("AllAssetsLoaded::REPORTING THE EVENT TO ALL ASSETS DOWNLOADED!!!!!!!!!!!!!");
+            }
             PlayerPrefs.SetInt(COOCKIE_LOADED_ASSETBUNDLE, 1);
             DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_LOADED);
         }
@@ -170,6 +181,10 @@ namespace YourCommonTools
 		 */
         public IEnumerator DownloadAssetBundle(WWW _www)
         {
+            if (DEBUG)
+            {
+                Debug.LogError("DownloadAssetBundle::_www=" + _www.url);
+            }
             while (!_www.isDone)
             {
                 DispatchAssetBundleEvent(EVENT_ASSETBUNDLE_ASSETS_PROGRESS, _www.progress);
@@ -185,6 +200,10 @@ namespace YourCommonTools
 		 */
         public IEnumerator WebRequestAssetBundle(UnityWebRequest _www)
         {
+            if (DEBUG)
+            {
+                Debug.LogError("WebRequestAssetBundle::_www=" + _www.url);
+            }
             yield return _www.SendWebRequest();
             if (_www.isNetworkError || _www.isHttpError)
             {
@@ -207,7 +226,6 @@ namespace YourCommonTools
             Utilities.DebugLogError("AssetbundleController::CreateGameObject::_name=" + _name);
 #endif
             if (m_assetBundle == null) return null;
-
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
@@ -227,6 +245,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             Utilities.DebugLogError("AssetbundleController::CreateSprite::_name=" + _name);
 #endif
+            if (m_assetBundle == null) return null;
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
@@ -246,6 +265,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             Utilities.DebugLogError("AssetbundleController::CreateTexture::_name=" + _name);
 #endif
+            if (m_assetBundle == null) return null;
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
@@ -265,6 +285,7 @@ namespace YourCommonTools
 #if UNITY_EDITOR
             Utilities.DebugLogError("AssetbundleController::CreateMaterial::_name=" + _name);
 #endif
+            if (m_assetBundle == null) return null;
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
@@ -281,6 +302,7 @@ namespace YourCommonTools
 		 */
         public AudioClip CreateAudioclip(string _name)
         {
+            if (m_assetBundle == null) return null;
             if (!m_assetBundle.Contains(_name)) return null;
 
             if (!m_loadedObjects.ContainsKey(_name))
