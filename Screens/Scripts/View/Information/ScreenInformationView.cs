@@ -91,30 +91,30 @@ namespace YourCommonTools
         // ----------------------------------------------
         // PRIVATE MEMBERS
         // ----------------------------------------------	
-        private GameObject m_root;
-		private Transform m_container;
-        private Transform m_background;
-        private Button m_okButton;
-		private Button m_cancelButton;
-		private Button m_nextButton;
-		private Button m_previousButton;
-		private Button m_abortButton;
-		private Text m_textDescription;
-        private Text m_title;
-		private Image m_imageContent;
+        protected GameObject m_root;
+        protected Transform m_container;
+        protected Transform m_background;
+        protected Button m_okButton;
+        protected Button m_cancelButton;
+        protected Button m_nextButton;
+        protected Button m_previousButton;
+        protected Button m_abortButton;
+        protected Text m_textDescription;
+        protected Text m_title;
+        protected Image m_imageContent;
 
-		private int m_currentPage = 0;
-		private List<PageInformation> m_pagesInfo = new List<PageInformation>();
-		private bool m_forceLastPage = false;
-		private bool m_lastPageVisited = false;
+        protected int m_currentPage = 0;
+        protected List<PageInformation> m_pagesInfo = new List<PageInformation>();
+        protected bool m_forceLastPage = false;
+        protected bool m_lastPageVisited = false;
 
-        private float m_timeAcumProgress;
-        private int m_dotNumber;
-        private Text m_textProgress;
+        protected float m_timeAcumProgress;
+        protected int m_dotNumber;
+        protected Text m_textProgress;
 
-        private InputField m_inputField = null;
+        protected InputField m_inputField = null;
 
-        private bool m_animationDissappearTriggered = false;
+        protected bool m_animationDissappearTriggered = false;
 
 		// ----------------------------------------------
 		// GETTERS/SETTERS
@@ -386,7 +386,7 @@ namespace YourCommonTools
         /* 
 		 * Chage the information page
 		 */
-        private void ChangePage(int _value)
+        protected virtual void ChangePage(int _value)
 		{
 			m_currentPage += _value;
 			if (m_currentPage < 0) m_currentPage = 0;
@@ -464,7 +464,7 @@ namespace YourCommonTools
         /* 
          * OnBasicSystemEvent
          */
-        private void OnBasicSystemEvent(string _nameEvent, params object[] _list)
+        protected virtual void OnBasicSystemEvent(string _nameEvent, params object[] _list)
         {
             if (_nameEvent == EVENT_SCREEN_FADE_BACKGROUND)
             {
@@ -505,7 +505,7 @@ namespace YourCommonTools
         /* 
          * OnUIEvent
          */
-        private void OnUIEvent(string _nameEvent, params object[] _list)
+        protected virtual void OnUIEvent(string _nameEvent, params object[] _list)
 		{
             base.OnMenuEvent(_nameEvent, _list);
 
