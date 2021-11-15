@@ -461,9 +461,18 @@ namespace YourCommonTools
 
 		// -------------------------------------------
 		/* 
+		 * DestroyPlaneAreaVision
+		 */
+		public void DestroyPlaneAreaVision()
+		{
+			if (m_planeAreaVisionDetection != null) GameObject.Destroy(m_planeAreaVisionDetection);
+		}
+
+		// -------------------------------------------
+		/* 
 		 * Will draw the vision of the actor
 		 */
-		public void UpdateVision(GameObject _planeAreaVision, Material _material, float _viewDistance, float _angleView, float _shift)
+		public virtual void UpdateVision(GameObject _planeAreaVision, Material _material, float _viewDistance, float _angleView, float _shift)
 		{
 			int checkRadiusInstances = 10;
 			if (m_planeAreaVisionDetection == null)
@@ -490,7 +499,7 @@ namespace YourCommonTools
 		/* 
 		 * DrawAreaVision		
 		 */
-		private void DrawAreaVision(GameObject _planeAreaVision, int _checkRadiusInstances, float _viewDistance, float _angleView, int _layerMask, Material _material, float _shift)
+		protected void DrawAreaVision(GameObject _planeAreaVision, int _checkRadiusInstances, float _viewDistance, float _angleView, int _layerMask, Material _material, float _shift)
 		{
 			bool renderLineRenderer = false;
 
