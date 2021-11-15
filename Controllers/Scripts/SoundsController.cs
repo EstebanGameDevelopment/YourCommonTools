@@ -305,7 +305,7 @@ namespace YourCommonTools
 		/* 
 		 * PlaySingleSound
 		 */
-		public void PlaySingleSound(AudioClip _audio, bool _force = false, float _volume = 1)
+		public void PlaySingleSound(AudioClip _audio, bool _force = false, float _volume = 1, float _pitch = 1)
 		{
 			if (!_force)
 			{
@@ -321,6 +321,7 @@ namespace YourCommonTools
                     m_audio2.clip = null;
                     m_audio2.loop = false;
                     m_audio2.volume = _volume;
+                    m_audio2.pitch = _pitch;
                     m_audio2.PlayOneShot(_audio);
 				}					
 			}
