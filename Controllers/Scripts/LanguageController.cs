@@ -21,6 +21,7 @@ namespace YourCommonTools
 		// CONSTANTS
 		// ----------------------------------------------
 		private const string LANGUAGE_COOCKIE = "LANGUAGE_COOCKIE";
+		public const string CODE_LANGUAGE_ENGLISH = "en";
 
 		// ----------------------------------------------
 		// SINGLETON
