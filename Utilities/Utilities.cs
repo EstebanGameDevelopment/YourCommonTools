@@ -581,6 +581,31 @@ namespace YourCommonTools
 
 		// ---------------------------------------------------
 		/**
+		 @brief We get the collided object for a forward vector
+		 */
+		public static GameObject GetCollidedObjectByRayForwardForMasks(Vector3 _origin, Vector3 _forward, params int[] _masks)
+		{
+			Vector3 fwd = ClonePoint(_forward);
+			fwd.Normalize();
+			Ray ray = new Ray();
+			ray.direction = _forward;
+			RaycastHit hitCollision = new RaycastHit();
+
+			int layerMask = _masks[0];
+			for (int i = 1; i < _masks.Length; i++)
+			{
+				layerMask = layerMask | _masks[i];
+			}
+			if (Physics.Raycast(_origin, fwd, out hitCollision, Mathf.Infinity, layerMask))
+			{
+				return hitCollision.collider.gameObject;
+			}
+
+			return null;
+		}
+
+		// ---------------------------------------------------
+		/**
 		 @brief We get the collision point for a forward vector
 		 */
 		public static Vector3 GetCollidedPointByRayForward(Vector3 _origin, Vector3 _forward, params int[] _masks)
