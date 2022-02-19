@@ -99,6 +99,21 @@ namespace YourCommonTools
 
         // -------------------------------------------
         /* 
+		* Stop all existing animations
+		*/
+        public bool StopAll()
+        {
+            for (int i = 0; i < m_inteporlateObjects.Count; i++)
+            {
+                IInterpolateData item = m_inteporlateObjects[i];
+                item.Destroy();
+                m_inteporlateObjects.RemoveAt(i);
+            }
+            return false;
+        }
+
+        // -------------------------------------------
+        /* 
 		* InterpolatePosition
 		*/
         public void Interpolate(GameObject _actor, Vector3 _goal, float _time, bool _setTargetWhenFinished = false, bool _loop = false)
