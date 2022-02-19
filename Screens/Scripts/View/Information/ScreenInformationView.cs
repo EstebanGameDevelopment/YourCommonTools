@@ -81,6 +81,7 @@ namespace YourCommonTools
         // ----------------------------------------------	
         public const string EVENT_SCREEN_UPDATE_TEXT_TITLE	        = "EVENT_SCREEN_UPDATE_TEXT_TITLE";
         public const string EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION	= "EVENT_SCREEN_UPDATE_TEXT_DESCRIPTION";
+        public const string EVENT_SCREEN_UPDATE_IMAGE               = "EVENT_SCREEN_UPDATE_IMAGE";
         public const string EVENT_SCREEN_UPDATE_TEXTS_BUTTONS       = "EVENT_SCREEN_UPDATE_TEXTS_BUTTONS";
         public const string EVENT_SCREEN_ENABLE_OK_BUTTON			= "EVENT_SCREEN_ENABLE_OK_BUTTON";
         public const string EVENT_SCREEN_FADE_BACKGROUND            = "EVENT_SCREEN_FADE_BACKGROUND";
@@ -445,7 +446,7 @@ namespace YourCommonTools
 					}
 				}
 
-				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CHANGED_PAGE_POPUP, this.gameObject, m_pagesInfo[m_currentPage].EventData);
+				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_CHANGED_PAGE_POPUP, this.gameObject, m_pagesInfo[m_currentPage].EventData, m_currentPage);
 			}
 		}
 
@@ -526,6 +527,10 @@ namespace YourCommonTools
 			{
 				if (m_textDescription != null) m_textDescription.text = (string)_list[0];
 			}
+            if (_nameEvent == EVENT_SCREEN_UPDATE_IMAGE)
+            {
+                if (m_imageContent != null) m_imageContent.sprite = (Sprite)_list[0];
+            }
             if (_nameEvent == EVENT_SCREEN_UPDATE_TEXTS_BUTTONS)
             {
                 if (m_okButton.gameObject.transform.Find("Text") != null)
