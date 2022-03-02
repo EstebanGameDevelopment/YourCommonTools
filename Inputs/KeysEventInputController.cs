@@ -87,6 +87,7 @@ namespace YourCommonTools
 		private const int AXIS_KEY_UP_EVENT = 1;
 		private const int AXIS_KEY_DOWN_STILL_PRESSED_CODE = 2;
 
+
         // Buttons that can trigger pointer switching.
 
 #if ENABLE_WORLDSENSE
@@ -131,6 +132,8 @@ namespace YourCommonTools
         private bool m_enableInteractions = true;
 
         private int m_ignoreNextAction = 0;
+
+        private BASIC_DIRECTIONS m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
 
         // ----------------------------------------------
         // GETTERS/SETTERS
@@ -193,6 +196,92 @@ namespace YourCommonTools
 
 
             m_hasBeenInited = true;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ReportReleasedJoystick
+		 */
+        private void ReportReleasedJoystick()
+        {
+            switch (m_previousDirectionJoystick)
+            {
+                case BASIC_DIRECTIONS.DOWN:
+                    UIEventController.Instance.DispatchUIEvent(JOYSTICK_DOWN_RELEASED);
+                    break;
+
+                case BASIC_DIRECTIONS.UP:
+                    UIEventController.Instance.DispatchUIEvent(JOYSTICK_UP_RELEASED);
+                    break;
+
+                case BASIC_DIRECTIONS.LEFT:
+                    UIEventController.Instance.DispatchUIEvent(JOYSTICK_LEFT_RELEASED);
+                    break;
+
+                case BASIC_DIRECTIONS.RIGHT:
+                    UIEventController.Instance.DispatchUIEvent(JOYSTICK_RIGHT_RELEASED);
+                    break;
+            }
+        }
+
+        // -------------------------------------------
+        /* 
+		 * DispatchScrollEventJoystick
+		 */
+        public void DispatchScrollEventJoystick(Vector2 _handVector)
+        {
+            if (_handVector == Vector2.zero)
+            {
+                if (m_previousDirectionJoystick != BASIC_DIRECTIONS.NONE)
+                {
+                    ReportReleasedJoystick();
+                    m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
+                }
+                return;
+            }
+
+            if (Mathf.Abs(_handVector.x) > Mathf.Abs(_handVector.y))
+            {
+                if (_handVector.x < 0)
+                {
+                    if (m_previousDirectionJoystick != BASIC_DIRECTIONS.LEFT)
+                    {
+                        ReportReleasedJoystick();
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.LEFT;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_LEFT_PRESSED);
+                    }
+                }
+                else
+                {
+                    if (m_previousDirectionJoystick != BASIC_DIRECTIONS.RIGHT)
+                    {
+                        ReportReleasedJoystick();
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.RIGHT;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_RIGHT_PRESSED);
+                    }
+                }
+            }
+            else
+            {
+                if (_handVector.y < 0)
+                {
+                    if (m_previousDirectionJoystick != BASIC_DIRECTIONS.DOWN)
+                    {
+                        ReportReleasedJoystick();
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.DOWN;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_DOWN_PRESSED);
+                    }
+                }
+                else
+                {
+                    if (m_previousDirectionJoystick != BASIC_DIRECTIONS.UP)
+                    {
+                        ReportReleasedJoystick();
+                        m_previousDirectionJoystick = BASIC_DIRECTIONS.UP;
+                        UIEventController.Instance.DispatchUIEvent(JOYSTICK_UP_PRESSED);
+                    }
+                }
+            }
         }
 
         // -------------------------------------------
@@ -474,7 +563,9 @@ namespace YourCommonTools
             {
                 if (WXRDevice.ButtonHold(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Touchpad))
                 {
-                    return WXRDevice.ButtonAxis(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                    Vector2 handVector = WXRDevice.ButtonAxis(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                    DispatchScrollEventJoystick(handVector);
+                    return handVector;
                 }
                 else
                 {
@@ -483,14 +574,18 @@ namespace YourCommonTools
             }
             else
             {
-                return WXRDevice.ButtonAxis(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                Vector2 handVector = WXRDevice.ButtonAxis(GetDominantDevice(), WVR_InputId.WVR_InputId_Alias1_Touchpad);
+                DispatchScrollEventJoystick(handVector);
+                return handVector;
             }
 #elif ENABLE_PICONEO
             if (_considerPressed)
             {
                 if (Controller.UPvr_GetKey(GetDominantDevice(), Pvr_KeyCode.TOUCHPAD))
                 {
-                    return Controller.UPvr_GetAxis2D(GetDominantDevice());
+                    Vector2 handVector = Controller.UPvr_GetAxis2D(GetDominantDevice());
+                    DispatchScrollEventJoystick(handVector);
+                    return handVector;
                 }
                 else
                 {
@@ -499,7 +594,9 @@ namespace YourCommonTools
             }
             else
             {
-                return Controller.UPvr_GetAxis2D(GetDominantDevice());
+                Vector2 handVector = Controller.UPvr_GetAxis2D(GetDominantDevice());
+                DispatchScrollEventJoystick(handVector);
+                return handVector;
             }
 #elif ENABLE_WORLDSENSE
             if (_considerPressed)
@@ -1494,8 +1591,6 @@ namespace YourCommonTools
         private bool m_buttonTwoStay = false;
 
         private bool m_discardNextActionButton = false;
-
-        private BASIC_DIRECTIONS m_previousDirectionJoystick = BASIC_DIRECTIONS.NONE;
 
         // -------------------------------------------
         /* 
