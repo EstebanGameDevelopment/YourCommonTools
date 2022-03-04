@@ -44,7 +44,11 @@ namespace YourCommonTools
             m_root = this.gameObject;
             m_container = m_root.transform.Find("Content");
 
+#if !ALTERNATIVE_TITLE
             m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.title");
+#else
+			m_container.Find("Title").GetComponent<Text>().text = LanguageController.Instance.GetText("message.game.mobile.title");
+#endif
 
             m_actionButton = m_container.Find("Button_Action").GetComponent<Button>();
             m_container.Find("Button_Action/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.ok");
